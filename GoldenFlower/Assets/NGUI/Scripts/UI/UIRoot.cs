@@ -13,6 +13,7 @@ using System.Collections.Generic;
 
 [ExecuteInEditMode]
 [AddComponentMenu("NGUI/UI/Root")]
+[RequireComponent(typeof(UIAdaptive))]
 public class UIRoot : MonoBehaviour
 {
 	/// <summary>
