@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<versionInfo>
+  <gameVersion>1.0</gameVersion>
+  <file1 name="file1">文件1的版本</file1>
+</versionInfo>
