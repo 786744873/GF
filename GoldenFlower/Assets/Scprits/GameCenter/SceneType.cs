@@ -15,5 +15,6 @@ using UnityEngine;
 public enum SceneType
 {
     Non,
-    GameInit
+    GameInit,
+    MRankList
 }

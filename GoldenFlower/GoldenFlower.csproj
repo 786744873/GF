@@ -84,6 +84,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Model\Data.cs" />
     <Compile Include="Assets\Model\VersionModel.cs" />
     <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipItems.cs" />
     <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipRandomItem.cs" />
@@ -223,13 +224,17 @@
     <Compile Include="Assets\NGUI\Scripts\UI\UITooltip.cs" />
     <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
     <Compile Include="Assets\Scprits\GameCenter\Bridge.cs" />
-    <Compile Include="Assets\Scprits\GameCenter\Data.cs" />
+    <Compile Include="Assets\Scprits\GameCenter\Config.cs" />
     <Compile Include="Assets\Scprits\GameCenter\GameCenter.cs" />
     <Compile Include="Assets\Scprits\GameCenter\MonoSingle.cs" />
     <Compile Include="Assets\Scprits\GameCenter\SceneController.cs" />
     <Compile Include="Assets\Scprits\GameCenter\SceneControllerSingle.cs" />
     <Compile Include="Assets\Scprits\GameCenter\SceneManager.cs" />
     <Compile Include="Assets\Scprits\GameCenter\SceneType.cs" />
+    <Compile Include="Assets\Scprits\GameCenter\UIAdaptive.cs" />
+    <Compile Include="Assets\Scprits\GameInit\GameInitSceneController.cs" />
+    <Compile Include="Assets\Scprits\MRankList\MRankListSceneController.cs" />
+    <Compile Include="Assets\Scprits\Main\MainSceneController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\NGUI\Examples\Atlases\Fantasy\Fantasy Font - Normal.txt" />
