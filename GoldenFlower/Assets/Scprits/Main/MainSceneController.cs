@@ -30,11 +30,25 @@ public class MainSceneController : SceneControllerSingle<MainSceneController>
 
     protected override void OnStart()
     {
-        StartCoroutine(Load());
+        StartCoroutine(LoadHead());
+        StartCoroutine(LoadRankList());
+        StartCoroutine(LoadGameModel());
+        StartCoroutine(LoadMenuTool());
     }
-
-    IEnumerator Load()
+    IEnumerator LoadHead()
+    {
+        yield return StartCoroutine(SceneManager.LoadSceneAsync(SceneType.MHead, LoadSceneMode.Additive));
+    }
+    IEnumerator LoadRankList()
     {
         yield return StartCoroutine(SceneManager.LoadSceneAsync(SceneType.MRankList, LoadSceneMode.Additive));
+    }
+    IEnumerator LoadGameModel()
+    {
+        yield return StartCoroutine(SceneManager.LoadSceneAsync(SceneType.MGameModel, LoadSceneMode.Additive));
+    }
+    IEnumerator LoadMenuTool()
+    {
+        yield return StartCoroutine(SceneManager.LoadSceneAsync(SceneType.MMenuTool, LoadSceneMode.Additive));
     }
 }

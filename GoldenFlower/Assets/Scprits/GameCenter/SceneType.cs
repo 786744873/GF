@@ -16,5 +16,8 @@ public enum SceneType
 {
     Non,
     GameInit,
-    MRankList
+    MRankList,
+    MGameModel,
+    MMenuTool,
+    MHead
 }
