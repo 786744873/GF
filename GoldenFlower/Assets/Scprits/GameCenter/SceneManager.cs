@@ -11,6 +11,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class SceneManager : MonoSingle<SceneManager>
 {
@@ -52,9 +54,18 @@ public class SceneManager : MonoSingle<SceneManager>
         }
     }
 
-    public static IEnumerator LoadScene(SceneType sceneType)    //异步加载场景
+    public static IEnumerator LoadSceneAsync(SceneType sceneType, LoadSceneMode loadSceneMode, UnityAction<int> LoadBackCall = null)    //异步加载场景
     {
-        yield return null;
+         AsyncOperation ao = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneType.ToString(), loadSceneMode);
+        while(!ao.isDone)
+        {
+            int progress = (int)(ao.progress * 100);
+            if(LoadBackCall != null)
+            {
+                LoadBackCall(progress);
+            }
+            yield return null;
+        }
     }
 
     public void ReleaseBridge<T>() where T : Bridge      //  销毁

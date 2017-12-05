@@ -11,6 +11,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MainSceneController : SceneControllerSingle<MainSceneController>
 {
@@ -29,5 +30,11 @@ public class MainSceneController : SceneControllerSingle<MainSceneController>
 
     protected override void OnStart()
     {
+        StartCoroutine(Load());
+    }
+
+    IEnumerator Load()
+    {
+        yield return StartCoroutine(SceneManager.LoadSceneAsync(SceneType.MRankList, LoadSceneMode.Additive));
     }
 }
