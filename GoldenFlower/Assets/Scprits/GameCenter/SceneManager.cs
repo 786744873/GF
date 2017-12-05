@@ -7,7 +7,7 @@
  *Date:         2017-12-01 
  *Description:    场景管理
  *History: 
-*/ 
+*/
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,13 +23,13 @@ public class SceneManager : MonoSingle<SceneManager>
 
     public static void RegisterScene<T>(T controller) where T : SceneController    //添加场景
     {
-        if(controller == null)
+        if (controller == null)
         {
             Debug.LogError(string.Format("添加的场景不能为空"));
             return;
         }
-        T temp = controllers.Find(item=> { return item.sceneType == controller.sceneType; }) as T;
-        if(temp == null)
+        T temp = controllers.Find(item => { return item.sceneType == controller.sceneType; }) as T;
+        if (temp == null)
         {
             controllers.Add(controller);
             Debug.Log(string.Format("{0} 场景加载成功", controller.sceneType));
@@ -56,11 +56,11 @@ public class SceneManager : MonoSingle<SceneManager>
 
     public static IEnumerator LoadSceneAsync(SceneType sceneType, LoadSceneMode loadSceneMode, UnityAction<int> LoadBackCall = null)    //异步加载场景
     {
-         AsyncOperation ao = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneType.ToString(), loadSceneMode);
-        while(!ao.isDone)
+        AsyncOperation ao = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneType.ToString(), loadSceneMode);
+        while (!ao.isDone)
         {
             int progress = (int)(ao.progress * 100);
-            if(LoadBackCall != null)
+            if (LoadBackCall != null)
             {
                 LoadBackCall(progress);
             }
@@ -72,7 +72,7 @@ public class SceneManager : MonoSingle<SceneManager>
     {
         string bridgeType = typeof(T).FullName;
         Bridge bridge = bridges.Find(item => { return item.bridgeType == bridgeType; });
-        if(bridge != null)
+        if (bridge != null)
         {
             bridges.Remove(bridge);
         }
