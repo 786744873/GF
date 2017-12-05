@@ -5,7 +5,7 @@
  *Version:      2.0 
  *UnityVersion：5.6.0f3 
  *Date:         2017-12-05 
- *Description:    
+ *Description:  主页面头部信息初始化  
  *History: 
 */
 using System.Collections;
