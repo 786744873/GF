@@ -21,7 +21,10 @@ public class PlayerManager<M, P> : MonoBehaviour where M:PlayerManager<M, P> whe
     public void Init()
     {
         Instance = this as M;
+        OnStart();
     }
+
+    protected virtual void OnStart() {}
 
     public virtual P GetPlayer(int tempID)
     {
