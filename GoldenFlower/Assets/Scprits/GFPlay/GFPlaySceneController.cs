@@ -14,6 +14,8 @@ using UnityEngine;
 
 public class GFPlaySceneController : SceneControllerSingle<GFPlaySceneController>
 {
+    [SerializeField]
+    private GFPlayerManager playerManager;
 
     public override SceneType sceneType
     {
@@ -25,6 +27,7 @@ public class GFPlaySceneController : SceneControllerSingle<GFPlaySceneController
 
     protected override void OnStart()
     {
+        playerManager.Init();
         StartCoroutine(Load());
     }
 
