@@ -20,13 +20,7 @@ using System;
 public class ToolManager
 {
     [MenuItem("Tools/ReadAllCsvs")]
-    static void Read()
-    {
-        Debug.Log(Application.dataPath);
-        Debug.Log(Environment.CurrentDirectory);
-    }
-
-    public static void ReadAllCsvs()   //读取所有Csv文件
+    static void ReadAllCsvs()   //读取所有Csv文件
     {
         string[] files = Directory.GetFiles(ToolConfig.csvDir);
         foreach (var file in files)

@@ -28,6 +28,15 @@ public class ToolConfig
         }
     }
 
+    private string _projectName = "GoldenFlower";
+    public static string projectName
+    {
+        get
+        {
+            return Instance._projectName;
+        }
+    }
+
     private string _dataPath;
     public static string dataPath
     {
@@ -59,8 +68,8 @@ public class ToolConfig
     {
         _dataPath = Application.dataPath;
 
-        _csvDir = _dataPath.Replace("Assets", "CSV");
-        _jsonDir = _dataPath.Replace("Assets", "Data");
+        _csvDir = _dataPath.Replace(_projectName + "/Assets", "CSV");
+        _jsonDir = _dataPath.Replace(_projectName + "/Assets", "Data");
 
         if(!Directory.Exists(_csvDir))
         {
