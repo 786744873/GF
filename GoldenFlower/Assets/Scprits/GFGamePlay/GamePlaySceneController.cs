@@ -12,13 +12,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GamePlaySceneController : SceneController
+public class GFGamePlaySceneController : SceneController
 {
+
     public override SceneType sceneType
     {
         get
         {
-            return SceneType.GamePlay;
+            return SceneType.GFGamePlay;
         }
     }
     protected override void OnStart()

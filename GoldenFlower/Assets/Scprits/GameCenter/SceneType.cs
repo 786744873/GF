@@ -20,5 +20,5 @@ public enum SceneType
     MGameModel,
     MMenuTool,
     MHead,
-    GamePlay
+    GFGamePlay
 }
