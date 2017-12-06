@@ -19,5 +19,6 @@ public enum SceneType
     MRankList,
     MGameModel,
     MMenuTool,
-    MHead
+    MHead,
+    GamePlay
 }
