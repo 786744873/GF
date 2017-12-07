@@ -7,7 +7,7 @@
  *Date:         2017-12-05 
  *Description:    玩家
  *History: 
-*/ 
+*/
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,11 +16,15 @@ public class Player : MonoBehaviour
 {
     [SerializeField]
     private int _tempID;    //进入房间后临时创建的id
-    public int  tempID
+    public int tempID
     {
         get
         {
             return _tempID;
+        }
+        set
+        {
+            _tempID = value;
         }
     }
 
