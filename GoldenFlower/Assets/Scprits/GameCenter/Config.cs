@@ -28,12 +28,21 @@ public class Config
         }
     }
 
-    private string _jsonPath;
-    public static string jsonPath
+    private string _dataPath;
+    public static string dataPath
     {
         get
         {
-            return Instance._jsonPath;
+            return Instance._dataPath;
+        }
+    }
+
+    private URL _url;
+    public static URL url
+    {
+        get
+        {
+            return Instance._url;
         }
     }
 
@@ -41,10 +50,35 @@ public class Config
     {
         Debug.Log(Application.persistentDataPath);
         string userID = "UserTest";
-        _jsonPath = string.Format("{0}/{1}/Json", Application.persistentDataPath, userID);
-        if(!Directory.Exists(_jsonPath))
+        _dataPath = string.Format("{0}/{1}/Json", Application.persistentDataPath, userID);
+        if(!Directory.Exists(_dataPath))
         {
-            Directory.CreateDirectory(_jsonPath);
+            Directory.CreateDirectory(_dataPath);
+        }
+
+        InitURL();
+    }
+
+    private void InitURL()
+    {
+        string urlpath = "URL/";
+         switch(GameCenter.gameStatus)
+        {
+            case GameStatus.Debug:
+                urlpath += "URL_Debug";
+                break;
+            case GameStatus.OnLine:
+                urlpath += "URL_OnLine";
+                break;
+        }
+        TextAsset text = MonoHelper.LoadResources<TextAsset>(urlpath);
+        if(text == null)
+        {
+            Debug.LogError(urlpath + "  不存在");
+        }
+        else
+        {
+            _url = Tools.ToObject<URL>(text.text);
         }
     }
 
