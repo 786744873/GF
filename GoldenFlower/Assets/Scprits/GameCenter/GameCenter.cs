@@ -19,6 +19,15 @@ using System.IO;
 
 public class GameCenter : MonoBehaviour
 {
+    private GameStatus _gameStatus = GameStatus.Debug;
+    public static GameStatus gameStatus
+    {
+        get
+        {
+            return GetInstance()._gameStatus;
+        }
+    }
+
     private static GameCenter _instance;
     public static GameCenter GetInstance()
     {

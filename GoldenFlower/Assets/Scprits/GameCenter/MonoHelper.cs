@@ -42,7 +42,7 @@ public class MonoHelper : MonoSingle<MonoHelper>
     #region   //加载资源
     public static IEnumerator LoadJson<T>(UnityAction<T> LoadBackCall) where T : Data
     {
-        string localPath = string.Format("{0}/{1}.txt", Config.jsonPath, typeof(T).Name);
+        string localPath = Tools.GetLocalDataPath<T>();
         if (File.Exists(localPath))   //先加载本地
         {
             T data = Tools.DeSerialize<T>();
@@ -73,6 +73,21 @@ public class MonoHelper : MonoSingle<MonoHelper>
         {
             Debug.LogError(www.error);
         }
+    }
+
+    public static IEnumerator LoadAssetBundle<T>() where T : UnityEngine.Object
+    {
+        yield return null;
+    }
+
+    public static T LoadResources<T>(string cdpath) where T : UnityEngine.Object
+    {
+        return Resources.Load<T>(cdpath);
+    }
+
+    public static string LoadResource(string cdpath)
+    {
+        return Resources.Load<TextAsset>(cdpath).text;
     }
 
     #endregion
