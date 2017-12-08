@@ -53,7 +53,7 @@ public class UIPlayerManager<M, P> : MonoBehaviour where M : UIPlayerManager<M, 
         return info;
     }
 
-    public int GetMaxId()
+    public virtual int GetMaxId()
     {
         int flag = 0;
         for (int i = 0; i < players.Count; i++)
@@ -66,5 +66,10 @@ public class UIPlayerManager<M, P> : MonoBehaviour where M : UIPlayerManager<M, 
             }
         }
         return flag;
+    }
+
+    public virtual List<P> Players
+    {
+        get { return players; }
     }
 }

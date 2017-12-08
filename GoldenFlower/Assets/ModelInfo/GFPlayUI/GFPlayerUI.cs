@@ -40,4 +40,12 @@ public class GFPlayerUI : Player
     /// 性别
     /// </summary>
     public string sex;
+    /// <summary>
+    /// 玩家状态
+    /// </summary>
+    public PlayerStatusEnum playerStatus;
+    /// <summary>
+    /// 玩家牌的状态
+    /// </summary>
+    public CardStatusEnum cardStatus;
 }
