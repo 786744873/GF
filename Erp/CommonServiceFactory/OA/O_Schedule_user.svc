@@ -1,1 +1,0 @@
-﻿<%@ ServiceHost Language="C#" Debug="true" Service="CommonService.OA.O_Schedule_user" %>

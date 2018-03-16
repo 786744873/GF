@@ -1,2 +1,0 @@
-﻿<%@ ServiceHost Language="C#" Debug="true" Service="CommonService.Reporting.R_LitigationCase_Reporting"  %>
-

@@ -16,8 +16,7 @@ public enum CardStatusEnum
 {
     弃牌,
     已看牌,
-    未看牌,
-    输了
+    未看牌
 }
 public enum PlayerStatusEnum
 {
