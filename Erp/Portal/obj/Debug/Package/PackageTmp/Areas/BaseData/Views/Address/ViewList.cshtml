@@ -1,0 +1,33 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Address>
+
+@{
+    Layout = "~/Views/Shared/_ListSearchTemplate.cshtml";//普通列表页面固定模板
+}
+@{
+    ViewBag.Title = "客户地址列表";
+}
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>地址简称</th>
+            <th>详细地址</th>
+            <th>区域</th>
+            <th>邮政编码</th>
+            <th>是否主要地址</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Address_code">
+                <td>@item.C_Address_shortName</td>
+                <td>@item.C_Address_detail</td>
+                <td>@item.C_Address_area</td>
+                <td>@item.C_Address_postalCode</td>
+                <td>@(item.C_Address_isMainAddress == true ? "是" : "否")</td>
+            </tr>
+        }
+    </tbody>
+</table>    

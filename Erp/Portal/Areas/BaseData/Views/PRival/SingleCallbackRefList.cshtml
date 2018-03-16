@@ -1,0 +1,108 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_PRival>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithCallbackTemplate.cshtml";//包含回调方法的列表页面固定模板
+}
+@{
+    ViewBag.Title = "个人信息";
+}
+
+@{
+    C_PRival prConditon = ViewBag.PrConditon;//法律对手个人条件模型
+}
+@{
+    List<CommonService.Model.C_Parameters> Nation = ViewBag.Nation;
+    List<CommonService.Model.C_Parameters> Pa = ViewBag.Pa;
+    string type1 = ViewBag.Type;
+}
+<div class="callback_list_tool">
+    <div class="tools">
+        <ul class="toolbar">
+            <li><a target="ajaxtodo" singleoperate="singleoperate" href="javascript:window.parent.parent.bringBack({callbackjson})"><span><img src="/theme/images/new_ok.png" /></span>确定</a></li>
+        </ul>
+        <ul class="seachform">
+            @using (Html.BeginForm("SingleCallbackRefList", "prival", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+            {
+                @Html.Hidden("type",type1)
+                <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+                <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+                <li><label>姓名</label>@Html.TextBox("C_PRival_name", prConditon.C_PRival_name, new { @class = "scinput" })</li>
+                <li><label>&nbsp;</label><input type="submit" class="scbtn" value="查询" /></li>
+            }
+        </ul>
+    </div>
+</div>
+    <table class="tablelist">
+        <thead>
+            <tr>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>出生年月</th>
+                <th>民族</th>
+                <th>籍贯</th>
+                <th>政治面貌</th>
+                @*<th>住址</th>*@
+                <th>身份证号</th>
+                <th>联系电话</th>
+                @*<th>性格特征</th>
+                <th>兴趣爱好</th>
+                <th>信息类型</th>*@
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+               
+                string callbackStr = "";
+                switch (type1)
+                {
+                    case "1":
+                        callbackStr = "{'lookupgroup':'rivallookupParty','Code':'" + @item.C_PRival_code + "','Name':'" + @item.C_PRival_name + "','Type':3}";
+                        break;
+                    case "2":
+                        callbackStr = "{'lookupgroup':'rivallookupBeexecuted','Code':'" + @item.C_PRival_code + "','Name':'" + @item.C_PRival_name + "','Type':5}";
+                        break;
+                    case "3":
+                        callbackStr = "{'lookupgroup':'rivallookupdefendant','Code':'" + @item.C_PRival_code + "','Name':'" + @item.C_PRival_name + "','Type':10}";
+                        break;
+                    default:
+                        callbackStr = "{'lookupgroup':'rivallookup','Code':'" + @item.C_PRival_code + "','Name':'" + @item.C_PRival_name + "','Type':1}";
+                        break;
+                }
+                <tr target="sid_Iterm" rel="@item.C_PRival_code" callbackjson=@callbackStr>
+                    <td>@item.C_PRival_name</td>
+                    <td>@(item.C_PRival_sex == 1 ? "男" : "女")</td>
+                    <td>@item.C_PRival_birthday</td>
+                    @{
+                        var nation = Nation.Where(p => p.C_Parameters_id == item.C_PRival_nation).FirstOrDefault();
+                    }
+                    @if (nation != null)
+                    {
+                        <td>@nation.C_Parameters_name</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    <td>@item.C_PRival_hometown</td>
+                    @{
+                        var pa = Pa.Where(p => p.C_Parameters_id == item.C_PRival_pa).FirstOrDefault();
+                    }
+                    @if (pa != null)
+                    {
+                        <td>@pa.C_Parameters_name</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @*<td title="@item.C_PRival_address">@Maticsoft.Common.Cutout.Cut(item.C_PRival_address,20)</td>*@
+                    <td>@item.C_PRival_cnumber</td>
+                    <td>@item.C_PRival_phone</td>
+                    @*<td>@item.C_PRival_traits</td>
+                    <td>@item.C_PRival_hobby</td>
+                    <td>@(item.C_PRival_type == 1 ? "本人" : "配偶")</td>*@
+                </tr>
+            }
+        </tbody>
+    </table>

@@ -1,0 +1,14 @@
+.side-nav-bar
+{position:fixed;display:none;font-size:12px}
+.side-nav-bar .bg-index,.side-nav-bar ul.squr li,.side-nav-bar ul.notice-wrap li
+{background:url(../images/bg_index_377d1e2.png) no-repeat scroll;
+ _background:url(../images/bg_index_377d1e2.png) no-repeat scroll}
+.side-nav-bar ul li{margin-bottom:3px;width:55px;height:55px}
+.side-nav-bar ul li a{display:inline-block;width:53px;height:53px;border:1px solid #D7D7D7;background-color:#FFF;text-align:center;color: #6C6C6C;}
+.side-nav-bar ul li a .s-ic{display:block;width:30px}
+.side-nav-bar ul li a .top{background-position:-94px -88px;margin:15px 0 2px 11px;*margin:15px 0 2px;height:18px}
+                                                     
+.side-nav-bar ul li a .fb{background-position:-95px -112px;margin:6px 0 1px 12px;*margin:6px 0 1px -1px;height:26px}
+.side-nav-bar ul li a:hover{color:#FFF;background-color:#2DB68A;border:1px solid #2DB68A;text-decoration:none}
+.side-nav-bar ul li a:hover .top{background-position:-135px -88px}
+.side-nav-bar ul li a:hover .fb{background-position:-136px -112px}

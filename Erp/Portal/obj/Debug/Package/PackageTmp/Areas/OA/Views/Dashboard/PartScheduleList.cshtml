@@ -1,0 +1,24 @@
+﻿
+@{
+    Layout = null;
+}
+
+<div class="col-md-6 col-sm-6">
+    <!-- BEGIN PORTLET-->
+    <div class="portlet light calendar ">
+        <div class="portlet-title ">
+            <div class="caption">
+                <i class="icon-calendar font-green-sharp"></i>
+                <span class="caption-subject font-green-sharp bold uppercase">我的日程</span>
+            </div>
+        </div>
+        <div class="portlet-body">
+            <div id="calendar_schedule2" class="has-toolbar">
+            </div>
+        </div>
+    </div>
+    <!-- END PORTLET-->
+</div>
+<script>
+    Calendar.init('calendar_schedule2');//用日历Id 初始化日历插件
+</script>

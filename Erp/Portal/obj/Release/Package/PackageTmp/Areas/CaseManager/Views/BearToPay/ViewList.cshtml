@@ -1,0 +1,31 @@
+﻿@using CommonService.Model.CaseManager;
+@model IEnumerable<CommonService.Model.CaseManager.B_BearToPay>
+@{
+    Layout = "~/Views/Shared/_ListSearchTemplate.cshtml";//普通列表页面固定模板
+}
+@{
+    ViewBag.Title = "费用承担列表";
+}
+
+@{
+    B_BearToPay Conditon = ViewBag.Conditon;//费用承担条件模型
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>费用类型</th>
+            <th>支付方式</th>
+            <th>说明</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.B_BearToPay_ctypes_id">
+                <td>@item.B_BearToPay_ctypes_name</td>
+                <td>@item.B_BearToPay_pmethod_name</td>
+                <td>@item.B_BearToPay_explain</td>
+            </tr>
+        }
+    </tbody>
+</table>    

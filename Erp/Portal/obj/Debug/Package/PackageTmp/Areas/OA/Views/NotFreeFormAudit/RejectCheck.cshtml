@@ -1,0 +1,42 @@
+﻿@{
+    Layout = null;
+}
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+    <h4 class="modal-title">驳回审核</h4>
+</div>
+<div class="modal-body">
+    @using (Html.BeginForm("SubmitRejectCheck", "NotFreeFormAudit", FormMethod.Post, new { id = "formRejectCheck", @class = "form-horizontal", role = "form" }))
+    {
+        <div class="form-body">
+            <div class="alert alert-danger display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+            </div>
+            <div class="alert alert-success display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据验证通过，数据处理中..."></span>
+            </div>
+            @Html.Hidden("oFormCode", "@ViewBag.OFormCode")
+            @Html.Hidden("formAuditFlowCode", "@ViewBag.FormAuditFlowCode")
+            <div class="form-group">
+                <label class="control-label col-md-3">审批内容 <span class="required">*</span></label>
+                <div class="col-md-9">
+                    <div class="input-icon right">
+                        <i class="fa"></i>
+                        <textarea class="form-control" cols="20" id="auditContent" name="auditContent" rows="3" maxlength="1000" validatetype="{required:true}" validatemessage="{required:'审批内容不能为空'}"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn blue" onclick="saveForm('formRejectCheck')">驳回</button>
+    <button type="button" class="btn default" data-dismiss="modal">关闭</button>
+</div>
+<!-- BEGIN MAIN JS -->
+<script>
+    FormValidation.init('formRejectCheck', formDialogAjaxDone);//用表单Id和表单回调函数，初始化表单
+</script>
+<!-- END MAIN JS -->

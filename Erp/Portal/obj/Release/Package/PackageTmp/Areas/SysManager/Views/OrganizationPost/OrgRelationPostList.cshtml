@@ -1,0 +1,51 @@
+﻿@using CommonService.Model.SysManager;
+@model IEnumerable<CommonService.Model.SysManager.C_Organization_post>
+
+@section HeadScript
+{
+    <script type="text/javascript">
+        function reloadUsers(thisObj) {//动态扩展方法
+            var $thisPrivateFrame = $(window.parent.document).find("iframe[name='iframe_users']");
+            var thisPrivateFrameSrc = $thisPrivateFrame.attr('baseurl');//目标链接地址
+            thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{orgCode}", $(thisObj).attr('orgCode'));//替换组织机构参数
+            thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{postCode}", commonListData.uniqueId);//替换岗位参数
+            thisPrivateFrameSrc = thisPrivateFrameSrc.replace("PostName", ('@ViewBag.PostName'));//替换岗位参数
+            $thisPrivateFrame.attr('src', thisPrivateFrameSrc);//导航到目标链接地址
+        }
+    </script>
+}
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "组织机构关联岗位列表";
+    string PostName = ViewBag.PostName;
+}
+
+<table class="tablelist">
+    <tbody>
+        @Html.Hidden("PostName", PostName)
+        @foreach (var item in Model)
+        {
+            if (ViewBag.PostName != null)
+            {
+                if (item.C_Post_name.Contains(ViewBag.PostName))
+                {
+                    <tr target="sid_Iterm" rel="@item.C_Post_code" orgcode="@item.C_Organization_code" rowchange="reloadUsers(this)">
+
+                        <td>@item.C_Organization_name->@item.C_Post_name</td>
+                    </tr>
+                }
+            }
+            else
+            {
+
+                <tr target="sid_Iterm" rel="@item.C_Post_code" orgcode="@item.C_Organization_code" rowchange="reloadUsers(this)">
+
+                    <td>@item.C_Organization_name->@item.C_Post_name</td>
+                </tr>
+
+            }
+        }
+    </tbody>
+</table>

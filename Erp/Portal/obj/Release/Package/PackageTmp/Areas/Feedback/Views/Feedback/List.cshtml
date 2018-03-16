@@ -1,0 +1,324 @@
+﻿@using CommonService.Common;
+@using Context;
+@{
+    Layout = null;
+}
+@{
+    List<CommonService.Model.C_Parameters> feedbackState = ViewBag.FeedbackState;
+}
+<!DOCTYPE html>
+<!--
+Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 3.3.4
+Version: 4.0.2
+Author: KeenThemes
+Website: http://www.keenthemes.com/
+Contact: support@keenthemes.com
+Follow: www.twitter.com/keenthemes
+Like: www.facebook.com/keenthemes
+Purchase: http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes
+License: You must have a valid license purchased only from themeforest(the above link) in order to legally use the theme for your project.
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+    <meta charset="utf-8" />
+    <title>意见反馈</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css" />
+    <link href="/theme/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="/theme/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="/theme/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/theme/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+    <link href="/theme/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet" type="text/css" />
+    <!-- END GLOBAL MANDATORY STYLES -->
+    <!-- BEGIN PAGE LEVEL STYLES -->
+    <link rel="stylesheet" type="text/css" href="/theme/assets/global/plugins/jstree/dist/themes/default/style.min.css" />
+    <link href="/theme/assets/admin/pages/css/coming-soon.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="/theme/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css" />
+    <!-- END PAGE LEVEL STYLES -->
+    <!-- BEGIN THEME STYLES -->
+    <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" />
+    <link href="/theme/assets/global/css/components-md.css" id="style_components" rel="stylesheet" type="text/css" />
+    <link href="/theme/assets/global/css/plugins-md.css" rel="stylesheet" type="text/css" />
+    <link href="/theme/assets/admin/layout/css/layout.css" rel="stylesheet" type="text/css" />
+    <link id="style_color" href="/theme/assets/admin/layout/css/themes/darkblue.css" rel="stylesheet" type="text/css" />
+    <link href="/theme/assets/admin/layout/css/custom.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME STYLES -->
+    <link rel="shortcut icon" href="favicon.ico" />
+    <style>
+        body {
+            font-family: 'Microsoft YaHei';
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- BEGIN SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+        <div class="modal fade" id="portlet-config" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                        <h4 class="modal-title">Modal title</h4>
+                    </div>
+                    <div class="modal-body">
+                        Widget settings form goes here
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn blue">Save changes</button>
+                        <button type="button" class="btn default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+        <div class="modal fade" id="alertConfirmWarning" style="z-index: 10062" tabindex="-1" role="basic" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                        <h4 class="modal-title">温馨提示:</h4>
+                    </div>
+                    <div class="modal-body">
+                        确认要删除选中数据吗？
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn blue" onclick="confirmOperate(this)" url="">确认</button>
+                        <button type="button" class="btn default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+        <div class="modal fade" id="alertWarning" style="z-index: 10062" tabindex="-1" role="basic" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                        <h4 class="modal-title">温馨提示:</h4>
+                    </div>
+                    <div class="modal-body">
+                        请选择信息！
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+        <div class="modal fade bs-modal-lg" id="baseLargeModal" role="basic" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <img src="/theme/assets/global/img/loading-spinner-grey.gif" alt="" class="loading">
+                        <span>
+                            &nbsp;&nbsp;页面加载中...
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal -->
+        <!-- END SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+        <div class="row" style="height:10px;">
+            <div class="col-md-12 coming-soon-header">              
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" >
+                <!-- BEGIN EXAMPLE TABLE PORTLET-->
+                <div class="portlet box green-meadow">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <i class="fa fa-user"></i>意见反馈
+                        </div>
+                        @if(UIContext.Current.IsPreSetManager)
+                        { 
+                            <div class="list_tool_dialog_toolbar actions">
+                                <a id="Adopt" class="btn btn-primary btn-sm ajaxify" href="/feedback/feedback/HandleAction?feedbackCodes={sid_Iterm}&type=@Convert.ToInt32(FeedbackStateEnum.已采纳)" operatetargettype="ajaxtodo" mulityoperate="mulityoperate" nodatatip="请选中信息！" confirmtip="确认要采纳所选数据吗？">
+                                    <i class="fa fa-pencil"></i> 采纳
+                                </a>
+                                <a id="NotAdopted" class="btn btn-primary btn-sm ajaxify" href="/feedback/feedback/HandleAction?feedbackCodes={sid_Iterm}&type=@Convert.ToInt32(FeedbackStateEnum.未采纳)" operatetargettype="ajaxtodo" mulityoperate="mulityoperate" nodatatip="请选中信息！" confirmtip="确认要不采纳所选数据吗？">
+                                    <i class="fa fa-pencil"></i> 不采纳
+                                </a>
+                                <a id="Useless" class="btn btn-primary btn-sm ajaxify" href="/feedback/feedback/HandleAction?feedbackCodes={sid_Iterm}&type=@Convert.ToInt32(FeedbackStateEnum.无用信息)" operatetargettype="ajaxtodo" mulityoperate="mulityoperate" nodatatip="请选中信息！" confirmtip="确认要作废所选数据吗？">
+                                    <i class="fa fa-pencil"></i> 作废
+                                </a>
+                            </div>
+                        }
+                    </div>
+                    <div class="portlet-body">
+                        <div id="feedbackList_search" class="row">
+                            @Html.Hidden("isExecutedSearch", "0")
+                            <div class="col-md-12">
+                                <div class="col-md-9" style="width:245px;"></div>
+                                <div class="col-md-2" style="width:260px;">
+                                    <div class="form-group">
+                                        <label style="width:70px;text-align:right;">所属页面：</label>
+                                        <input name="s_thePage" id="s_thePage" type="text" class="form-control input-small input-inline">
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="width:260px;">
+                                    <div class="form-group">
+                                        <label style="width:70px;text-align:right;">申请人：</label>
+                                        <input name="s_applicant" id="s_applicant" type="text" class="form-control input-small input-inline">
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="width:260px;">
+                                    <div class="form-group">
+                                        <label style="width:70px;text-align:right;">状态：</label>                                        
+                                        <select id="i_state_type" name="i_state_type" class="table-group-action-input form-control input-inline input-small">
+                                            <option value="-1">请选择...</option>
+                                            @foreach (var state in feedbackState)
+                                            {
+                                                <option value="@state.C_Parameters_id">@state.C_Parameters_name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="btn-group pull-right">
+                                        <div class="btn-group">
+                                            <button class="btn green" onclick="executeSearch('feedbackList', 'feedbackList_search')">
+                                                查询<i class="fa fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <table class="table table-striped table-bordered table-hover" id="feedbackList">
+                            <thead>
+                                <tr>
+                                    <th>意见反馈Guid</th>
+                                    <th class="table-checkbox" style="width:35px;">
+                                        <input type="checkbox" class="group-checkable" data-set="#feedbackList .checkboxes" />
+                                    </th>
+                                    <th>所属页面</th>
+                                    <th>想要的功能</th>
+                                    <th>意见描述</th>
+                                    <th>状态</th>
+                                    <th>申请人</th>
+                                    <th>申请时间</th>
+                                    <th>回复内容</th>
+                                    <th>审核人</th>
+                                    <th>审核时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!--数据行在这里-->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- END EXAMPLE TABLE PORTLET-->
+            </div>
+        </div>
+        <!--/end row-->
+        <div class="row">
+            <div class="col-md-12 coming-soon-footer">
+
+            </div>
+        </div>
+    </div>
+
+    <!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
+    <!-- BEGIN CORE PLUGINS -->
+    <!--[if lt IE 9]>
+    <script src="../../assets/global/plugins/respond.min.js"></script>
+    <script src="../../assets/global/plugins/excanvas.min.js"></script>
+    <![endif]-->
+    <script src="/theme/assets/global/plugins/jquery.min.js" type="text/javascript"></script>
+    <script src="/theme/assets/global/plugins/jquery-migrate.min.js" type="text/javascript"></script>
+    <!-- IMPORTANT! Load jquery-ui.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
+    <script src="/theme/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="/theme/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/theme/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
+    <script src="/theme/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="/theme/assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+    <script src="/theme/assets/global/plugins/jquery.cokie.min.js" type="text/javascript"></script>
+    <script src="/theme/assets/global/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="/theme/assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js" type="text/javascript"></script>
+    <!-- END CORE PLUGINS -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script type="text/javascript" src="/theme/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/theme/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js"></script>
+    <script type="text/javascript" src="/theme/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js"></script>
+    <script src="/theme/assets/global/plugins/countdown/jquery.countdown.min.js" type="text/javascript"></script>
+    <script src="/theme/assets/global/plugins/backstretch/jquery.backstretch.min.js" type="text/javascript"></script>
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN PAGE LEVEL SCRIPTS -->
+    <script src="/theme/assets/global/scripts/metronic.js" type="text/javascript"></script>
+    <script src="/theme/assets/admin/layout/scripts/layout.js" type="text/javascript"></script>
+    <script src="/theme/assets/admin/layout/scripts/quick-sidebar.js" type="text/javascript"></script>
+    <script src="/theme/assets/admin/layout/scripts/demo.js" type="text/javascript"></script>
+    <script src="/theme/assets/admin/pages/scripts/coming-soon.js" type="text/javascript"></script>
+    <!-- END PAGE LEVEL SCRIPTS -->
+
+    <script src="/theme/oajs/table-managed.js"></script>
+    <script src="/theme/oajs/calendar.js" type="text/javascript"></script>
+    <script src="/theme/oajs/components-pickers.js" type="text/javascript"></script>
+    <script src="/theme/oajs/form-validation.js" type="text/javascript"></script>
+    <script src="/theme/oajs/ajaxdone.js" type="text/javascript"></script>
+    <script src="/theme/oajs/components-dropdowns.js" type="text/javascript"></script>
+    <script src="~/Scripts/jquery.signalR-2.2.0.js" type="text/javascript"></script>
+    <script src="~/signalr/hubs"></script>
+    <!--列表工具栏按钮处理js-->
+    <script type="text/javascript" src="/theme/oajs/bar.js"></script>
+    <script>
+    jQuery(document).ready(function () {
+        Metronic.init(); // init metronic core components
+        Layout.init(); // init current layout
+        QuickSidebar.init(); // init quick sidebar
+        Demo.init(); // init demo features
+        ComingSoon.init();
+        // init background slide images
+        $.backstretch([
+                "/theme/assets/admin/pages/media/bg/1.jpg",
+                "/theme/assets/admin/pages/media/bg/2.jpg",
+                "/theme/assets/admin/pages/media/bg/3.jpg",
+                "/theme/assets/admin/pages/media/bg/4.jpg"
+        ], {
+            fade: 1000,
+            duration: 10000
+        });
+    });
+
+    var defaultColumns = [
+     { "sName": "C_Feedback_code", "bVisible": false },
+     { "sName": "C_Feedback_code", "render": function (data, type, full) { return "<input type='checkbox' value='" + data + "' class='checkboxes' operate='operate' name='feedback'/>" } },
+     { "sName": "C_Feedback_thePage", "render": function (data, type, full) { return "<a href='' style='color:#5b9bd1' class='ajaxify'>" + data + "</a>"; } },
+     { "sName": "C_Feedback_wantfunctionName" },
+     { "sName": "C_Feedback_Description" },
+     { "sName": "C_Feedback_stateName" },
+     { "sName": "C_Feedback_applicantName" },
+     { "sName": "C_Feedback_dateTime" },
+     { "sName": "C_Feedback_replyContent" },
+     { "sName": "C_Feedback_audipersonName" },
+     { "aName": "C_Feedback_audiTime" }
+    ];//table 默认列扩展
+    var submitUrl = '/feedback/feedback/ajaxlist';//数据获取地址
+
+    TableManaged.init('feedbackList', "feedbackList_search", defaultColumns, submitUrl);//用table id,table search id,默认列 初始化table对象
+    </script>
+    <!-- END JAVASCRIPTS -->
+</body>
+<!-- END BODY -->
+</html>

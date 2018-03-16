@@ -1,0 +1,185 @@
+﻿@using CommonService.Model.CaseManager;
+@using CommonService.Common;
+@section HeadScript{
+    <script type="text/javascript">
+
+        $(function () {
+            $("a[target=popdialog]", this).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    //替换url参数
+                    var switchUrl = $this.attr("href");
+                    _openDialog($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"));
+                });
+            });
+        })
+    </script>
+}
+@section HeadCss{
+    <style type="text/css">
+        .mulitytext{ height:auto;}
+        a:link { color: blue; }
+        a:hover { color: #74c6b9; } 
+        a:visited { color: blue; }
+    </style>
+}
+@model CommonService.Model.CaseManager.B_Case
+@{
+    Layout = "~/Views/Shared/_ViewPanelTemplate.cshtml";//普通Panel页面固定模板
+}
+@{
+    ViewBag.Title = "案件基本信息";
+}
+@{
+    CommonService.Model.C_Parameters Casetype = ViewBag.Case_type;
+    CommonService.Model.C_Parameters Casenature = ViewBag.Case_nature;
+    CommonService.Model.C_Parameters CasecustomerType = ViewBag.Case_customerType;
+}
+
+<div class="formbody">
+    <ul class="forminfo">
+        <div class="mulitytext"><label>案件编码</label>@Html.Label("B_Case_number", Model.B_Case_number)</div>     
+        <div class="mulitytext"><label>客户：</label><span>
+            @{
+                string[] customerCodes = Model.C_Customer_code.Split(',');
+                string[] customerNames = Model.C_Customer_name.Split(',');
+                int customer = 0;
+            }
+            @foreach(var customerName in customerNames)
+            {
+                string Comma = ",";
+                if (customer == customerCodes.Length-1)
+                {
+                    Comma = "";
+                }
+                <a target="popdialog" title="客户详细" dialogwidth="1080" dialogheight="580" href="/basedata/customer/tabdetails?customerCode=@customerCodes[customer]">@customerName </a>@Comma
+                customer++;
+            }
+            </span></div>
+        <div class="mulitytext"><label>委托人：</label><span>
+            @{
+                string[] clientCodes = Model.C_Client_code.Split(',');
+                string[] clientNames = Model.C_Client_name.Split(',');
+                int client = 0;
+             }
+            @foreach (var clientName in clientNames)
+            {
+                string Comma = ",";
+                if (client == clientCodes.Length - 1)
+                {
+                    Comma = "";
+                }
+                <a target="popdialog" title="委托人详细" dialogwidth="1080" dialogheight="580" href="/basedata/client/tabdetails?customerCode=@clientCodes[client]">@clientName </a>@Comma
+                client++;
+            }
+            </span></div>
+        <div class="mulitytext"><label>工程名称：</label><span>
+            @{
+                string[] projectCodes = Model.C_Project_code.Split(',');
+                string[] projectNames = Model.C_Project_name.Split(',');
+                int project = 0;
+            }
+            @foreach (var projectName in projectNames)
+            {
+                string Comma = ",";
+                if (project == projectCodes.Length - 1)
+                {
+                    Comma = "";
+                }
+                <a target="popdialog" title="工程详细" dialogwidth="1180" dialogheight="580" href="/basedata/Involved_project/tabdetails?Involved_project_code=@projectCodes[project]">@projectName </a>@Comma
+                project++;
+            }
+            </span></div>
+        <div class="mulitytext"><label>对方当事人：</label><span>
+            @{
+                string[] personTypes = Model.C_Person_type.Split(',');
+                string[] personCodes = Model.C_Person_code.Split(',');
+                string[] personNames = Model.C_Person_name.Split(',');
+                int person = 0;
+            }
+            @foreach(var personType in personTypes)
+            {
+                string Comma = ",";
+                if (person == personCodes.Length - 1)
+                {
+                    Comma = "";
+                }
+                if (personType == Convert.ToInt32(CaselinkEnum.对方当事人个人).ToString())
+                {
+                    <a target="popdialog" title="对方当事人详细" dialogwidth="1080" dialogheight="580" href="/basedata/PRival/TabDetails?prival_code=@personCodes[person]">@personNames[person]</a>@Comma
+                }
+                else if (personType == Convert.ToInt32(CaselinkEnum.对方当事人公司).ToString())
+                {
+                    <a target="popdialog" title="对方当事人详细" dialogwidth="1080" dialogheight="580" href="/basedata/crival/TabDetails?crival_code=@personCodes[person]">@personNames[person]</a>@Comma
+                }
+                person++;
+            }
+           
+            </span></div>
+        <div class="mulitytext"><label>被执行人：</label><span>
+            @{
+                string[] executerTypes = Model.C_Executer_type.Split(',');
+                string[] executerCodes = Model.C_Executer_code.Split(',');
+                string[] executerNames = Model.C_Executer_name.Split(',');
+                int executer = 0;
+            }
+            @foreach(var executerType in executerTypes)
+            {
+                string Comma = ",";
+                if (executer == executerCodes.Length - 1)
+                {
+                    Comma = "";
+                }
+                if (executerType == Convert.ToInt32(CaselinkEnum.被执行人个人).ToString())
+                {
+                    <a target="popdialog" title="被执行人详细" dialogwidth="1080" dialogheight="580" href="/basedata/PRival/TabDetails?prival_code=@executerCodes[executer]">@executerNames[executer]</a>@Comma
+                }
+                else if (executerType == Convert.ToInt32(CaselinkEnum.被执行人公司).ToString())
+                {
+                    <a target="popdialog" title="被执行人详细" dialogwidth="1080" dialogheight="580" href="/basedata/crival/TabDetails?crival_code=@executerCodes[executer]">@executerNames[executer]</a>@Comma
+                }
+                executer++;
+            }
+            
+            </span></div>
+        <div class="mulitytext"><label>预收案时间：</label><span>@Model.B_Case_registerTime</span></div>
+        <div class="mulitytext"><label>所属区域：</label><span>@Model.C_Region_name</span></div>
+        <div class="mulitytext"><label>客户类型：</label><span>@Casetype.C_Parameters_name</span></div>
+        <div class="mulitytext"><label>案件性质：</label><span>@Casenature.C_Parameters_name</span></div>
+        <div class="mulitytext"><label>专业顾问：</label><span>
+            @{
+                string[] consultantNames = Model.B_Case_consultant_name.Split(',');
+                int consultant = 0;
+            }
+            @foreach (var consultantName in consultantNames)
+            {
+                string Comma = ",";
+                if (consultant == consultantNames.Length - 1)
+                {
+                    Comma = "";
+                }
+                @consultantName@Comma
+                consultant++;
+            }
+            </span></div>
+        <div class="mulitytext"><label>移交标的其他：</label><span>@Model.B_Case_transferTargetOther</span></div>
+        <div class="mulitytext"><label>移交标的金额：</label><span>@Model.B_Case_transferTargetMoney</span></div>
+        <div class="mulitytext"><label>执行标的其他：</label><span>@Model.B_Case_execOther</span></div>
+        <div class="mulitytext"><label>执行标的金额：</label><span>@Model.B_Case_execMoney</span></div>
+        <div class="mulitytext"><label>一审管辖法院：</label><span>
+                 <a target="popdialog" title="一审管辖法院详细" dialogwidth="1080" dialogheight="620" edit="edit" href="/basedata/court/TabDetails?courtCode=@Model.B_Case_courtFirst">@Model.B_Case_courtFirstName</a>
+            </span></div>
+        <div class="mulitytext"><label>二审管辖法院：</label><span>
+                 <a target="popdialog" title="二审管辖法院详细" dialogwidth="1080" dialogheight="620" edit="edit" href="/basedata/court/TabDetails?courtCode=@Model.B_Case_courtSecond">@Model.B_Case_courtSecondName</a>
+            </span></div>
+        <div class="mulitytext"><label>执行管辖法院：</label><span>
+                 <a target="popdialog" title="执行管辖法院详细" dialogwidth="1080" dialogheight="620" edit="edit" href="/basedata/court/TabDetails?courtCode=@Model.B_Case_courtExec">@Model.B_Case_courtExecName</a>
+            </span></div>
+        <div class="mulitytext"><label>审判监督法院：</label><span>
+                 <a target="popdialog" title="审判监督法院详细" dialogwidth="1080" dialogheight="620" edit="edit" href="/basedata/court/TabDetails?courtCode=@Model.B_Case_Trial">@Model.B_Case_TrialName</a>
+            </span></div>
+        <div class="mulitytext"><label>案件预期收益：</label><span>@Model.B_Case_expectedGrant</span></div>
+        <div class="mulitytext"><label>案情备注：</label><span>@Model.B_Case_remark</span></div>
+    </ul>
+</div>

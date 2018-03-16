@@ -1,0 +1,31 @@
+﻿@using CommonService.Common;
+@using CommonService.Model.SysManager;
+@using Context;
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "商机信息";
+}
+@{
+    List<C_Role_Role_Power> roleRolePowers = ViewBag.RoleRolePowers;//权限
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+    int type = ViewBag.Type;
+}
+<div class="itab">
+    <ul>
+        @if (type == 1)
+        {
+        <li><a href="/BusinessChanceManager/BusinessChance/edit?businessChance_code=@ViewBag.BusinessChanceCode" tabpanelwidth="100%" tabpanelheight="800" class="selected">商机内容</a></li>
+        }
+        else
+        {
+        <li><a href="/casemanager/case/details?caseCode=@ViewBag.BusinessChanceCode" tabpanelwidth="100%" tabpanelheight="800" class="selected">商机内容</a></li>
+        }
+        <li><a href="/casemanager/clientagreement/tabdetails?caseCode=@ViewBag.BusinessChanceCode&type=2" tabpanelwidth="100%" tabpanelheight="800">客户约定</a></li>
+        <li><a href="/AttachmentCaseUpload/attachment_Caselayout?relationCode=@ViewBag.BusinessChanceCode&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.商机)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.商机)" tabpanelwidth="100%" tabpanelheight="800">收案材料清单</a></li>
+        <li><a href="/casemanager/rdetail/list?caseCode=@ViewBag.BusinessChanceCode&type=2" tabpanelwidth="100%" tabpanelheight="800">收款明细</a></li>
+        <li><a href="/basedata/contacts/list?relationCode=@ViewBag.BusinessChanceCode&contactType=6" tabpanelwidth="100%" tabpanelheight="800">联系人信息</a></li>
+        <li><a href="/attachmentupload/attachment_defaultlayout?relationCode=@ViewBag.BusinessChanceCode&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.商机)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.商机)" tabpanelwidth="100%" tabpanelheight="800">附件信息</a></li>
+    </ul>
+</div>

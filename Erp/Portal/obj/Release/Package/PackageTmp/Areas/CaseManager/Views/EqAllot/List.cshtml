@@ -1,0 +1,39 @@
+﻿@using CommonService.Model.CaseManager;
+@model IEnumerable<CommonService.Model.CaseManager.B_EqAllot>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "权益分配列表";
+}
+
+@{
+    B_EqAllot Conditon = ViewBag.Conditon;//权益分配条件模型
+}
+<div class="tools">
+    <ul class="toolbar">
+        <li><a target="popdialog" title="权益分配信息" dialogwidth="800" dialogheight="500" edit="edit" href="/CaseManager/eqallot/edit?caseCode=@Conditon.B_Case_code&B_EqAllot_pright={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+    </ul>
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>财产权利</th>
+            <th>折合金额</th>
+            <th>客户所得比例</th>
+            <th>说明</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.B_EqAllot_pright_id" relname="@item.B_EqAllot_pright_name">
+                <td>@item.B_EqAllot_pright_name</td>
+                <td>@item.B_EqAllot_mvalue</td>
+                <td>@item.B_EqAllot_cusradio</td>
+                <td>@item.B_EqAllot_explain</td>
+            </tr>
+        }
+    </tbody>
+</table>    

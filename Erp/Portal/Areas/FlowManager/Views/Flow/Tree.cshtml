@@ -1,0 +1,32 @@
+﻿@model CommonService.Model.FlowManager.P_Flow
+@{
+    Layout = "~/Views/Shared/_TreeTemplate.cshtml";//树形结构固定模板
+}
+@{
+    ViewBag.Title = "流程树";
+}
+@{
+    int sourceType = ViewBag.sourceType;
+    string frametype = String.Empty;
+    string target = String.Empty;
+    switch (sourceType)
+    {
+        case 1:
+        case 2:
+            frametype = "frameset";
+            target = "rightContentFrame";
+            break;
+        case 3:
+            frametype = "iframe";
+            target = "iframe_forms,iframe_date";
+            break;
+    }
+}
+<div class="treeinfo" frametype="@frametype" target="@target">
+    <div style="height: 35px; text-align: center; margin: 10px; border-bottom: solid 1px #d0dee5; ">
+        <b class="fontsize14">流程结构</b>
+    </div>
+    <div class="tree" style="overflow:auto;">
+        @Html.Raw(ViewBag.SingleFlowTreeHtml)
+    </div>
+</div>

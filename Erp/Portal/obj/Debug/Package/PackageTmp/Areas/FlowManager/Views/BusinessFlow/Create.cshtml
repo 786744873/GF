@@ -1,0 +1,114 @@
+﻿@using CommonService.Common;
+@model CommonService.Model.FlowManager.P_Business_flow
+@section HeadScript
+{
+    <script type="text/javascript">
+        function saveBusinessFlow(thisObj, flowCode) {
+            if (flowCode == '') {
+
+                alertMsg.warn('请选择信息！');
+            } else {
+                $(thisObj).parents('form').submit();
+            }
+        }
+
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+@section HeadCss
+{
+    <style type="text/css">
+        .textinput {
+            height: 95px;
+        }
+    </style>
+}
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "业务流程";
+}
+@{
+    var flowCode = ViewBag.FlowCode;
+    int type = ViewBag.Type;
+    string planStartTime = "";
+    string planEndTime = "";
+    if (type == 1)
+    {
+        CommonService.Model.CaseManager.B_Case casemodel = ViewBag.casemodel;
+        planStartTime = "<span style=\"color: #CCCCCC;\">案件计划开始时间：" + casemodel.B_Case_planStartTime + "</span>";
+        planEndTime = "<span style=\"color: #CCCCCC;\">案件计划结束时间：" + casemodel.B_Case_planEndTime + "</span>";
+    }
+    else if (type == 2)
+    {
+        CommonService.Model.BusinessChanceManager.B_BusinessChance businessChance = ViewBag.businessChanceModel;
+        planStartTime = "<span style=\"color: #CCCCCC;\">商机计划开始时间：" + businessChance.B_BusinessChance_planStartTime + "</span>";
+        planEndTime = "<span style=\"color: #CCCCCC;\">商机计划结束时间：" + businessChance.B_BusinessChance_planEndTime + "</span>";
+    }
+    else if (type == 3)
+    {
+        CommonService.Model.C_Customer customer = ViewBag.customerModel;
+        planStartTime = "<span style=\"color: #CCCCCC;\">客户计划开始时间：" + customer.C_Customer_planStartTime + "</span>";
+        planEndTime = "<span style=\"color: #CCCCCC;\">客户计划结束时间：" + customer.C_Customer_planEndTime + "</span>";
+    }
+}
+<div class="formbody">
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "BusinessFlow", FormMethod.Post, new { id = "formBusinessFlow", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+                                        @Html.Hidden("type", type)
+                                        @Html.Hidden("P_Business_flow_id", Model.P_Business_flow_id)
+                                        @Html.Hidden("P_Business_flow_code", Model.P_Business_flow_code)
+                                        @Html.Hidden("P_Fk_code", Model.P_Fk_code)
+                                        @Html.Hidden("P_Flow_code", Model.P_Flow_code)
+                                        @Html.Hidden("P_Business_flow_level", Model.P_Business_flow_level)
+                                        @Html.Hidden("P_Flow_parent", Model.P_Flow_parent)
+                                        @Html.Hidden("P_Business_state", Model.P_Business_state)
+                                        @Html.Hidden("P_Business_isdelete", Model.P_Business_isdelete)
+                                        @Html.Hidden("P_Business_order", Model.P_Business_order)
+                                        @Html.Hidden("P_Business_startTime", Model.P_Business_startTime)
+                                        @Html.Hidden("P_Business_creator", Model.P_Business_creator)
+                                        @Html.Hidden("P_Business_createTime", Model.P_Business_createTime)
+                                        @Html.Hidden("P_Business_flow_applicationStatus", Model.P_Business_flow_applicationStatus)
+
+                                        <li><label>流程别名</label>@Html.TextBox("P_Business_flow_name", Model.P_Business_flow_name, new { @class = "dfinput", requiredInput = "请输入流程别名", maxlength = "50", @readonly = "readonly" })<i></i></li>
+                                        <li>
+                                            <label>多级审核权限</label>@Html.RadioButtonFor(m => m.P_Business_flow_auditType, Convert.ToInt32(BusinessFlowAuditType.完全监控), new { @class = "dfradio" })<span>完全监控</span>@Html.RadioButtonFor(m => m.P_Business_flow_auditType, Convert.ToInt32(BusinessFlowAuditType.仅监控当前预设流程), new { @class = "dfradio" })<span>仅监控当前预设流程</span><i></i>
+                                            @if (ViewBag.type == 3 || ViewBag.type == 2)
+                                            {
+                                                <span style="color: #CCCCCC;">完全监控指的是要监控、审核该流程下所有的表单</span>
+                                            }
+                                        </li>
+
+            if (type == 1)
+            {
+                <li><label>主办律师</label>@Html.Hidden("mainLawyerlookup.Code", Model.P_Business_person, new { lookupgroup = "mainLawyerlookup" })@Html.TextBox("mainLawyerlookup.Name", Model.P_Business_person_name, new { maxlength = "50", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", requiredInput = "请选择主办律师", title = "单选负责人", switchurl = "/flowmanager/DistributionPerson/BusinessFlow_DefaultLayout?flowCode=" + Model.P_Flow_code + "&fkCode=" + Model.P_Fk_code + "&type=" + type, dialogwidth = "710", dialogheight = "600", lookupgroup = "mainLawyerlookup" })<i></i></li>
+            }
+            else if (type == 2)
+            {
+                <li><label>专业顾问</label>@Html.Hidden("mainLawyerlookup.Code", Model.P_Business_person, new { lookupgroup = "mainLawyerlookup" })@Html.TextBox("mainLawyerlookup.Name", Model.P_Business_person_name, new { maxlength = "50", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", requiredInput = "请选择主办律师", title = "单选负责人", switchurl = "/flowmanager/DistributionPerson/BusinessFlow_DefaultLayout?flowCode=" + Model.P_Flow_code + "&fkCode=" + Model.P_Fk_code + "&type=" + type, dialogwidth = "710", dialogheight = "600", lookupgroup = "mainLawyerlookup" })<i></i></li>
+            }
+            else if (type == 3)
+            {
+                <li><label>专业顾问</label>@Html.Hidden("mainLawyerlookup.Code", Model.P_Business_person, new { lookupgroup = "mainLawyerlookup" })@Html.TextBox("mainLawyerlookup.Name", Model.P_Business_person_name, new { maxlength = "50", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", requiredInput = "请选择主办律师", title = "单选负责人", switchurl = "/flowmanager/DistributionPerson/BusinessFlow_DefaultLayout?flowCode=" + Model.P_Flow_code + "&fkCode=" + Model.P_Fk_code + "&type=" + type, dialogwidth = "710", dialogheight = "600", lookupgroup = "mainLawyerlookup" })<i></i></li>
+            }
+            <li><label>计划开始时间</label>@Html.TextBox("P_Business_flow_planStartTime", Model.P_Business_flow_planStartTime == null ? "" : Model.P_Business_flow_planStartTime.Value.ToString("yyyy-MM-dd HH:mm:ss"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss", @class = "dfinput", requiredInput = "请选择日期" })<i></i>@Html.Raw(planStartTime)</li>
+            <li><label>计划结束时间</label>@Html.TextBox("P_Business_flow_planEndTime", Model.P_Business_flow_planEndTime == null ? "" : Model.P_Business_flow_planEndTime.Value.ToString("yyyy-MM-dd HH:mm:ss"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss", @class = "dfinput", requiredInput = "请选择日期" })<i></i>@Html.Raw(planEndTime)</li>
+            <li><label>定价</label>@Html.TextBox("P_Business_flow_fixPrice", Model.P_Business_flow_fixPrice, new { @class = "dfinput", money = "请输入有效定价", maxlength = "18" })<i></i></li>
+            <li><label>任务要求</label>@Html.TextArea("P_Business_flow_require", Model.P_Business_flow_require, new { @class = "textinput", maxlength = "500" })<i></i></li>
+            <li><label>备注</label>@Html.TextArea("P_Business_remark", Model.P_Business_remark, new { @class = "textinput", maxlength = "500" })<i></i></li>
+            <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></li>
+        }
+    </ul>
+</div>

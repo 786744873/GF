@@ -1,0 +1,37 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Files>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "附件列表";
+}
+@{
+    string attachmentShowMainPath = ViewBag.AttachmentShowMainPath;
+    string downAttachmentLink = String.Empty;
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>文件名称</th>
+            <th>文件所属类型</th>
+            <th>文件大小(KB)</th>
+            <th>上传人</th>
+            <th>上传时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            downAttachmentLink = String.Empty;
+            downAttachmentLink = attachmentShowMainPath + item.C_Files_name;
+            <tr target="sid_Iterm" rel="@item.C_Files_code">
+                <td><a class="tablelink" title="点击下载附件" href="@downAttachmentLink" target="_blank">@item.C_Files_viewName</a></td>
+                <td>@item.C_Files_cate</td>
+                <td>@item.C_Files_size</td>
+                <td>@item.C_Files_creator_name</td>
+                <td>@(item.C_Files_createDate.Value == null ? "" : item.C_Files_createDate.Value.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+            </tr>
+        }
+    </tbody>
+</table>    

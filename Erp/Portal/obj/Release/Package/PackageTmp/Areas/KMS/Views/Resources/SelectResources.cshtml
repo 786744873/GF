@@ -1,0 +1,282 @@
+﻿@model CommonService.Model.KMS.K_Resources
+@{
+    Layout = "~/Views/Shared/_KMSLayout.cshtml";//KMS母版页
+}
+@{
+    List<CommonService.Model.KMS.K_Comments> listCom = ViewBag.listCom;
+    string fileStr = ViewBag.fileStr;
+    int dow = 0;
+    if (Model.K_Resources_downloadCount != null)
+    {
+        dow = Convert.ToInt32(Model.K_Resources_downloadCount);
+    }
+    int zam = 0;
+    if (Model.K_Resources_zambiaCount != null)
+    {
+        zam = Convert.ToInt32(Model.K_Resources_zambiaCount);
+    }
+    int nouser = 0;
+    if (Model.K_Resources_nouserCount != null)
+    {
+        nouser = Convert.ToInt32(Model.K_Resources_nouserCount);
+    }
+    int collectionCount = 0;
+    if (Model.K_Resources_collectionCount != null)
+    {
+        collectionCount = Convert.ToInt32(Model.K_Resources_collectionCount);
+    }
+    int type = ViewBag.type;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        var filePath = '@fileStr'
+        var fp = new FlexPaperViewer(
+                 'FlexPaperViewer',
+                 'viewerPlaceHolder', {
+                     config: {
+                         SwfFile: escape("/KmsResourcesSWF/" + filePath),
+                         Scale: 1,
+                         ZoomTransition: 'easeOut',
+                         ZoomTime: 0.5,
+                         ZoomInterval: 0.2,
+                         FitPageOnLoad: true,
+                         FitWidthOnLoad: true,
+                         FullScreenAsMaxWindow: false,
+                         ProgressiveLoading: false,
+                         MinZoomSize: 0.2,
+                         MaxZoomSize: 5,
+                         SearchMatchAll: false,
+                         InitViewMode: 'Portrait',
+                         PrintPaperAsBitmap: false,
+                         ViewModeToolsVisible: true,
+                         ZoomToolsVisible: true,
+                         NavToolsVisible: true,
+                         CursorToolsVisible: true,
+                         SearchToolsVisible: true,
+                         localeChain: 'zh_US'//语言
+                         //localeChain: 'en_US'
+                     }
+                 });
+
+        FormValidation.init('formComments', formNavAjaxDone);//用表单Id和表单回调函数，初始化表单
+        function saveComments(formId) {
+            saveForm(formId);
+        }
+
+        //评论回复
+        function saveComments2(commentCode) {
+            $('#code').val(commentCode);
+            //saveForm(formId);
+            $.ajax({
+                type: 'post',
+                url: '/kms/Resources/SaveComment',
+                data: $("#formComments").serialize(),
+                dataType: "json",
+                cache: false,
+                success: function (data) {
+                    //$('#' + commentCode + '').addClass('hidden');
+                    //window.location.reload();
+                    $('#refshcom').click();
+                },
+                error: function () {
+                    alert('网络错误，请稍后再试!');
+                }
+            });
+        }
+        var i = false;
+
+        //评论回复
+        function ReplyComment(commentCode) {
+            //if ($('#' + commentCode + '').hasClass('hidden')) {
+            //    $("div[group=group]").each(function (i) {
+            //        $(this).addClass('hidden');
+            //    })
+            //    $('#' + commentCode + '').removeClass('hidden');
+            //}
+            //else {
+            //    $('#' + commentCode + '').addClass('hidden');
+
+            //}
+            var media = $("#" + commentCode + ":has(div[group=group])");
+            if (media.length > 0) {
+                $("div[group=group]").remove();
+                return;
+            }
+            var boxHtml = '';
+            boxHtml += '<div id="' + commentCode + '" group="group">';
+            boxHtml += '<div class="row" style="margin-top:10px;">';
+            boxHtml += '<div class="col-md-1"></div>';
+            boxHtml += '<div class="col-md-9">';
+            boxHtml += '<textarea id="console2" name="' + commentCode + '" class="form-control" rows="4"></textarea>';
+            boxHtml += '</div>';
+            boxHtml += '</div><div class="col-md-2"></div><div class="col-md-8" style="margin-top:10px;"><button type="button" class="btn blue pull-right" onclick="saveComments2(\'' + commentCode + '\')">发布评论</button></div></div>';
+            $(boxHtml).appendTo("#" + commentCode);
+        }
+
+        //资源点赞
+        function zam(type) {
+            $.ajax({
+                type: 'post',
+                url: '/kms/Resources/ResourcesPraise?ResourcesCode=@Model.K_Resources_code&type=' + type + '',
+                data: null,
+                dataType: "json",
+                cache: false,
+                success: function (data) {
+                    if (data == '1') {
+                        var a = $('#zam').html();
+                        var b = parseInt(a) + parseInt(1);
+                        $('#zam').html(b);
+                        $('#zamFa').addClass("font-red-sunglo");
+                    }
+                    else if (data == '2') {
+                        var a = $('#nouser').html();
+                        var b = parseInt(a) + parseInt(1);
+                        $('#nouser').html(b);
+                        $('#nouserFa').addClass("font-red-sunglo");
+                    }
+                    else if (data == '0') {
+                        bootbox.alert('你已为该资源点过!');
+                    }
+                },
+                error: function () {
+                    bootbox.alert('网络错误，请稍后再试!');
+                }
+            });
+        }
+
+        //资源收藏
+        function collection(resourcesCode) {
+            $.ajax({
+                type: 'post',
+                url: '/kms/Resources/ResourcesCollection?ResourcesCode=' + resourcesCode,
+                data: null,
+                dataType: "json",
+                cache: false,
+                success: function (data) {
+                    if (data == '1') {
+                        var a = '@collectionCount';
+                        var b = parseInt(a) + parseInt(1);
+                        $('#collection').html(b);
+                        $('#collFa').addClass("font-red-sunglo");
+                    }
+                    else if (data == '0') {
+                        bootbox.alert('你已收藏了该资源!');
+                    }
+                },
+                error: function () {
+                    bootbox.alert('网络错误，请稍后再试!');
+                }
+            });
+        }
+    </script>
+
+}
+<div class="space20">
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h3>@Model.K_Resources_name</h3>
+        @if (type == 1)
+        {
+            <div id="viewerPlaceHolder" style="height: 800px; display: block"></div>
+        }
+        <div class="row">
+            <div class="col-md-7">
+                <ul class="list-inline blog-tags">
+                    <li>
+                        <span>知识分类：</span>
+                        <span>@Model.K_Resources_Knowledge_name</span>
+                    </li>
+                    <li>
+                        <span>上传人：</span>
+                        <span>@Model.K_Resources_creatorName</span>
+                    </li>
+                    <li>
+                        <span>作者：</span>
+                        <span>@(Model.K_Resources_author == null ? "不详" : Model.K_Resources_author)</span>
+                    </li>
+                    <li>
+                        <span>标签：</span>
+                        <span>@Model.K_Resources_Keyword</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-5 blog-tag-data-inner">
+                <ul class="list-inline  pull-right">
+                    <li>
+                        <i class="fa fa-calendar"></i>
+                        <a href="javascript:;">
+                            @Model.K_Resources_createTime
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fa fa-eye"></i>
+                        <a href="javascript:;">
+                            @ViewBag.browseCount
+                        </a>
+                    </li>
+                    <li>
+                        @*@{
+                                string filePath = "/KmsResources/" + ViewBag.filePath;
+                            }*@
+                        @if (type == 1 || type == 2)
+                        {
+                            int flag = ViewBag.flag;
+                            <i id="collFa" class="fa fa-heart @(flag == 1 ? "font-red-sunglo" : "")"></i>
+                            <a onclick="collection('@Model.K_Resources_code')">收藏(<span id="collection">@collectionCount</span>)</a>
+                        }
+                    </li>
+                    <li>
+                        @{
+                            string filePath = "/KmsResources/" + ViewBag.filePath;
+                        }
+                        @if (type == 1 && Model.K_Resources_Permissions == true)
+                        {
+                            <i class="fa fa-level-down"></i>
+                            <a href="/kms/resources/DownResources?filePath=@filePath&resourcesCode=@Model.K_Resources_code">下载(@dow)</a>
+                        }
+                    </li>
+                </ul>
+            </div>
+        </div>
+        @if (Model.K_Resources_type == 829)
+        {
+            <div class="row">
+                <blockquote class="hero">
+                    <p style="font-size:14px;">
+                        @Html.Raw(Model.K_Resources_description)
+                    </p>
+                </blockquote>
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-5"></div>
+            <div class="col-md-6">
+                @{
+                    int iszam = ViewBag.IsZam;
+                }
+                <a href="javascript:;" class="icon-btn" contenteditable="false" onclick="zam('1')" id="yesuser">
+                    <i id="zamFa" class="fa icon-like @(iszam == 1 ? "font-red-sunglo" : "")"></i>
+                    <div>
+                        点赞
+                    </div>
+                    <span class="badge badge-danger" id="zam">
+                        @zam
+                    </span>
+                </a>
+                <a href="javascript:;" class="icon-btn" onclick="zam('2')">
+                    <i id="nouserFa" class="fa icon-dislike @(iszam == 2 ? "font-red-sunglo" : "")"></i>
+                    <div>
+                        没用
+                    </div>
+                    <span class="badge badge-danger" id="nouser">
+                        @nouser
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-12 blog-page commentsList">
+    @{Html.RenderAction("PartCommentList", new { resourcesCode = Model.K_Resources_code });}
+</div>

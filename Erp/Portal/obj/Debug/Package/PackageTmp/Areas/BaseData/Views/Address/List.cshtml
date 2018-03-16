@@ -1,0 +1,44 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Address>
+
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "客户地址列表";
+}
+
+@{
+    C_Address addressConditon = ViewBag.AddressConditon;//客户地址条件模型
+}
+<div class="tools">
+    <ul class="toolbar">
+        <li><a target="popdialog" title="地址信息" dialogwidth="600" dialogheight="400" href="/basedata/address/create?customerCode=@addressConditon.C_Address_customer"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+        <li><a target="popdialog" title="地址信息" dialogwidth="600" dialogheight="400" edit="edit" href="/basedata/address/edit?addressCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+        <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/address/delete?addressCode={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+    </ul>
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>地址简称</th>
+            <th>详细地址</th>
+            <th>区域</th>
+            <th>邮政编码</th>
+            <th>是否主要地址</th>        
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Address_code" relName="@item.C_Address_shortName">
+                <td>@item.C_Address_shortName</td>
+                <td>@item.C_Address_detail</td>
+                <td>@item.C_Address_area</td>               
+                <td>@item.C_Address_postalCode</td>                
+                <td>@(item.C_Address_isMainAddress == true ? "是" : "否")</td>
+            </tr>
+        }
+    </tbody>
+</table>    

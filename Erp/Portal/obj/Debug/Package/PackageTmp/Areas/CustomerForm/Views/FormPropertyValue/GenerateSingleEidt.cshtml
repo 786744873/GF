@@ -1,0 +1,167 @@
+﻿@using CommonService.Model.CustomerForm;
+@using CommonService.Common;
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormProperty>
+@section HeadCss
+{
+    <style type="text/css">
+    </style>
+}
+@section HeadScript{
+    <script type="text/javascript" src="/theme/js/customerform.js"></script>
+}
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "表单属性值";
+}
+@{    
+    bool isHasSaveFormPower = ViewBag.IsHasSaveFormPower;
+    bool isSwitchFormHistoryRecordUrl = ViewBag.IsSwitchFormHistoryRecordUrl;
+    CommonService.Model.CustomerForm.F_Form formcon = ViewBag.formCon;
+    
+    string fkType = ViewBag.fkType;
+    string pkCode = ViewBag.PkCode;
+    string formCode = ViewBag.FormCode;
+    string businessFlowCode = ViewBag.BusinessFlowCode;
+    string businessFlowFormCode = ViewBag.BusinessFlowFormCode;
+    int formStatus = ViewBag.FormStatus;
+}
+@if (!isHasSaveFormPower)
+{//没有保存权限，加入蒙版
+    @*<div class="outer_wrapper_show"></div>*@
+}
+
+<div class="formbody">
+    <ul class="forminfo">
+        @using (Html.BeginForm("SaveEditInfo", "FormPropertyValue", FormMethod.Post, new { id = "formFormPropertyValue", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("fkType", fkType);
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("businessFlowCode", businessFlowCode);//业务流程GUid
+            string htmlAttributes = "";
+            string propertyTime = "";
+            string dvId="";
+            foreach (var item in Model)
+            {
+                if (!item.F_FormProperty_isShow)
+                {
+                <input type="hidden" id="formproperty_@item.V_FormPropertyValue_Code" name="formproperty_@item.V_FormPropertyValue_Code" value="@item.V_FormPropertyValue_Value" />
+                    continue;
+                }
+                htmlAttributes = "";
+                propertyTime = "";
+                if (item.F_FormProperty_isRequire)
+                {
+                    htmlAttributes += "requiredInput=请输入" + item.F_FormProperty_showName + "！ ";
+                }
+                if (item.F_FormProperty_isOnlyRead)
+                {
+                    htmlAttributes += "readonly=readonly ";
+                }
+                //处理其它验证
+                string otherValidateStr = item.F_FormProperty_validationMessage;
+                if (!String.IsNullOrEmpty(otherValidateStr))
+                {
+                    string[] validateMessageGroup = otherValidateStr.Split('|');
+                    for (int i = 0; i < validateMessageGroup.Length; i++)
+                    {
+                        htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                    }
+                }
+                htmlAttributes += "maxlength=" + item.F_FormProperty_fieldLength + " ";
+                
+                dvId="formproperty_"+item.F_FormProperty_fieldName+"_dv";
+
+                switch (item.F_FormProperty_uiType.Value)
+                {
+                    case 129://单行文本框
+                        if (item.F_FormProperty_fieldName.ToString() == "rwmc" && string.IsNullOrEmpty(item.V_FormPropertyValue_Value))
+                        {
+                           <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input id="formproperty_@item.V_FormPropertyValue_Code" name="formproperty_@item.V_FormPropertyValue_Code" type="text" @htmlAttributes value="@formcon.F_Form_chineseName"><i></i></div>
+                        }
+                        else
+                        {
+                           <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input id="formproperty_@item.V_FormPropertyValue_Code" name="formproperty_@item.V_FormPropertyValue_Code" type="text" @htmlAttributes value="@item.V_FormPropertyValue_Value"><i></i></div>
+                        }
+                        break;
+                    case 130://多行文本框
+                <div id="@dvId" class="mulitytextarealonger"><label>@item.F_FormProperty_showName</label><textarea id="formproperty_@item.V_FormPropertyValue_Code" name="formproperty_@item.V_FormPropertyValue_Code" rows="2" cols="20" @htmlAttributes>@item.V_FormPropertyValue_Value</textarea><i></i></div>
+                        break;
+                    case 131://单选框
+                    <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label>@{Html.RenderAction("GenerateRadio", new { formPropertyValue = @item });}<i></i></div>
+                break;
+                case 132://复选框
+                if (!String.IsNullOrEmpty(item.F_FormProperty_dataSource))
+                {
+                    <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label>@{Html.RenderAction("GenerateCheckbox", new { formPropertyValue = @item });}<i></i></div>
+                }
+                else
+                {//这种情况只能存放一个布尔型的值：1或者0
+                    if (String.IsNullOrEmpty(item.V_FormPropertyValue_Value))
+                    {
+                        <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input name="formproperty_@item.V_FormPropertyValue_Code" value="0" type="checkbox" /><i></i></div>
+                    }
+                    else
+                    {
+                        <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input name="formproperty_@item.V_FormPropertyValue_Code" value="1" type="checkbox" /><i></i></div>
+                    }
+                }
+                break;
+                    case 133://下拉框
+                <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label>@{Html.RenderAction("GenerateDropDownList", new { formPropertyValue = @item });}<i></i></div>
+                break;
+                    case 134://日期框
+                htmlAttributes += "date=date dateformat=yyyy-MM-dd";
+                if (!String.IsNullOrEmpty(item.V_FormPropertyValue_Value))
+                    
+                {
+                    propertyTime = DateTime.Parse(item.V_FormPropertyValue_Value).ToString("yyyy-MM-dd");
+                }
+                <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input id="formproperty_@item.V_FormPropertyValue_Code" name="formproperty_@item.V_FormPropertyValue_Code" type="text" @htmlAttributes value="@propertyTime"><i></i></div>
+                break;
+                    case 135://日期时间框
+                htmlAttributes += "date=date ";
+                if (!String.IsNullOrEmpty(item.V_FormPropertyValue_Value))
+                {
+                    propertyTime = DateTime.Parse(item.V_FormPropertyValue_Value).ToString("yyyy-MM-dd HH:mm:ss");
+                }
+                <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input dateformat="yyyy-MM-dd HH:mm:ss" id="formproperty_@item.V_FormPropertyValue_Code" name="formproperty_@item.V_FormPropertyValue_Code" type="text" @htmlAttributes value="@propertyTime"><i></i></div>
+                break;
+                    case 136://单选弹出框
+                <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label>@{Html.RenderAction("GenerateSingleCallbackRefList", new { formPropertyValue = @item, htmlAttributes = @htmlAttributes });}<i></i></div>
+                break;
+                    case 137://多选弹出框
+                <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label>@{Html.RenderAction("GenerateMulityCallbackRefList", new { formPropertyValue = @item, htmlAttributes = @htmlAttributes });}<i></i></div>
+                break;
+                    case 138://单选弹出树
+                <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label>@{Html.RenderAction("GenerateSingleCallbackRefTree", new { formPropertyValue = @item, htmlAttributes = @htmlAttributes });}<i></i></div>
+                break;
+                    case 655://多选弹出文本框
+                <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label>@{Html.RenderAction("GenerateMulityCallbackRefEdit", new { formPropertyValue = @item, htmlAttributes = @htmlAttributes });}<i></i></div>
+                break;
+                }
+            }
+            if (isHasSaveFormPower)
+            {
+                if (formStatus != Convert.ToInt32(FormStatusEnum.已作废))
+                {
+                   <div class="buttonWrap clear">
+                     <label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i>
+                     <label>&nbsp;</label><input name="" type="button" onclick="viewAttachment(this)" class="btn btnmr fl" value="附件信息" title="表单附件" dialogwidth="1200" dialogheight="700" url="/attachmentupload/attachment_defaultlayout?relationCode=@businessFlowFormCode&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.自定义表单)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.自定义表单)" /><i></i>
+                   </div>
+                }
+            }
+            else
+            {//只可以查看附件,不可以对附件执行任何操作
+                if (formStatus != Convert.ToInt32(FormStatusEnum.已作废))
+                {
+                   <div class="buttonWrap clear">
+                    <label>&nbsp;</label><input name="" type="button" onclick="viewAttachment(this)" class="btn btnmr fl" value="附件信息" title="表单附件" dialogwidth="1200" dialogheight="700" url="/attachmentupload/attachment_defaultlayout_view?relationCode=@businessFlowFormCode&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.自定义表单)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.自定义表单)" /><i></i>
+                   </div>
+                }
+            }
+        }
+        @{Html.RenderAction("GenerateReDoneForm", "FormReDone", new { formUiType = 1, fkType = fkType, pkCode = pkCode, businessFlowCode = businessFlowCode, formCode = formCode, businessFlowFormCode = businessFlowFormCode, formStatus = formStatus, isSwitchFormHistoryRecordUrl = isSwitchFormHistoryRecordUrl ? 1 : 0 });}
+    </ul>
+</div>

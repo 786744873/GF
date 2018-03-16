@@ -1,0 +1,40 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Contacts_experience>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "工作经历列表";
+}
+
+@{
+    C_Contacts_experience exConditon = ViewBag.ExpConditon;//组织机构条件模型
+}
+<div class="tools">
+    <ul class="toolbar">
+        <li><a target="popdialog" title="工作经历" dialogwidth="600" dialogheight="300" href="/basedata/Contacts_experience/create?C_Contacts_code=@ViewBag.C_Contacts_code"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+        <li><a target="popdialog" title="工作经历" dialogwidth="600" dialogheight="300" edit="edit" href="/basedata/Contacts_experience/edit?C_Contacts_experience_id={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+        <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/Contacts_experience/delete?C_Contacts_experience_id={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+       
+    </ul>
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>担任职务</th>
+            <th>任职时间</th>
+            <th>工作内容</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Contacts_experience_id">
+                <td>@item.C_Contacts_experience_post</td>
+                <td>@(item.C_Contacts_experience_date==null ? "" : item.C_Contacts_experience_date.Value.ToString("yyyy-MM-dd"))</td>
+                <td>@item.C_Contacts_experience_content</td>
+            </tr>
+        }
+    </tbody>
+</table>    

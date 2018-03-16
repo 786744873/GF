@@ -1,0 +1,62 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Region>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithCallbackTemplate.cshtml";//包含回调方法的列表页面固定模板
+}
+@{
+    ViewBag.Title = "区域信息";
+}
+
+@{
+    C_Region RegConditon = ViewBag.RegConditon;//条件模型
+    string lookupGroup = ViewBag.Lookupgroup;
+    string propertyValueCode = ViewBag.PropertyValueCode;
+    string mappingField = ViewBag.MappingField;//暂时不做处理
+    string mappingFieldName = ViewBag.MappingFieldName;//暂时不做处理
+    string code = "Code_formproperty_" + propertyValueCode;
+    string name = "Name_formproperty_" + propertyValueCode;
+}
+<div class="callback_list_tool">
+    <div class="tools">
+        <ul class="toolbar">
+            <li><a target="ajaxtodo" singleoperate="singleoperate" href="javascript:window.parent.bringBack({callbackjson})"><span><img src="/theme/images/new_ok.png" /></span>确定</a></li>
+        </ul>
+        @using (Html.BeginForm("SingleCallbackRefList_AreaForm", "Region", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+        {
+            <ul class="seachform">
+                <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+                <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+                <input type="hidden" name="lookupgroup" value="@lookupGroup" />
+                <input type="hidden" name="propertyValueCode" value="@propertyValueCode" />
+                <li><label>区域名称</label>@Html.TextBox("C_Region_name", RegConditon.C_Region_name, new { @class = "scinput" })</li>
+                <li><label>&nbsp;</label><input type="submit" class="scbtn" value="查询" /></li>
+            </ul>
+        }
+    </div>
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            @*<th><input type="checkbox" mulitycheck="mulitycheck" value=""></th>*@
+            <th>区域名称</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string callbackStr = "{'lookupgroup':'" + lookupGroup + "','" + code + "':'" + @item.C_Region_code + "','" + name + "':'" + @item.C_Region_name + "'}";
+            <tr target="sid_Iterm" rel="@item.C_Region_code" callbackjson="@callbackStr">
+                @*@if (ViewBag.selectedRegionCode != null && ViewBag.selectedRegionCode.Contains(item.C_Region_code.ToString()))
+                    {
+                        <td width="35px"><input operate=" operate" type="checkbox" checked="checked" value=""></td>
+                    }
+                    else
+                    {
+                        <td width="35px"><input operate=" operate" type="checkbox" value=""></td>
+                    }*@
+                <td>@item.C_Region_name</td>
+            </tr>
+        }
+    </tbody>
+</table>

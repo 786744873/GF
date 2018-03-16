@@ -1,0 +1,14 @@
+﻿@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "涉案项目详细";
+}
+<div class="itab">
+    <ul>
+        <li><a href="/basedata/Involved_project/Details?Involved_project_code=@ViewBag.Involved_project_code" tabpanelwidth="100%" tabpanelheight="800" class="selected">项目信息</a></li>
+        <li><a href="/basedata/Involved_project_CU/ViewList?Involved_project_code=@ViewBag.Involved_project_code" tabpanelwidth="100%" tabpanelheight="900">建设单位</a></li>
+        <li><a href="/basedata/Involved_projectUnit/ViewList?Involved_project_code=@ViewBag.Involved_project_code" tabpanelwidth="100%" tabpanelheight="900">项目关联单位</a></li>
+       
+    </ul>
+</div>

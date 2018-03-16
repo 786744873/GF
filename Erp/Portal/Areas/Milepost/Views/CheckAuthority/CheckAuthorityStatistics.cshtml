@@ -1,0 +1,49 @@
+﻿@model List<CommonService.Model.Customer.V_CheckAuthority>
+
+@{
+    ViewBag.Title = "稽查统计";
+}
+@{
+   string pkCode = ViewBag.PkCode;//案件Guid
+   string targetUrl = String.Empty;//目标链接
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th width="78%">名称</th>
+            <th width="22%">被稽查次数</th>         
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            if (item.AuthorityType == 1)
+            {//一审稽查
+                targetUrl = "/Milepost/Milepost/MilepostList?J_Milepost_Type=1&pkCode="+pkCode;
+            }
+            else if (item.AuthorityType == 2)
+            {//二审稽查
+                targetUrl = "/Milepost/Milepost/MilepostList?J_Milepost_Type=2&pkCode=" + pkCode;
+            }
+            else if (item.AuthorityType == 3)
+            {//执行里程碑
+                targetUrl = "/Milepost/Milepost/MilepostList?J_Milepost_Type=3&pkCode=" + pkCode;
+            }
+            else if (item.AuthorityType == 4)
+            {//非里程碑
+                targetUrl = "/Milepost/NoMilepost/List?pkCode=" + pkCode;
+            }
+            <tr target="sid_Iterm" rel="">
+                <td>@item.AuthorityName</td> 
+                @if (item.AuthorityTime == 0)
+                {
+                    <td>0</td>
+                }
+                else
+                {
+                    <td><a href="@targetUrl" target="_blank" title="点击查看" style="color: #056dae; text-decoration: underline;">@item.AuthorityTime</a></td>
+                }                
+            </tr>
+        }
+    </tbody>
+</table>    

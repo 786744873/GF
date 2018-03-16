@@ -1,0 +1,97 @@
+﻿@using CommonService.Model;
+@using CommonService.Common;
+@using CommonService.Model.SysManager;
+@using Context;
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormProperty>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "重做表单历史记录";
+}
+
+@section HeadScript{
+    <script type="text/javascript">
+        $(function () {
+            //页面加载时，赋值当前选中表单值(目的为防止多次点击刷新)
+            commonListData.uniqueId = '@ViewBag.ThisBusinessFlowFormCode';
+        });
+        //切换行时，重新加载对应表单
+        function reLoadCheckedForm(obj) {
+            $this=$(obj);
+            var switchurl = $this.attr('switchUrl');
+            window.parent.location.href = switchurl;
+        }
+    </script>
+}
+@{
+   string fkType = ViewBag.FkType;
+   string pkCode = ViewBag.PkCode;
+   string businessFlowCode = ViewBag.BusinessFlowCode;
+   string formCode = ViewBag.FormCode;
+   string thisBusinessFlowFormCode = ViewBag.ThisBusinessFlowFormCode;
+   string formUiType = ViewBag.FormUiType;
+}
+@{   
+    //提取自定义表单（业务流程表单中间表） 
+    var BusinessFlowForms = from f in Model
+              group f by f.V_BusinessFlowForm_Code 
+              into g
+              select new { BusinessFlowFormCode = g.Key };  
+    //默认表单（业务流程表单中间表）
+    var DefaultBusinessFlowForm = BusinessFlowForms.FirstOrDefault();
+}
+<table class="tablelist">
+    <thead>
+        <tr>             
+        @{
+            //处理动态列头
+            if (DefaultBusinessFlowForm != null)
+            {
+                <th>序号</th>
+                var tableHeadCoumns = Model.Where(p => p.V_BusinessFlowForm_Code == DefaultBusinessFlowForm.BusinessFlowFormCode);//表单属性
+                foreach (var headColumn in tableHeadCoumns)
+                {
+                    <th>@headColumn.F_FormProperty_showName</th>
+                }
+            }
+        }        
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            //处理动态属性及其值
+            int rowIndex=0;
+            string trClass=String.Empty;       
+            string switchUrl=String.Empty;//表单UI类型     
+            foreach (var businessFlowForm in BusinessFlowForms)
+            {
+                rowIndex++;
+                trClass = String.Empty;
+                switchUrl = string.Empty;
+                if (thisBusinessFlowFormCode.ToLower() == businessFlowForm.BusinessFlowFormCode.Value.ToString().ToLower())
+                {
+                    trClass = " class=selected";
+                }
+                if (formUiType == "1")
+                {//普通编辑表单
+                    switchUrl = "/CustomerForm/FormPropertyValue/GenerateSingleEidt?formCode=" + formCode + "&businessFlowFormCode=" + businessFlowForm.BusinessFlowFormCode + "&businessFlowCode=" + businessFlowCode + "&fkType=" + fkType + "&pkCode=" + pkCode + "&isSwitchFormHistoryRecordUrl=1";
+                }
+                else if (formUiType == "3")
+                {//主子结构表单
+                    switchUrl = "/CustomerForm/FormPropertyValue/LayoutHeadAndMulityItems?formCode=" + formCode + "&businessFlowFormCode=" + businessFlowForm.BusinessFlowFormCode + "&businessFlowCode=" + businessFlowCode + "&fkType=" + fkType + "&pkCode=" + pkCode + "&isSwitchFormHistoryRecordUrl=1";
+                }
+                <tr @trClass target="sid_Iterm" rel="@businessFlowForm.BusinessFlowFormCode" switchUrl="@switchUrl" rowchange="reLoadCheckedForm(this)">
+                    <td>@rowIndex</td>
+                @{
+                    var formPropertyValues = Model.Where(p => p.V_BusinessFlowForm_Code == businessFlowForm.BusinessFlowFormCode);//表单属性值
+                    foreach (var propertyValue in formPropertyValues)
+                    {
+                       <td>@propertyValue.V_FormPropertyValue_Value</td>
+                    }
+                }
+                </tr>
+            }
+        } 
+    </tbody>
+</table>    

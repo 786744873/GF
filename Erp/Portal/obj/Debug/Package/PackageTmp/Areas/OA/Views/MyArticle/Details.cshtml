@@ -1,0 +1,183 @@
+﻿@model CommonService.Model.OA.O_Article
+@{
+    Layout = null;
+}
+@{
+    List<CommonService.Model.OA.O_Article_user> Rlists = ViewBag.Rlists;
+    List<CommonService.Model.OA.O_Article_user> NRlists = ViewBag.NRlists;
+    List<CommonService.Model.OA.O_Article> otherlists = ViewBag.otherlists;
+
+}
+
+<div class="row">
+    <div class="col-md-12 news-page blog-page">
+        <div class="row">
+            <div class="col-md-9 blog-tag-data">
+                <h2>@Model.O_Article_title</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-inline blog-tags">
+                            <li>
+                                <i class="fa fa-tags font-green-sharp"></i>
+                                <i>@Model.C_Userinfo_name</i>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6 blog-tag-data-inner">
+                        <ul class="list-inline">
+                            <li>
+                                <i class="fa fa-calendar font-green-sharp"></i>
+                                <i>
+                                    @Model.O_Article_createTime
+                                </i>
+                            </li>
+                            <li>
+                                <i class="fa fa-comments font-green-sharp"></i>
+                                <i>@ViewBag.count 已阅</i>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="news-item-page own_content_dv">
+                    <p>
+                        @Html.Raw(Model.O_Article_content)
+                    </p>
+                </div>
+                <!--end media-->
+                <!--end media-->
+            </div>
+            <div class="col-md-3">
+                <h4>其它公告</h4>
+                <div class="scroller-footer">
+                    <div class="btn-arrow-link pull-right">
+                        <a href="/oa/myarticle/list" class="ajaxify">Read more</a>
+                        <i class="icon-arrow-right"></i>
+                    </div>
+                </div>
+                <div class="space20">
+                </div>
+                <div class="portlet-body">
+                    <div class="scroller" style="height:300px;" data-always-visible="1" data-rail-visible="0">
+                        <ul class="feeds">
+                            @foreach (var item in otherlists)
+                            {
+                                <li>
+                                    <div class="col1">
+                                        <div class="cont">
+                                            @*<div class="cont-col1">
+                                                    <div class="label label-sm label-info">
+                                                        <i class="fa fa-check"></i>
+                                                    </div>
+                                                </div>*@
+                                            <div class="cont-col1">
+                                                <div class="desc">
+                                                    <a href="/oa/myarticle/Details?articleCode=@item.O_Article_code&type=2" style="color:#5b9bd1" class="ajaxify">@item.O_Article_title</a>
+                                                    @*<span class="label label-sm label-warning "> </span>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col2">
+                                        <div class="date">
+
+                                            @*@item.O_Article_createTime.Value.ToString("yyyy/MM/dd")*@
+                                        </div>
+                                    </div>
+                                    <hr>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <h4>未阅读</h4>
+                <div class="portlet-body">
+                    <div class="scroller" style="height:300px;" data-always-visible="1" data-rail-visible="0">
+                        <ul class="feeds">
+                            @foreach (var item in NRlists)
+                            {
+                                <li>
+                                    <div class="col1">
+                                        <div class="cont">
+                                            @*<div class="cont-col1">
+                                                    <div class="label label-sm label-info">
+                                                        <i class="fa fa-check"></i>
+                                                    </div>
+                                                </div>*@
+                                            <div class="cont-col1">
+                                                <div class="desc">
+                                                    <i>@item.C_Userinfo_name</i>
+                                                    @*<span class="label label-sm label-warning "> </span>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col2">
+                                        <div class="date">
+
+                                            @*@item.O_Article_createTime.Value.ToString("yyyy/MM/dd")*@
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <h4>最近已阅</h4>
+                <div class="portlet-body">
+                    <div class="scroller" style="height:300px;" data-always-visible="1" data-rail-visible="0">
+                        <ul class="feeds">
+                            @foreach (var item in Rlists)
+                            {
+                                <li>
+                                    <div class="col1">
+                                        <div class="cont">
+                                            @*<div class="cont-col1">
+                                                    <div class="label label-sm label-info">
+                                                        <i class="fa fa-check"></i>
+                                                    </div>
+                                                </div>*@
+                                            <div class="cont-col1">
+                                                <div class="desc">
+                                                    <i>@item.C_Userinfo_name</i>
+                                                    @*<span class="label label-sm label-warning "> </span>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col2">
+                                        <div class="date">
+
+                                            @*@item.O_Article_createTime.Value.ToString("yyyy/MM/dd")*@
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    @if (ViewBag.type == "2")
+    {
+        <a class="btn ajaxify" href="/oa/dashboard/defaultlayout">
+            返回
+        </a>
+    }
+    else
+    {
+        <a class="btn ajaxify" href="/oa/myarticle/List">
+            返回
+        </a>
+    }
+
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("div.own_content_dv img").addClass("img-responsive");
+    })
+</script>

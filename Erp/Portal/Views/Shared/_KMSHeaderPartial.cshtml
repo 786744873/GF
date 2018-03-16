@@ -1,0 +1,165 @@
+﻿@using CommonService.Common
+@using Context
+@{
+    Layout = null;
+}
+@{
+    List<CommonService.Model.KMS.K_Comments> resourcesComments = ViewBag.resourcesComments;
+    List<CommonService.Model.KMS.K_Comments> problemComments = ViewBag.problemComments;
+}
+<div class="container">
+    <!-- BEGIN LOGO -->
+    <div class="page-logo">
+        <a href=""><img src="/theme/assets/admin/layout3/img/kms.png" style="height:80px;" alt="logo"></a>
+    </div>
+    <!-- END LOGO -->
+    <!-- BEGIN RESPONSIVE MENU TOGGLER -->
+    <a href="javascript:;" class="menu-toggler"></a>
+    <!-- END RESPONSIVE MENU TOGGLER -->
+    <!-- BEGIN TOP NAVIGATION MENU -->
+    <div class="top-menu">
+        <ul class="nav navbar-nav pull-right">
+            <!-- BEGIN NOTIFICATION DROPDOWN -->
+            <li class="dropdown dropdown-extended dropdown-dark dropdown-notification" id="header_notification_bar">
+                <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                    <i class="icon-bell"></i>
+                    <span class="badge badge-default" id="resourcesCount">@ViewBag.resourcesCommentCount</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li class="external">
+                        <h3>你有 <strong id="resourcesCount2">@ViewBag.resourcesCommentCount </strong>条 新资源评论</h3>
+                        @*<a href="/kms/study/MyComments?type=875">查看全部</a>*@
+                    </li>
+                    <li>
+                        <ul class="dropdown-menu-list scroller" style="height: 250px;" data-handle-color="#637283" id="resourcesCommentList">
+                            @{
+                                int i = 1;
+                            }
+                            @foreach (var comment in resourcesComments)
+                            {
+                                string resourcesComment = "resourcesComment" + i;
+                                string href = "";
+                                if (comment.K_Resources_type == Convert.ToInt32(ResourcesTypeEnum.视频))
+                                {
+                                    href = "/kms/avi/Details?id=" + comment.K_Resources_url + "&msgID=" + comment.C_Messages_id;
+                                }
+                                else
+                                {
+                                    href = "/kms/Resources/SelectResources?resourceCode=" + comment.P_FK_code + "&msgID=" + comment.C_Messages_id + "&type=" + comment.K_Resources_type;
+                                }
+                                <li id="@comment.C_Messages_id">
+                                    <a href="@href">
+                                        <span class="time">@comment.K_Comments_createTime.Value.ToString("yyyy-MM-dd")</span>
+                                        <span class="details">
+                                            <span class="label label-sm label-icon label-warning">
+                                                <i class="fa fa-bell-o"></i>
+                                            </span>
+                                            <span id=@resourcesComment>
+                                                @comment.K_Comments_content
+                                            </span>                                            
+                                        </span>
+                                    </a>
+                                </li>
+                                i++;
+                            }
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <!-- END NOTIFICATION DROPDOWN -->
+            <!-- BEGIN TODO DROPDOWN -->
+            <li class="dropdown dropdown-extended dropdown-dark dropdown-notification" id="header_notification_bar">
+                <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                    <i class="icon-bubble"></i>
+                    <span class="badge badge-default" id="problemCount">@ViewBag.problemCommentCount</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li class="external">
+                        <h3>你有 <strong id="problemCount2">@ViewBag.problemCommentCount </strong>条 新问吧回答</h3>
+                        @*<a href="/kms/study/MyComments?type=876">查看全部</a>*@
+                    </li>
+                    <li>
+                        <ul class="dropdown-menu-list scroller" style="height: 250px;" data-handle-color="#637283" id="problemList">
+                            @{
+                                int j = 1;
+                            }
+                            @foreach (var comment in problemComments)
+                            {
+                                string problemComment = "problemComment" + j;
+                                <li id="@comment.C_Messages_id">
+                                    <a href="/kms/problem/AnswerProblem?problemCode=@comment.P_FK_code&msgID=@comment.C_Messages_id">
+                                        <span class="time">@comment.K_Comments_createTime.Value.ToString("yyyy-MM-dd")</span>
+                                        <span class="details">
+                                            <span class="label label-sm label-icon label-warning">
+                                                <i class="fa fa-bell-o"></i>
+                                            </span>
+                                            <span id=@problemComment>
+                                                @comment.K_Comments_content
+                                            </span> 
+                                        </span>
+                                    </a>
+                                </li>
+                                j++;
+                            }
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <!-- END TODO DROPDOWN -->
+            <li class="droddown dropdown-separator">
+                <span class="separator"></span>
+            </li>
+            <li class="dropdown dropdown-user dropdown-dark">
+                <a href="/kms/Study/PersonalCenter" class="dropdown-toggle">
+                    @*<img alt="" style="height:35px;" class="img-circle" src="~/Theme/assets/admin/layout3/img/person_kms3.png">*@
+                    <i class="glyphicon glyphicon-user" style="margin-top:3px;"></i>
+                    <span class="username username-hide-mobile"> &nbsp;&nbsp;@UIContext.Current.UserName</span>
+                </a>
+            </li>
+            <li class="droddown dropdown-separator">
+                <span class="separator"></span>
+            </li>
+            <li class="dropdown dropdown-user dropdown-dark">
+                <a href="/account/kmssignin" class="dropdown-toggle">
+                    <span class="username username-hide-mobile">退出</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- END TOP NAVIGATION MENU -->
+</div>
+ @*<script>
+     window.onload = function () {
+         var $resourcesCommentList = $("#resourcesCommentList");
+         var i = 1;
+         $(".details", $resourcesCommentList).each(function () {
+             var content = $("#resourcesComment" + i).text();
+             var start_ptn = /<[^>]*>/g;      //过滤标签   
+             var space_ptn = /&nbsp;/ig;          //过滤标签结尾
+             var contenttext = $.trim(content.replace(start_ptn, "").replace(space_ptn, ""));   //c为富文本 
+             if (contenttext.length > 10)
+             {
+                 $("#resourcesComment" + i).text(contenttext.substring(0,10)+"...");
+             } else
+             {
+                 $("#resourcesComment" + i).text(contenttext);
+             }             
+             i++;
+         })
+
+         var $problemCommentList = $("#problemList");
+         var j = 1;
+         $(".details", $problemCommentList).each(function () {
+             var procontent = $("#problemComment" + j).text();
+             var start_ptn = /<[^>]*>/g;      //过滤标签   
+             var space_ptn = /&nbsp;/ig;          //过滤标签结尾
+             var procontenttext = $.trim(procontent.replace(start_ptn, "").replace(space_ptn, ""));   //c为富文本 
+             if (procontenttext.length > 10) {
+                 $("#problemComment" + j).text(procontenttext.substring(0, 10) + "...");
+             } else {
+                 $("#problemComment" + j).text(procontenttext);
+             }
+             j++;
+         })
+     }
+ </script>*@

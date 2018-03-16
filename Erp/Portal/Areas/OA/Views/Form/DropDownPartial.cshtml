@@ -1,0 +1,24 @@
+﻿@model IEnumerable<CommonService.Model.C_Parameters>
+@{
+    CommonService.Model.CustomerForm.F_FormProperty formPropertyValue = ViewBag.FormPropertyValue;//表单属性值数据实体
+}
+<div class="col-md-6">
+    <div class="form-group">
+        <label class="control-label col-md-3">@formPropertyValue.F_FormProperty_showName</label>
+        <div class="col-md-9">         
+            <select id="formproperty_@formPropertyValue.V_FormPropertyValue_Id" name="formproperty_@formPropertyValue.V_FormPropertyValue_Id" class="form-control">
+                @foreach (var dropItem in Model)
+                {
+                    if (formPropertyValue.V_FormPropertyValue_Value == dropItem.C_Parameters_id.ToString())
+                    {
+                        <option selected="selected" value="@dropItem.C_Parameters_id">@dropItem.C_Parameters_name</option>
+                    }
+                    else
+                    {
+                        <option value="@dropItem.C_Parameters_id">@dropItem.C_Parameters_name</option>   
+                    }                    
+                }
+            </select>
+        </div>
+    </div>
+</div>

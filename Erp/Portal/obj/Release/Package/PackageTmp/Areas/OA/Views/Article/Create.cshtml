@@ -1,0 +1,100 @@
+﻿@model CommonService.Model.OA.O_Article
+@{
+    Layout = null;
+}
+<div class="modal-header">
+    @*<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>*@
+    <h4 class="modal-title">通知公告</h4>
+</div>
+<div class="modal-body">
+    @using (Html.BeginForm("Save", "Article", FormMethod.Post, new { id = "formArticle", @class = "form-horizontal", role = "form" }))
+    {
+        <div class="form-body">
+            <div class="alert alert-danger display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+            </div>
+            <div class="alert alert-success display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据验证通过，数据处理中..."></span>
+            </div>
+            @Html.Hidden("O_Article_id", Model.O_Article_id)
+            @Html.Hidden("O_Article_code", Model.O_Article_code)
+            @Html.Hidden("O_Article_creator", Model.O_Article_creator)
+            @Html.Hidden("O_Article_createTime", Model.O_Article_createTime)
+            @Html.Hidden("O_Article_publisher", Model.O_Article_publisher)
+            @Html.Hidden("O_Article_publishTime", Model.O_Article_publishTime)
+            @Html.Hidden("O_Article_isDelete", Model.O_Article_isDelete)
+            @Html.Hidden("O_Article_state", Model.O_Article_state)
+            @Html.Hidden("orglist")
+            <div class="form-group">
+                <label class="control-label col-md-2">公告标题 <span class="required">*</span></label>
+                <div class="col-md-9">
+                    <div class="input-icon right">
+                        <i class="fa"></i>
+                        @Html.TextBox("O_Article_title", Model.O_Article_title, new { @class = "form-control", placeholder = "文章标题", maxlength = "200", validateType = "{required:true,minlength:10}", validateMessage = "{required:'文章标题不能为空',minlength:'文章标题必须大于等于{0}个字符'}" })
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">公告内容<span class="required">*</span></label>
+                <div class="col-md-9">
+                    <div class="input-icon right">
+                        <i class="fa"></i>
+                        @Html.TextArea("O_Article_content", Model.O_Article_content, new { @class = "ckeditor form-control", rows = "6", validateType = "{required:true}", validateMessage = "{required:'文章内容不能为空'}" })
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">消息接收部门</label>
+                <div class="col-md-9">
+                    <div class="form-control height-auto">
+                        <div class="scroller" id="treeScrollContainer" data-always-visible="1">
+                            <div id="tree_2" class="tree-demo">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">状态</label>
+                <div class="col-md-9">
+                    @Html.TextBox("O_Article_state_name", Model.O_Article_state_name, new { @class = "form-control", placeholder = "文章状态", maxlength = "200", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="row">
+    <div class="col-md-11 modal-footer">
+        <button type="button" class="btn blue" onclick="saveArticle('formArticle')">保存</button>
+        <a class="btn ajaxify" href="/oa/article/List">
+            返回
+        </a>
+    </div>
+</div>
+
+
+
+@Html.Partial("_OAHidePartial")@*引入页面中用到的一些关联触发*@
+<!-- BEGIN MAIN JS -->
+<script>
+    CKEDITOR.replace('O_Article_content');//文本编辑器初始化
+    $('#treeScrollContainer').slimScroll({ height: '200px' });//设置Tree容器高度，超过此高度会出现滚动条
+    var orgTrees = '@Html.Raw(ViewBag.OrgTree)';
+    var orgTreeJsonData = eval("(" + orgTrees + ")"); //组织机构树数据处理
+    UITree.init(orgTreeJsonData);//初始化树
+    FormValidation.init('formArticle', formNavAjaxDone);//用表单Id和表单回调函数，初始化表单
+
+    function saveArticle(formId) {
+        //alert($('#tree_2').jstree().get_checked());
+        //var cate_ids = [];
+        //$(".jstree-clicked").each(function (i, element) {
+        //    var $this = $(this);
+        //    cate_ids.push($this.parent().attr("id"));
+        //});
+        $("#orglist").val($('#tree_2').jstree().get_checked());
+        saveForm(formId);
+    }
+</script>
+<!-- END MAIN JS -->

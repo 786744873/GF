@@ -1,0 +1,204 @@
+﻿@using CommonService.Common
+@{
+    Layout = "~/Views/Shared/_KMSLayout.cshtml";//KMS母版页
+}
+@{
+    List<CommonService.Model.KMS.K_Knowledge> listK = ViewBag.listK;
+    List<CommonService.Model.C_Parameters> ResourcesState = ViewBag.ResourcesState;
+    List<CommonService.Model.C_Parameters> ResourcesType = ViewBag.ResourcesType;
+    //判断当前菜单是否有主菜单，取其code
+    string parentCode = "";
+    if (ViewBag.knowledge != null && ViewBag.knowledge != "")
+    {
+        Guid code = new Guid(ViewBag.knowledge);
+        CommonService.Model.KMS.K_Knowledge menuModel = listK.SingleOrDefault(item => item.K_Knowledge_parent != null && item.K_Knowledge_code == code);
+        if (menuModel != null)//如果menuModel不为空，则包含父级菜单
+        {
+            //获取父级菜单菜单code
+            CommonService.Model.KMS.K_Knowledge parModel = listK.SingleOrDefault(par => par.K_Knowledge_code == menuModel.K_Knowledge_parent);
+            parentCode = parModel.K_Knowledge_code.ToString();
+        }
+    }
+}
+
+<div class="col-md-2" id="knowledge">
+    <ul class="ver-inline-menu">
+        @foreach (var item in listK.Where(kk => kk.K_Knowledge_parent == null))
+        {
+            //获取该菜单下的子菜单
+            List<CommonService.Model.KMS.K_Knowledge> menuList = listK.Where(menu => menu.K_Knowledge_parent == item.K_Knowledge_code).ToList();
+            <li class="dropdown-submenu" id="@item.K_Knowledge_code">
+                <a class="knowledgeCode" onclick="selectR($(this))" code="@(item.K_Knowledge_code)" @*href="/kms/SearchResources/list?keyWord=@ViewBag.keyword&knowledge=@(item.K_Knowledge_code)"*@>
+                    <i class="icon-briefcase"></i>
+                    @item.K_Knowledge_name
+                </a>
+                @if (menuList.Count() > 0)//判断是否有子菜单
+                {
+                    <ul class="dropdown-menu">
+                        @foreach (var ziMenu in menuList)
+                        {
+                            <li class="" id="@ziMenu.K_Knowledge_code">
+                                <a class="ziCode" onclick="selectR($(this))" code="@(ziMenu.K_Knowledge_code)" @*href="/kms/SearchResources/list?keyWord=@ViewBag.keyword&knowledge=@(ziMenu.K_Knowledge_code)"*@>
+                                    @ziMenu.K_Knowledge_name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                }
+            </li>
+        }
+    </ul>
+</div>
+<div class="col-md-10">
+    <div id="search"><h5>搜索关键字“<code id="keyWord">@ViewBag.keyword</code>”的结果，共<span id="searchTotal"></span>条</h5></div>
+    <ul class="mix-filter col-md-6" id="resourcestype">
+        类型：
+        <li class="filter" id="0">不限</li>
+        <li class="filter" id="1">文档</li>
+        <li class="filter" id="827">视频</li>
+        <li class="filter" id="829">文章</li>
+        <li class="filter" id="825">图片</li>
+    </ul>
+    <div class="col-md-4 col-md-offset-2">
+        <div id="searchresourcesList_search">
+            @Html.Hidden("isExecutedSearch", "1")
+            @Html.Hidden("KnowledgeType")
+            @Html.Hidden("shareResourcesType")
+            <div class="input-group">
+                <input name="s_title" id="s_title" type="text" class="form-control" placeholder="资源名称">
+                <span class="input-group-btn">
+                    <button class="btn blue" type="button" onclick="executeSearch('searchresourcesList', 'searchresourcesList_search')" id="sub"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="portlet-body">
+        <table class="table table-striped table-bordered table-hover margin-top-10" id="searchresourcesList">
+            <thead>
+                <tr>
+                    <th>资源guid</th>
+                    <th>资源封面</th>
+                    <th>资源描述</th>
+                    <th>资源类型</th>
+                    <th>资源地址</th>
+                    <th>创建人</th>
+                    <th>赞次数</th>
+                    <th>浏览次数</th>
+                    <th>创建时间</th>
+                    <th class="hide">资源列表</th>
+                    <th>搜索关键字总数</th>
+                    <th>搜索关键字</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!--数据行在这里-->
+            </tbody>
+        </table>
+    </div>
+
+</div>
+@section HeadCss{
+    <style type="text/css">
+        .table-bordered > tbody > tr > td {
+            border: none;
+        }
+
+        .table-scrollable {
+            border: none;
+        }
+    </style>
+}
+@section HeadScript{
+    <script>
+        var knowledgecode = '@ViewBag.knowledge';
+        $('#KnowledgeType').val(knowledgecode);
+        var resourcestyperel = '@ViewBag.resourcestyperel';
+        $('#shareResourcesType').val(resourcestyperel);
+        var $resourcestype = $('#resourcestype');
+        $("li", $resourcestype).each(function () {
+            $(this).click(function (event) {
+                event.preventDefault();
+                var $this = $(this);
+                var resourcesState = $this.attr("id");
+                $('#shareResourcesType').val(resourcesState);
+                $('#sub').trigger('click');
+                $('#resourcestype li').each(function (index) {
+                    $(this).removeClass('active');
+                })
+                $this.addClass('active');
+            });
+        })
+        $('#s_title').val('@ViewBag.keyword');
+        var defaultColumns = [
+          { "sName": "K_Resources_code", "bVisible": false },
+          { "sName": "K_Resources_coverImage", "bVisible": false },
+          { "sName": "K_Resources_description", "bVisible": false },
+          { "sName": "K_Resources_type", "bVisible": false },
+          { "sName": "K_Resources_url", "bVisible": false },
+          { "sName": "K_Resources_creatorName", "bVisible": false }, 
+          { "sName": "K_Resources_zambiaCount", "bVisible": false },
+          { "sName": "K_Browse_LogCount", "bVisible": false },
+          { "sName": "K_Resources_createTime", "bVisible": false },
+          { "sName": "K_Resources_name" },
+          { "sName": "TotalRecordCount", "bVisible": false },
+          { "sName": "keyWord", "bVisible": false }
+        ];//table 默认列扩展
+        var submitUrl = '/kms/searchresources/Ajaxlist?keyword=@ViewBag.keyword';//数据获取地址
+        TableManaged.init('searchresourcesList', "searchresourcesList_search", defaultColumns, submitUrl);//用table id,table search id,默认列 初始化table对象
+        function selectR(a) {
+            var code = a.attr('code');
+            var key = $("#s_title").val();
+            var type = $("#shareResourcesType").val();
+            a.attr("href", "/kms/SearchResources/list?keyWord=" + key + "&knowledge=" + code + "&resourcestype=" + type);
+            //$('#KnowledgeType').val(code);
+            //$('#sub').trigger('click');
+        }
+
+        //页面加载tab样式
+        var tabType = resourcestyperel;
+        if (tabType == "827") {
+            $('#827').addClass("active");
+            $("#shareResourcesType").val("827");
+        } else if (tabType == "829") {
+            $('#829').addClass("active");
+            $("#shareResourcesType").val("829");
+        }
+        else if (tabType == "825") {
+            $('#825').addClass("active");
+            $("#shareResourcesType").val("825");
+        }
+        else if (tabType == "1") {
+            $('#1').addClass("active");
+            $("#shareResourcesType").val("1");
+        } else {
+            $('#0').addClass("active");
+            $("#shareResourcesType").val("0");
+        }
+
+        //监听table数据变化
+        var title = $('#searchresourcesList');
+        title.bind('DOMNodeInserted', function (e) {
+            if ($(e.target).text() == '无记录结果！') {
+                $("#searchTotal").text('0');
+            }
+            //alert('element now contains: ' + $(e.target).text());
+        });
+        //左侧下拉菜单样式
+        window.onload = function () {
+            var liclass = '@ViewBag.knowledge';//当前菜单id
+            var parclass = '@parentCode';//父级菜单id
+            if (liclass != null && liclass != "") {
+                //$("#" + liclass).addClass('active');
+                $("#" + liclass + " .knowledgeCode").attr("style", "background:#169ef4;color:#fff;");
+                $("#" + liclass + " .knowledgeCode i").attr("style", "background:#0c91e5 !important;color:#fff;");
+            }
+            if (parclass != null && parclass != "") {
+                //$("#" + parclass).addClass('active');
+                $("#" + liclass + " .ziCode").attr("style", "background:#169ef4;color:#fff;");
+                $("#" + liclass + " .ziCode i").attr("style", "background:#0c91e5 !important;color:#fff;");
+                $("#" + parclass + " .knowledgeCode").attr("style", "background:#169ef4;color:#fff;");
+                $("#" + parclass + " .knowledgeCode i").attr("style", "background:#0c91e5 !important;color:#fff;");
+            }
+        }
+    </script>
+}

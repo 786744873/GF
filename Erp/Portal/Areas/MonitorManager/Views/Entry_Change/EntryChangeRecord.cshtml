@@ -1,0 +1,144 @@
+﻿@model List<CommonService.Model.MonitorManager.M_Entry_Change>
+
+@{
+    ViewBag.Title = "条目变更";
+}
+@{
+    List<CommonService.Model.C_Parameters> isThrough = ViewBag.Change_isThrough;
+    //List<CommonService.Model.C_Parameters> warningTypes = ViewBag.warningType;
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th width="12%">条目名称</th>
+            <th width="7%">办理状态</th>
+            <th width="8%">办理情况</th>            
+            <th width="8%">预警情况</th>
+            <th width="6%">申请人</th>
+            <th width="10%">变更申请时长</th>            
+            <th width="*">变更理由</th>
+            <th width="10%">变更人</th>
+            <th width="10%">实际变更时长</th>
+            <th width="10%">变更情况</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.M_Entry_Change_code" relname="@item.M_Case_name">
+                <td>@item.M_Entry_name</td>
+                <td>@item.M_Entry_Statistics_HandlingState_name</td>
+                @if (item.M_Entry_Statistics_Management != null)
+                {
+                    int a = Convert.ToInt32(item.M_Entry_Statistics_Management);
+                    int aHours = a % 24;
+                    int aDay = (a - aHours) / 24;
+                    string hourStr = "";
+                    if (aHours != 0 && aHours > 0)
+                    {
+                        hourStr = aHours + "小时";
+                    }
+                    else if (aHours < 0)
+                    {
+                        hourStr = aHours * -1 + "小时";
+                    }
+                    if (aDay != 0 && aDay > 0)
+                    {
+                        string s = aDay + "天" + hourStr;
+                        <td>@s</td>
+                    }
+                    else
+                    {
+                        string s = "";
+                        if (aDay < 0)
+                        {
+                            s = aDay + "天" + hourStr;
+                        }
+                        else
+                        {
+                            s = "-" + hourStr;
+                        }
+                        <td>@s</td>
+                    }
+                }
+                else
+                {
+                    <td>@item.M_Entry_Statistics_Management</td>
+                }                
+                <td>@item.M_Entry_Statistics_warningSituation_name</td>
+                <td>@item.M_Entry_Change_proposer</td>
+                @if (item.M_Entry_Change_applicationDuration != null)
+                {
+                    if (item.M_Entry_Change_applicationDuration >= 24)
+                    {
+                      int hours = Convert.ToInt32(item.M_Entry_Change_applicationDuration);
+                      int aHours = hours % 24;
+                      int aDay = (hours - aHours) / 24;
+                      string hourStr = "";
+                      if (aHours != 0)
+                      {
+                        hourStr = aHours + "小时";
+                      }
+                      string temp = aDay + "天" + hourStr;
+                      <td style="color:orange;font-weight:bold;">@temp</td>
+                    }
+                    else
+                    {
+                      string temp = item.M_Entry_Change_applicationDuration.ToString() + "小时";
+                      <td>@temp</td>
+                    } 
+                }
+                else 
+                {
+                    <td></td>
+                }                              
+                <td>@item.M_Entry_Change_applicationReason</td>
+                <td>@item.M_Entry_Change_approvalPerson</td>
+                @if (item.M_Entry_Change_approvalDuration != null)
+                {
+                    if (item.M_Entry_Change_approvalDuration >= 24)
+                    {
+                      int hours = Convert.ToInt32(item.M_Entry_Change_approvalDuration);
+                      int aHours = hours % 24;
+                      int aDay = (hours - aHours) / 24;
+                      string hourStr = "";
+                      if (aHours != 0)
+                      {
+                        hourStr = aHours + "小时";
+                      }
+                      string temp = aDay + "天" + hourStr;
+                      <td>@temp</td>
+                    }
+                    else
+                    {
+                      string temp = "";
+                      if (item.M_Entry_Change_approvalDuration == null)
+                      {
+                        temp = "0小时";
+                      }
+                      else
+                     {
+                        temp = item.M_Entry_Change_approvalDuration.ToString() + "小时";
+                     }
+                     <td>@temp</td>
+                   }
+                }
+                else
+                {
+                    <td></td>
+                }                
+                @{
+                    var isThroughitem = isThrough.Where(t => t.C_Parameters_id == item.M_Entry_Change_IsThrough).FirstOrDefault();
+                }
+                @if (isThroughitem != null)
+                {
+                    <td>@isThroughitem.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }                
+            </tr>
+        }
+    </tbody>
+</table>    

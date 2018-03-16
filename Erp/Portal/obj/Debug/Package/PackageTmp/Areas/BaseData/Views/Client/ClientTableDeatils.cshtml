@@ -1,0 +1,13 @@
+﻿@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+
+<div class="itab">
+    <ul>
+        <li><a href="/basedata/client/edit?customerCode=@ViewBag.customerCode" tabpanelwidth="100%" tabpanelheight="650" class="selected">基本信息</a></li>
+        <li><a href="/basedata/contacts/list?relationCode=@ViewBag.customerCode&contactType=2" tabpanelwidth="100%" tabpanelheight="650">联系人信息</a></li>
+        <li><a href="/basedata/company/list?customerCode=@ViewBag.customerCode" tabpanelwidth="100%" tabpanelheight="650">公司信息</a></li>
+        <li><a href="/basedata/address/list?customerCode=@ViewBag.customerCode" tabpanelwidth="100%" tabpanelheight="650">地址信息</a></li>
+        <li><a href="/basedata/bank/list?customerCode=@ViewBag.customerCode" tabpanelwidth="100%" tabpanelheight="650">银行信息</a></li>
+    </ul>
+</div>

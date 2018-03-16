@@ -1,0 +1,632 @@
+﻿@using CommonService.Model;
+@using CommonService.Common;
+@using CommonService.Model.SysManager;
+@using Context;
+@model IEnumerable<CommonService.Model.C_Customer>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "客户列表";
+}
+@section Headcss{
+    <style type="text/css">
+        .aaa {
+            cursor: pointer;
+        }
+
+            /*.aaa:link {
+                color: blue;
+            }*/
+
+            .aaa:hover {
+                color: blue;
+            }
+
+            .aaa:visited {
+                color: blue;
+            }
+
+        .ultable li a {
+            color: #87CEFA;
+        }
+
+        .active {
+            background-color: #000;
+        }
+    </style>
+
+}
+@section HeadScript{
+    <script type="text/javascript">
+        $('#tab').find('li').each(function () {
+            $(this).click(function () {
+                $(this).addClass("active");
+            })
+        })
+        $(function () {
+            if (getCookie("isShow") == "0") {
+                $(".downDiv").attr("class", "upDiv");
+                $(".seachdiv2").show();
+                $("#hidOrShow").html("收起");
+            } else {
+                $(".upDiv").attr("class", "downDiv");
+                $(".seachdiv2").hide();
+                $("#hidOrShow").html("高级查询");
+            }
+            $("a[target=popdialog_owndefine]").each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    //替换url参数
+                    var switchUrl = $this.attr("href");
+                    _openDialog($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"));
+                });
+            });
+            $("a[target=popdialog_customer]").each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    //替换url参数
+                    var switchUrl = $this.attr("href");
+                    var sid =commonListData.uniqueId;
+                    if (sid == null | sid == "") {
+                        _openDialog($(this).attr("title"), "/BusinessChanceManager/CustomerFollowUp/create", $(this).attr("dialogwidth"), $(this).attr("dialogheight"));
+                    }
+                    else {
+                        switchUrl = switchUrl.replace("{sid_Item}", sid);
+                        _openDialog($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"));
+                    }
+                });
+            });
+        })
+
+        function Layer_HideOrShow() {
+            if ($("#hidOrShow").html() == "高级查询") {
+                $(".downDiv").attr("class", "upDiv");
+                $(".seachdiv2").show();
+                $("#hidOrShow").html("收起");
+                document.cookie = "isShow=0";
+            }
+            else {
+                $(".upDiv").attr("class", "downDiv");
+                $(".seachdiv2").hide();
+                $("#hidOrShow").html("高级查询");
+                document.cookie = "isShow=1";
+            }
+        }
+
+        //读取cookies
+        function getCookie(name) {
+            var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+
+            if (arr = document.cookie.match(reg))
+
+                return unescape(arr[2]);
+            else
+                return null;
+        }
+    </script>
+}
+@{
+    C_Customer customerConditon = ViewBag.CustomerConditon;//客户条件模型
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+}
+@{
+    List<CommonService.Model.C_Parameters> CustomerTypes = ViewBag.CustomerTypes;
+    List<CommonService.Model.C_Parameters> CustomerSources = ViewBag.CustomerSources;
+    List<CommonService.Model.C_Parameters> CustomerLevels = ViewBag.CustomerLevels;
+    List<CommonService.Model.C_Parameters> IsSignedStates = ViewBag.IsSignedStates;
+    List<CommonService.Model.C_Parameters> SignedStates = ViewBag.SignedStates;
+    List<CommonService.Model.C_Parameters> CustomerLoyaltys = ViewBag.CustomerLoyaltys;
+    List<CommonService.Model.C_Parameters> Categorys = ViewBag.Category;
+    List<CommonService.Model.FlowManager.P_Flow> Flows = ViewBag.Flows;
+    List<CommonService.Model.C_Region> RegionLists = ViewBag.RegionList;
+    Guid? orgCode = ViewBag.OrgCode;//所属部门Guid(允许为NULL)
+    Guid? postCode = ViewBag.PostCode;//所属岗位Guid(允许为NULL)
+    Guid? postGroupCode = ViewBag.PostGroupCode;//所属岗位组Guid(允许为NULL)
+}
+<div id="tab">
+    <ul class="toolbar ultable">
+        <li class="active"><a href="/BusinessChanceManager/Customer/list?orgCode=@orgCode&postCode=@postCode" style="color:#ff6a00"><span></span>全部</a></li>
+        <li><a href="/BusinessChanceManager/Customer/list?type=2&orgCode=@orgCode&postCode=@postCode" style="color:#ff6a00"><span></span>企业客户</a></li>
+        <li><a href="/BusinessChanceManager/Customer/list?type=3&orgCode=@orgCode&postCode=@postCode" style="color:#ff6a00"><span></span>个人客户</a></li>
+        <li><a href="/BusinessChanceManager/Customer/list?type=4&orgCode=@orgCode&postCode=@postCode" style="color:#ff6a00"><span></span>近三个月联系过</a></li>
+        <li><a href="/BusinessChanceManager/Customer/list?type=5&orgCode=@orgCode&postCode=@postCode" style="color:#ff6a00"><span></span>三个月前联系过</a></li>
+        <li><a href="/BusinessChanceManager/Customer/list?type=6&orgCode=@orgCode&postCode=@postCode" style="color:#ff6a00"><span></span>从未联系</a></li>
+        <li><a href="/BusinessChanceManager/Customer/list?type=7&orgCode=@orgCode&postCode=@postCode" style="color:#ff6a00"><span></span>今日新增</a></li>
+    </ul>
+</div>
+<div class="tools">
+    <ul class="toolbar" style="margin-top:8px;margin-bottom:8px;">
+        @if (UIContext.Current.IsPreSetManager)
+        {
+            <li><a target="popdialog" title="客户信息" dialogwidth="1240" dialogheight="650" href="/baseData/customer/create"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+            <li><a target="popdialog" title="客户信息" dialogwidth="1240" dialogheight="650" edit="edit" href="/basedata/customer/UpdateTableDetails?customerCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+            <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/customer/delete?customerCode={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+            <li><a target="popdialog" title="客户附件" dialogwidth="1240" dialogheight="550" edit="edit" href="/attachmentupload/attachment_defaultlayout?relationCode={sid_Iterm}&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.客户)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.客户)"><span><img src="/theme/images/new_document.png" /></span>附件</a></li>
+            <li><a target="popdialog" title="客户详细" dialogwidth="1280" dialogheight="750" edit="edit" href="/basedata/customer/tabdetails?customerCode={sid_Iterm}"><span><img src="/theme/images/new_view.png" /></span>详细</a></li>
+            <li><a target="popdialog" title="生命周期" dialogwidth="1400" dialogheight="830" edit="edit" href="/BaseData/CustomerExecute/DefaultLayout?customerCode={sid_Iterm}"><span><img src="/theme/images/new_excute.png"></span>生命周期</a></li>
+            @*<li><a target="popdialog" title="委托信息" dialogwidth="1500" dialogheight="820" edit="edit" href="/basedata/client/rellist?customerCode={sid_Iterm}"><span></span>委托信息</a></li>
+                <li><a target="popdialog" title="联系人信息" dialogwidth="1400" dialogheight="650" edit="edit" href="/basedata/contacts/list?relationCode={sid_Iterm}&contactType=2"><span></span>联系人信息</a></li>
+                <li><a target="popdialog" title="公司信息" dialogwidth="1240" dialogheight="700" edit="edit" href="/basedata/company/list?customerCode={sid_Iterm}"><span></span>公司信息</a></li>
+                <li><a target="popdialog" title="地址信息" dialogwidth="1240" dialogheight="650" edit="edit" href="/basedata/address/list?customerCode={sid_Iterm}"><span></span>地址信息</a></li>
+                <li><a target="popdialog" title="银行信息" dialogwidth="1240" dialogheight="650" edit="edit" href="/basedata/bank/list?customerCode={sid_Iterm}"><span></span>银行信息</a></li>*@
+            <li><a target="popdialog_customer" title="客户跟进信息" dialogwidth="1240" dialogheight="650" href="/basedata/customer_Follow/list?customerCode={sid_Item}"><span></span>客户跟进</a></li>
+            <li><a target="_self" title="导出" dialogwidth="1400" dialogheight="830" href="#" onclick="osb('/baseData/customer/Export')"><span><img src="/theme/images/new_export.png" /></span>导出</a></li>
+        }
+        else
+        {
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 26).Count() != 0)
+            {
+                <li><a target="popdialog" title="客户信息" dialogwidth="1240" dialogheight="650" href="/baseData/customer/create"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 27).Count() != 0)
+            {
+                <li><a target="popdialog" title="客户信息" dialogwidth="1240" dialogheight="650" edit="edit" href="/basedata/customer/UpdateTableDetails?customerCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 28).Count() != 0)
+            {
+                <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/customer/delete?customerCode={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 30).Count() != 0)
+            {
+                <li><a target="popdialog" title="客户附件" dialogwidth="1240" dialogheight="550" edit="edit" href="/attachmentupload/attachment_defaultlayout?relationCode={sid_Iterm}&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.客户)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.客户)"><span><img src="/theme/images/new_document.png" /></span>附件</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 29).Count() != 0)
+            {
+                <li><a target="popdialog" title="客户详细" dialogwidth="1280" dialogheight="750" edit="edit" href="/basedata/customer/tabdetails?customerCode={sid_Iterm}"><span><img src="/theme/images/new_view.png" /></span>详细</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 1162).Count() != 0)
+            {
+                <li><a target="popdialog" title="生命周期" dialogwidth="1400" dialogheight="830" edit="edit" href="/BaseData/CustomerExecute/DefaultLayout?customerCode={sid_Iterm}"><span><img src="/theme/images/new_excute.png"></span>生命周期</a></li>
+            }
+            @*if (RoleButtons.Where(r => r.C_Menu_buttons_id == 31).Count() != 0)
+                {
+                    <li><a target="popdialog" title="委托信息" dialogwidth="1500" dialogheight="820" edit="edit" href="/basedata/client/rellist?customerCode={sid_Iterm}"><span></span>委托信息</a></li>
+                }
+                if (RoleButtons.Where(r => r.C_Menu_buttons_id == 32).Count() != 0)
+                {
+                    <li><a target="popdialog" title="联系人信息" dialogwidth="1400" dialogheight="650" edit="edit" href="/basedata/contacts/list?relationCode={sid_Iterm}&contactType=2"><span></span>联系人信息</a></li>
+                }
+                if (RoleButtons.Where(r => r.C_Menu_buttons_id == 33).Count() != 0)
+                {
+                    <li><a target="popdialog" title="公司信息" dialogwidth="1240" dialogheight="700" edit="edit" href="/basedata/company/list?customerCode={sid_Iterm}"><span></span>公司信息</a></li>
+                }
+                if (RoleButtons.Where(r => r.C_Menu_buttons_id == 34).Count() != 0)
+                {
+                    <li><a target="popdialog" title="地址信息" dialogwidth="1240" dialogheight="650" edit="edit" href="/basedata/address/list?customerCode={sid_Iterm}"><span></span>地址信息</a></li>
+                }
+                if (RoleButtons.Where(r => r.C_Menu_buttons_id == 35).Count() != 0)
+                {
+                    <li><a target="popdialog" title="银行信息" dialogwidth="1240" dialogheight="650" edit="edit" href="/basedata/bank/list?customerCode={sid_Iterm}"><span></span>银行信息</a></li>
+                }
+                if (RoleButtons.Where(r => r.C_Menu_buttons_id == 1127).Count() != 0)
+                {
+                    <li><a target="popdialog" title="客户跟进信息" dialogwidth="1240" dialogheight="650" edit="edit" href="/basedata/customer_Follow/list?customerCode={sid_Iterm}"><span></span>客户跟进</a></li>
+                }*@
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 1129).Count() != 0)
+            {
+                <li><a target="_self" title="导出" dialogwidth="1400" dialogheight="830" href="#" onclick="osb('/baseData/customer/Export')"><span><img src="/theme/images/new_export.png" /></span>导出</a></li>
+            }
+        }
+    </ul>
+    @using (Html.BeginForm("List", "Customer", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+    {
+        <ul class="seachform">
+            <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+            <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+            @Html.Hidden("C_Customer_type", customerConditon.C_Customer_type)
+            @Html.Hidden("C_Customer_Follow_time_type", customerConditon.C_Customer_Follow_time_type)
+            @Html.Hidden("orgCode", orgCode)
+            @Html.Hidden("postCode", postCode)
+            @Html.Hidden("postGroupCode", postGroupCode)
+            <li><label>客户名称</label>@Html.TextBox("C_Customer_name", customerConditon.C_Customer_name, new { @class = "scinput" })</li>
+            <li><label>&nbsp;</label><input type="submit" class="scbtn" onclick="osb('/BusinessChanceManager/customer/list')" value="查询" /></li>
+            <li onclick="Layer_HideOrShow()">
+                <label id="hidOrShow" style="float:left;margin-left:20px;margin-top:5px;font-size:14px;color:blue;">高级查询</label>@*<div class="upDiv"></div>*@
+            </li>
+        </ul>
+        <div class="seachdiv2" style="border-top: 3px solid #3596d7;margin-top:5px;float:left;">
+            <ul class="emptyforminfo">
+                <div class="mulitytext">
+                    <label>客户级别</label>
+                    @{
+        IList<SelectListItem> CustomerLevelsItems = new List<SelectListItem>();
+        SelectListItem defaultCheckStatusItem = new SelectListItem();
+        defaultCheckStatusItem.Value = null;
+        defaultCheckStatusItem.Text = "全部";
+        CustomerLevelsItems.Add(defaultCheckStatusItem);
+        foreach (var item in CustomerLevels)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = item.C_Parameters_id.ToString();
+            selectItem.Text = item.C_Parameters_name;
+            if (customerConditon.C_Customer_level != null)
+            {
+                if (customerConditon.C_Customer_level.ToString() == selectItem.Value.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+            CustomerLevelsItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("C_Customer_level", CustomerLevelsItems, new { })<i></i>
+                </div>
+                <div class="mulitytext"><label>最后跟进时间</label>@Html.TextBox("C_Customer_lastContactDate", customerConditon.C_Customer_lastContactDate, new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss" })<i></i></div>
+                <div class="mulitytext"><label>至</label>@Html.TextBox("C_Customer_lastContactendDate", customerConditon.C_Customer_lastContactEndDate, new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss" })<i></i></div>
+                <div class="mulitytext"><label>组织架构</label>@Html.Hidden("responsibleDeptlookup.Code", customerConditon.C_Customer_responsibleDept == null ? "" : customerConditon.C_Customer_responsibleDept.Value.ToString(), new { lookupgroup = "responsibleDeptlookup" })@Html.TextBox("responsibleDeptlookup.Name", customerConditon.C_Customer_responsibleDept_Name, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "单选部门", switchurl = "/sysmanager/organization/singlecallbackreftree?sourceType=4", dialogwidth = "350", dialogheight = "530", lookupgroup = "responsibleDeptlookup" })<i></i></div>
+                 <div class="mulitytext"><label>专业顾问</label>@Html.Hidden("mainLawyerlookup.Code", customerConditon.C_Customer_consultant, new { lookupgroup = "mainLawyerlookup" })@Html.TextBox("mainLawyerlookup.Name", customerConditon.C_Customer_consultant_name, new { maxlength = "50", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "单选专业顾问", switchurl = "/sysmanager/userinfo/singlecallbackref_orgpostuserlayout?otype=2", dialogwidth = "1050", dialogheight = "600", lookupgroup = "mainLawyerlookup" })<i></i></div>
+                <div class="mulitytext">
+                    <label>客户类别</label>
+                    @{
+        IList<SelectListItem> CategoryItems = new List<SelectListItem>();
+
+        CategoryItems.Add(defaultCheckStatusItem);
+        foreach (var check in Categorys)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = check.C_Parameters_id.ToString();
+            selectItem.Text = check.C_Parameters_name;
+            if (customerConditon.C_Customer_Category != null)
+            {
+                if (customerConditon.C_Customer_Category.ToString() == selectItem.Value.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+            CategoryItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("C_Customer_Category", CategoryItems, new { })<i></i>
+                </div>
+                <div class="mulitytext">
+                    <label>地区</label>
+                    @{
+        IList<SelectListItem> regionItems = new List<SelectListItem>();
+        SelectListItem selectItemone = new SelectListItem();
+        selectItemone.Value = null;
+        selectItemone.Text = "全部";
+        regionItems.Add(selectItemone);
+        foreach (var item in RegionLists)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = item.C_Region_code.ToString();
+            selectItem.Text = item.C_Region_name;
+            if (customerConditon.C_Customer_Region_code != null)
+            {
+                if (customerConditon.C_Customer_Region_code.ToString() == item.C_Region_code.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+
+            regionItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("C_Region_code", regionItems)
+                </div>
+
+                <div class="mulitytext">
+                    <label>客户开发阶段</label>
+                    @{
+        IList<SelectListItem> FlowItems = new List<SelectListItem>();
+        FlowItems.Add(defaultCheckStatusItem);
+        foreach (var item in Flows)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = item.P_Flow_code.ToString();
+            selectItem.Text = item.P_Flow_name;
+            if (customerConditon.C_Customer_Open != null)
+            {
+                if (customerConditon.C_Customer_Open.ToString() == selectItem.Value.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+            FlowItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("C_Customer_Open", FlowItems, new { })<i></i>
+                </div>
+                <div class="mulitytext">
+                    <label>客户来源</label>
+                    @{
+        IList<SelectListItem> CustomerSourcesItems = new List<SelectListItem>();
+        CustomerSourcesItems.Add(defaultCheckStatusItem);
+        foreach (var businessChancetypeType in CustomerSources)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = businessChancetypeType.C_Parameters_id.ToString();
+            selectItem.Text = businessChancetypeType.C_Parameters_name;
+            if (customerConditon.C_Customer_source != null)
+            {
+                if (customerConditon.C_Customer_source.ToString() == selectItem.Value.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+            CustomerSourcesItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("C_Customer_source", CustomerSourcesItems, new { })<i></i>
+                </div>
+                <div class="mulitytext">
+                    <label>客户忠诚度</label>
+                    @{
+        IList<SelectListItem> LoyaltyItems = new List<SelectListItem>();
+        LoyaltyItems.Add(defaultCheckStatusItem);
+        foreach (var item in CustomerLoyaltys)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = item.C_Parameters_id.ToString();
+            selectItem.Text = item.C_Parameters_name;
+            if (customerConditon.C_Customer_loyalty != null)
+            {
+                if (customerConditon.C_Customer_loyalty.ToString() == selectItem.Value.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+
+            LoyaltyItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("C_Customer_loyalty", LoyaltyItems)<i></i>
+                </div>
+
+                <div class="mulitytext">
+                    <label>是否签约</label>
+                    @{
+        IList<SelectListItem> issignedStateItems = new List<SelectListItem>();
+        issignedStateItems.Add(defaultCheckStatusItem);
+        foreach (var item in IsSignedStates)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = item.C_Parameters_id.ToString();
+            selectItem.Text = item.C_Parameters_name;
+            if (customerConditon.C_Customer_isSignedState != null)
+            {
+                if (customerConditon.C_Customer_isSignedState.ToString() == selectItem.Value.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+
+            issignedStateItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("C_Customer_isSignedState", issignedStateItems)<i></i>
+                </div>
+                <div class="mulitytext">
+                    <label>签约状态</label>
+                    @{
+        IList<SelectListItem> signedStateItems = new List<SelectListItem>();
+        signedStateItems.Add(defaultCheckStatusItem);
+        foreach (var item in SignedStates)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = item.C_Parameters_id.ToString();
+            selectItem.Text = item.C_Parameters_name;
+            if (customerConditon.C_Customer_signedState != null)
+            {
+                if (customerConditon.C_Customer_signedState.ToString() == selectItem.Value.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+
+            signedStateItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("C_Customer_signedState", signedStateItems)<i></i>
+                </div>
+            </ul>
+        </div>
+
+    }
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            @*<th>客户代码</th>*@
+            <th width="15%">客户名称</th>
+            <th width="7%">变更记录</th>
+            <th width="7%">客户级别</th>
+            <th width="7%">客户类型</th>
+            <th width="7%">客户来源</th>
+            <th width="8%">客户忠诚度</th>
+            <th width="7%">专业顾问</th>
+            <th width="10%">最后接触日期</th>
+            <th width="7%">客户进度</th>
+            <th width="7%">是否签约</th>
+            <th width="7%">签约状态</th>
+            <th width="*%">备注</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Customer_code" relname="@item.C_Customer_name" ondblclick="openDetailsView('29','生命周期','1400','830','/BaseData/CustomerExecute/DefaultLayout?customerCode=@item.C_Customer_code','@(UIContext.Current.IsPreSetManager==true ?  "1" : "0")','@ViewBag.RoleButtonIds')">
+                @*<td>@item.C_Customer_number</td>*@
+                <td>
+                    @if (UIContext.Current.IsPreSetManager || RoleButtons.Where(r => r.C_Menu_buttons_id == 27 || r.C_Menu_buttons_id == 31 || r.C_Menu_buttons_id == 32 || r.C_Menu_buttons_id == 33 || r.C_Menu_buttons_id == 34 || r.C_Menu_buttons_id == 35 || r.C_Menu_buttons_id == 1127).Count() != 0)
+                    {//有修改客户信息中的任意一下，单击是跳转到修改界面
+                        <a class="aaa" target="popdialog_owndefine" title="客户信息" dialogwidth="1240" dialogheight="650" edit="edit" href="/basedata/customer/UpdateTableDetails?customerCode=@item.C_Customer_code">@item.C_Customer_name</a>
+                    }
+                    else
+                    { //没有任意一条修改权限，跳转到详细界面
+                        <a class="aaa" target="popdialog_owndefine" title="客户详细" dialogwidth="1280" dialogheight="750" edit="edit" href="/basedata/customer/tabdetails?customerCode=@item.C_Customer_code">@item.C_Customer_name</a>
+                    }
+                </td>
+                <td><span id="HT_@item.C_Customer_code" onmouseout="omout()" onmouseover="omover('HT_@item.C_Customer_code', 'historyDetails','/basedata/Customer_ChangHistory/HistoryList?customerCode=@item.C_Customer_code')">查看变更</span></td>
+                @{
+            var customerLevel = CustomerLevels.Where(c => c.C_Parameters_id == item.C_Customer_level).FirstOrDefault();
+                }
+                @if (customerLevel != null)
+                {
+                    <td>@customerLevel.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+            var customerType = CustomerTypes.Where(c => c.C_Parameters_id == item.C_Customer_type).FirstOrDefault();
+                }
+                @if (customerType != null)
+                {
+                    <td>@customerType.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+            var customerSource = CustomerSources.Where(c => c.C_Parameters_id == item.C_Customer_source).FirstOrDefault();
+                }
+                @if (customerSource != null)
+                {
+                    <td>@customerSource.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+            var customerLoyalty = CustomerLoyaltys.Where(c => c.C_Parameters_id == item.C_Customer_loyalty).FirstOrDefault();
+                }
+                @if (customerLoyalty != null)
+                {
+                    <td>@customerLoyalty.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                <td>@item.C_Customer_consultant_name</td>
+                <td>@(item.C_Customer_lastContactDate == null ? "" : item.C_Customer_lastContactDate.Value.ToString("yyyy-MM-dd"))</td>
+                @{
+                var color = "";
+                if (item.C_Customer_goingstatusName == "未开始")
+                {
+                    color = "#C25812";
+                }
+                else if (item.C_Customer_goingstatusName == "正在进行")
+                {
+                    color = "#126558";
+                }
+                else if (item.C_Customer_goingstatusName == "已结束")
+                {
+                    color = "#85B4F2";
+                }
+                else
+                {
+                    color = "#0033CC";
+                }
+                }
+                <td style="color:@color;">@item.C_Customer_goingstatusName</td>
+                @{
+            var issignedstate = IsSignedStates.Where(c => c.C_Parameters_id == item.C_Customer_isSignedState).FirstOrDefault();
+                }
+                @if (issignedstate != null)
+                {
+                    <td>@issignedstate.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+            var signedstate = SignedStates.Where(c => c.C_Parameters_id == item.C_Customer_signedState).FirstOrDefault();
+                }
+                @if (signedstate != null)
+                {
+                    <td>@signedstate.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                <td title="@item.C_Customer_remark">@Maticsoft.Common.Cutout.Cut(item.C_Customer_remark, 30)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div id="historyDetails" trlabid="" trid="" trclient_url="" onmouseout="omout_Ht(this)" onmouseover="omover2(this)" class="tjjyDetails" style="overflow: auto; border: 1px solid #000000; display:none; background-color:white; height:180px;">
+    <table border="1" cellpadding="5" cellspacing="5" style=" margin-left: 10px; width: 800px;">
+        <tr style="height:180px; width:800px;">
+            <td align="center" width="795">
+                <img src="/Theme/assets/global/plugins/slider-revolution-slider/rs-plugin/assets/loader2.gif" /> 加载中...
+            </td>
+        </tr>
+    </table>
+</div>
+<script>
+    function osb(val) {
+        document.getElementById("mycustomer").action = val;
+        document.getElementById("mycustomer").submit();
+    }
+
+    function omover(obj, id, client_url) {
+        $.ajax({
+            type: "POST",
+            async: true,
+            url: client_url,
+            success: function (result) {
+                $("#" + id).html(result);
+            }
+        })
+        var toplab = getAbsoluteTop(obj);
+        var leftlab = getAbsoluteLeft(obj);
+
+        //初始化
+        $("#historyDetails").css("display", "none");
+        $("#historyDetails").attr("trlabid", obj);
+        $("#historyDetails").attr("trid", id);
+        $("#historyDetails").attr("client_url", client_url);
+
+        var objDiv = $("#" + id + "");
+        var xPoint = window.event.clientX;
+        objDiv.attr("style", "position:absolute; left:" + (leftlab + 45) + "px; top:" + (toplab - 80) + "px; overflow: auto;background-color:white; border: 1px solid #000000; height:180px;width:800px;");
+        $(objDiv).css("display", "block");
+    }
+
+    function omout() {
+        $("#historyDetails").hide();
+    }
+
+    function omover2(val) {
+        var objDiv = $("#" + $(val).attr("trid") + "");
+        $(objDiv).css("display", "block");
+    }
+    function omout_Ht(val) {
+        var objDiv = $("#" + $(val).attr("trid") + "");
+        $(objDiv).css("display", "none");
+    }
+
+    //获取控件左绝对位置
+    function getAbsoluteLeft(objectId) {
+        var lo = document.getElementById(objectId)
+        oLeft = lo.offsetLeft
+        while (lo.offsetParent != null) {
+            oParent = lo.offsetParent
+            oLeft += oParent.offsetLeft
+            lo = oParent
+        }
+        return oLeft
+    }
+    //获取控件上绝对位置
+    function getAbsoluteTop(objectId) {
+        var o = document.getElementById(objectId);
+        oTop = o.offsetTop;
+        while (o.offsetParent != null) {
+            oParent = o.offsetParent
+            oTop += oParent.offsetTop  // Add parent top position
+            o = oParent
+        }
+        return oTop
+    }
+</script>  

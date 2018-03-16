@@ -1,0 +1,516 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Court_Judge>
+@section HeadCss
+{
+    <link href="/theme/css/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .tablelist tbody{
+            height:550px;
+            display:block;
+            overflow:auto;
+        }
+         .tablelist td {
+            border-bottom: dotted 1px #c7c7c7;
+            WORD-WRAP: break-word;
+            height: auto;
+            line-height: 20px;
+            text-align: center;
+            padding-left: 5px;
+            padding-right: 5px;
+            position: relative;
+        }
+
+            .tablelist td a {
+                position: absolute;
+                right: 0px;
+                bottom: 0px;
+                cursor: pointer;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                line-height: 20px;
+            }
+    </style>
+}
+@section HeadScript
+{
+    <script type="text/javascript" src="/theme/js/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="/theme/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('<div class="dialog"><iframe width="99%" height="100%" scrolling="no" ></iframe></div>').appendTo("body");
+            $(".dialog").dialog({
+                autoOpen: false, modal: true, closeText: "关闭"
+            });//初始化弹出Dialog, width: 800, height: 550
+            var $tablelist = $(".tablelist");
+            $("a[target=popdialog]", $tablelist).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+
+                    //替换url参数
+                    var switchUrl = $this.attr("href");
+
+                    //打开对话框
+                    $(".ui-dialog-title").text($(this).attr("title"));//设置Dialog标题
+                    $(".dialog").find("iframe").contents().find("body").html("");//清空body内容
+                    $(".dialog").find("iframe").attr("src", switchUrl);//重新加载url
+                    $(".dialog").dialog("open").css({ height: $(this).attr("dialogheight") });//打开对话框.parent().css({ width: 800, height: 560 })
+                    $(".dialog").dialog("open").parent().css({ width: $(this).attr("dialogwidth") });
+                    var left = ($(document.body).width() - $(this).attr("dialogwidth")) / 2;//计算dialog初始化距离左侧位置
+
+                    $(".dialog").dialog("open").parent().offset({ top: 0, left: left });
+                });
+            });
+        });
+    </script>
+}
+
+@{
+    Layout = "~/Views/Shared/_ViewPanelTemplate.cshtml";//普通Panel页面固定模板
+}
+@{
+    ViewBag.Title = "人员组成详细";
+}
+
+<div class="formbody">
+    <table class="tablelist">
+
+        <tbody>
+            <tr>
+                <td width="16%">重要负责人</td>
+                <td width="16%">院长</td>
+                <td width="16%">
+                    @{
+                        var Deans = Model.Where(p => p.C_Court_Judge_type == "重要负责人" && p.C_Court_Judge_duty == "院长");
+                        string deanStr = "";
+                        foreach (var item in Deans)
+                        {
+                            deanStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (deanStr != "")
+                        {
+                            deanStr = deanStr.Substring(0, deanStr.Length - 1);
+                        }
+                    }
+                    @deanStr
+                </td>
+                <td width="36%" colspan="2">副院长</td>
+                <td width="16%">
+                    @{
+                        var FDeans = Model.Where(p => p.C_Court_Judge_type == "重要负责人" && p.C_Court_Judge_duty == "副院长");
+                        string fdeanStr = "";
+                        foreach (var item in FDeans)
+                        {
+                            fdeanStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (fdeanStr != "")
+                        {
+                            fdeanStr = fdeanStr.Substring(0, fdeanStr.Length - 1);
+                        }
+                    }
+                    @fdeanStr
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">立案庭</td>
+                <td>庭长</td>
+                <td>
+                    @{
+                        var Presidents = Model.Where(p => p.C_Court_Judge_type == "立案庭" && p.C_Court_Judge_duty == "庭长");
+                        string presidentStr = "";
+                        foreach (var item in Presidents)
+                        {
+                            presidentStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (presidentStr != "")
+                        {
+                            presidentStr = presidentStr.Substring(0, presidentStr.Length - 1);
+                        }
+                    }
+                    @presidentStr
+                </td>
+                <td rowspan="4">执行局</td>
+                <td>局长</td>
+                <td>
+                    @{
+                        var Directors = Model.Where(p => p.C_Court_Judge_type == "执行局" && p.C_Court_Judge_duty == "局长");
+                        string directorsStr = "";
+                        foreach (var item in Directors)
+                        {
+                            directorsStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (directorsStr != "")
+                        {
+                            directorsStr = directorsStr.Substring(0, directorsStr.Length - 1);
+                        }
+                    }
+                    @directorsStr
+                </td>
+            </tr>
+            <tr>
+                <td>副庭长</td>
+                <td>
+                    @{
+                        var FPresidents = Model.Where(p => p.C_Court_Judge_type == "立案庭" && p.C_Court_Judge_duty == "副庭长");
+                        string fpresidentStr = "";
+                        foreach (var item in FPresidents)
+                        {
+                            fpresidentStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (fpresidentStr != "")
+                        {
+                            fpresidentStr = fpresidentStr.Substring(0, fpresidentStr.Length - 1);
+                        }
+                    }
+                    @fpresidentStr
+                </td>
+                <td>副局长</td>
+                <td>
+                    @{
+                        var FDirectors = Model.Where(p => p.C_Court_Judge_type == "执行局" && p.C_Court_Judge_duty == "副局长");
+                        string fdirectorsStr = "";
+                        foreach (var item in FDirectors)
+                        {
+                            fdirectorsStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (fdirectorsStr != "")
+                        {
+                            fdirectorsStr = fdirectorsStr.Substring(0, fdirectorsStr.Length - 1);
+                        }
+                    }
+                    @fdirectorsStr
+                </td>
+            </tr>
+            <tr>
+                <td>内廷</td>
+                <td>
+                    @{
+                        var Offices = Model.Where(p => p.C_Court_Judge_type == "立案庭" && p.C_Court_Judge_duty == "内廷");
+                        string officeStr = "";
+                        foreach (var item in Offices)
+                        {
+                            officeStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (officeStr != "")
+                        {
+                            officeStr = officeStr.Substring(0, officeStr.Length - 1);
+                        }
+                    }
+                    @officeStr
+                </td>
+                <td>内廷</td>
+                <td>
+                    @{
+                        var Offices2 = Model.Where(p => p.C_Court_Judge_type == "执行局" && p.C_Court_Judge_duty == "内廷");
+                        string office2Str = "";
+                        foreach (var item in Offices2)
+                        {
+                            office2Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (office2Str != "")
+                        {
+                            office2Str = office2Str.Substring(0, office2Str.Length - 1);
+                        }
+                    }
+                    @office2Str
+                </td>
+            </tr>
+            <tr>
+                <td>法官</td>
+                <td>
+                    @{
+                        var Judges = Model.Where(p => p.C_Court_Judge_type == "立案庭" && p.C_Court_Judge_duty == "法官");
+                        string judgeStr = "";
+                        foreach (var item in Judges)
+                        {
+                            judgeStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (judgeStr != "")
+                        {
+                            judgeStr = judgeStr.Substring(0, judgeStr.Length - 1);
+                        }
+                    }
+                    @judgeStr
+                </td>
+                <td>法官</td>
+                <td>
+                    @{
+                        var Judges2 = Model.Where(p => p.C_Court_Judge_type == "执行局" && p.C_Court_Judge_duty == "法官");
+                        string judge2Str = "";
+                        foreach (var item in Judges2)
+                        {
+                            judge2Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (judge2Str != "")
+                        {
+                            judge2Str = judge2Str.Substring(0, judge2Str.Length - 1);
+                        }
+                    }
+                    @judge2Str
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="5">民一庭</td>
+                <td>庭长</td>
+                <td>
+                    @{
+                        var Presidents2 = Model.Where(p => p.C_Court_Judge_type == "民一庭" && p.C_Court_Judge_duty == "庭长");
+                        string president2Str = "";
+                        foreach (var item in Presidents2)
+                        {
+                            president2Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (president2Str != "")
+                        {
+                            president2Str = president2Str.Substring(0, president2Str.Length - 1);
+                        }
+                    }
+                    @president2Str
+                </td>
+                <td rowspan="5">民二庭</td>
+                <td>庭长</td>
+                <td>
+                    @{
+                        var Presidents3 = Model.Where(p => p.C_Court_Judge_type == "民二庭" && p.C_Court_Judge_duty == "庭长");
+                        string president3Str = "";
+                        foreach (var item in Presidents3)
+                        {
+                            president3Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (president3Str != "")
+                        {
+                            president3Str = president3Str.Substring(0, president3Str.Length - 1);
+                        }
+                    }
+                    @president3Str
+                </td>
+            </tr>
+            <tr>
+                <td>副庭长</td>
+                <td>
+                    @{
+                        var FPresidents2 = Model.Where(p => p.C_Court_Judge_type == "民一庭" && p.C_Court_Judge_duty == "副庭长");
+                        string fpresident2Str = "";
+                        foreach (var item in FPresidents2)
+                        {
+                            fpresident2Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (fpresident2Str != "")
+                        {
+                            fpresident2Str = fpresident2Str.Substring(0, fpresident2Str.Length - 1);
+                        }
+                    }
+                    @fpresident2Str
+                </td>
+                <td>副庭长</td>
+                <td>
+                    @{
+                        var FPresidents3 = Model.Where(p => p.C_Court_Judge_type == "民二庭" && p.C_Court_Judge_duty == "副庭长");
+                        string fpresident3Str = "";
+                        foreach (var item in FPresidents3)
+                        {
+                            fpresident3Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (fpresident3Str != "")
+                        {
+                            fpresident3Str = fpresident3Str.Substring(0, fpresident3Str.Length - 1);
+                        }
+                    }
+                    @fpresident3Str
+                </td>
+            </tr>
+            <tr>
+                <td>法官</td>
+                <td>
+                    @{
+                        var Judges3 = Model.Where(p => p.C_Court_Judge_type == "民一庭" && p.C_Court_Judge_duty == "法官");
+                        string judge3Str = "";
+                        foreach (var item in Judges3)
+                        {
+                            judge3Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (judge3Str != "")
+                        {
+                            judge3Str = judge3Str.Substring(0, judge3Str.Length - 1);
+                        }
+                    }
+                    @judge3Str
+                </td>
+                <td>法官</td>
+                <td>
+                    @{
+                        var Judges4 = Model.Where(p => p.C_Court_Judge_type == "民二庭" && p.C_Court_Judge_duty == "法官");
+                        string judge4Str = "";
+                        foreach (var item in Judges4)
+                        {
+                            judge4Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (judge4Str != "")
+                        {
+                            judge4Str = judge4Str.Substring(0, judge4Str.Length - 1);
+                        }
+                    }
+                    @judge4Str
+                </td>
+            </tr>
+            <tr>
+                <td>书记员</td>
+                <td>
+                    @{
+                        var Secretarys = Model.Where(p => p.C_Court_Judge_type == "民一庭" && p.C_Court_Judge_duty == "书记员");
+                        string secretaryStr = "";
+                        foreach (var item in Secretarys)
+                        {
+                            secretaryStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (secretaryStr != "")
+                        {
+                            secretaryStr = secretaryStr.Substring(0, secretaryStr.Length - 1);
+                        }
+                    }
+                    @secretaryStr
+                </td>
+                <td>书记员</td>
+                <td>
+                    @{
+                        var Secretarys2 = Model.Where(p => p.C_Court_Judge_type == "民二庭" && p.C_Court_Judge_duty == "书记员");
+                        string secretary2Str = "";
+                        foreach (var item in Secretarys2)
+                        {
+                            secretary2Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (secretary2Str != "")
+                        {
+                            secretary2Str = secretary2Str.Substring(0, secretary2Str.Length - 1);
+                        }
+                    }
+                    @secretary2Str
+                </td>
+            </tr>
+            <tr>
+                <td>内勤</td>
+                <td>
+                    @{
+                        var Offices3 = Model.Where(p => p.C_Court_Judge_type == "民一庭" && p.C_Court_Judge_duty == "内勤");
+                        string office3Str = "";
+                        foreach (var item in Offices3)
+                        {
+                            office3Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (office3Str != "")
+                        {
+                            office3Str = office3Str.Substring(0, office3Str.Length - 1);
+                        }
+                    }
+                    @office3Str
+                </td>
+                <td>内勤</td>
+                <td>
+                    @{
+                        var Offices4 = Model.Where(p => p.C_Court_Judge_type == "民二庭" && p.C_Court_Judge_duty == "内勤");
+                        string office4Str = "";
+                        foreach (var item in Offices4)
+                        {
+                            office4Str += item.C_Court_Judge_name + ",";
+                        }
+                        if (office4Str != "")
+                        {
+                            office4Str = office4Str.Substring(0, office4Str.Length - 1);
+                        }
+                    }
+                    @office4Str
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="3">法警队</td>
+                <td>大队长</td>
+                <td>
+                    @{
+                        var Captains = Model.Where(p => p.C_Court_Judge_type == "法警队" && p.C_Court_Judge_duty == "大队长");
+                        string captainStr = "";
+                        foreach (var item in Captains)
+                        {
+                            captainStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (captainStr != "")
+                        {
+                            captainStr = captainStr.Substring(0, captainStr.Length - 1);
+                        }
+                    }
+                    @captainStr
+                </td>
+                <td rowspan="3">财务室</td>
+                <td>负责人</td>
+                <td>
+                    @{
+                        var Heads = Model.Where(p => p.C_Court_Judge_type == "财务室" && p.C_Court_Judge_duty == "负责人");
+                        string headStr = "";
+                        foreach (var item in Heads)
+                        {
+                            headStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (headStr != "")
+                        {
+                            headStr = headStr.Substring(0, headStr.Length - 1);
+                        }
+                    }
+                    @headStr
+                </td>
+            </tr>
+            <tr>
+                <td>副大队长</td>
+                <td>
+                    @{
+                        var FCaptains = Model.Where(p => p.C_Court_Judge_type == "法警队" && p.C_Court_Judge_duty == "副大队长");
+                        string fcaptainStr = "";
+                        foreach (var item in FCaptains)
+                        {
+                            fcaptainStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (fcaptainStr != "")
+                        {
+                            fcaptainStr = fcaptainStr.Substring(0, fcaptainStr.Length - 1);
+                        }
+                    }
+                    @fcaptainStr
+                </td>
+                <td rowspan="2">其他工作人员</td>
+                <td rowspan="2">
+                    @{
+                        var Otherstaffs = Model.Where(p => p.C_Court_Judge_type == "财务室" && p.C_Court_Judge_duty == "其他工作人员");
+                        string otherstaffStr = "";
+                        foreach (var item in Otherstaffs)
+                        {
+                            otherstaffStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (otherstaffStr != "")
+                        {
+                            otherstaffStr = otherstaffStr.Substring(0, otherstaffStr.Length - 1);
+                        }
+                    }
+                    @otherstaffStr
+                </td>
+            </tr>
+            <tr>
+                <td>法警</td>
+                <td>
+                    @{
+                        var Bailiffs = Model.Where(p => p.C_Court_Judge_type == "法警队" && p.C_Court_Judge_duty == "法警");
+                        string bailiffStr = "";
+                        foreach (var item in Bailiffs)
+                        {
+                            bailiffStr += item.C_Court_Judge_name + ",";
+                        }
+                        if (bailiffStr != "")
+                        {
+                            bailiffStr = bailiffStr.Substring(0, bailiffStr.Length - 1);
+                        }
+                    }
+                    @bailiffStr
+                </td>
+            </tr>
+        </tbody>
+
+    </table>
+</div>

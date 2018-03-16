@@ -1,0 +1,41 @@
+﻿@using CommonService.Model.Customer;
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormProperty>
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "自定义表单Tab页";
+}
+<div class="itab">
+    <ul>
+        @{
+            int count = 0;
+            string classStyle = "";
+            string businessFlowFormCode = ViewBag.BusinessFlowFormCode;
+            string businessFlowCode = ViewBag.BusinessFlowCode;
+        }
+        @foreach (var item in Model)
+        {
+            if (count == 0)
+            {
+                classStyle = "class=selected";
+            }
+            else { classStyle = ""; }
+            switch (item.F_FormProperty_uiType.Value)
+            {
+                case 209://Tab编辑表单
+                    <li><a href="/CustomerForm/FormPropertyValue/GenerateTabSingleEidt?formCode=@item.F_FormProperty_form&businessFlowFormCode=@businessFlowFormCode&formPropertyCode=@item.F_FormProperty_code&businessFlowCode=@businessFlowCode" @classStyle tabpanelwidth="100%" tabpanelheight="580">@item.F_FormProperty_showName</a></li>
+                    break;
+                case 208://tab容器
+                <li><a href="/CustomerForm/FormPropertyValue/LayoutChildrenTabs?formCode=@item.F_FormProperty_form&businessFlowFormCode=@businessFlowFormCode&formPropertyCode=@item.F_FormProperty_code&businessFlowCode=@businessFlowCode" @classStyle tabpanelwidth="100%" tabpanelheight="580">@item.F_FormProperty_showName</a></li>
+                    break;
+                case 210://Tab子表(暂时没有实现)
+                <li><a href="/CustomerForm/FormPropertyValue/LayoutHeadAndMulityItems" @classStyle tabpanelwidth="100%" tabpanelheight="580">@item.F_FormProperty_showName</a></li>
+                    break;
+                default:
+                    break;
+            }
+            count++;
+        }
+    </ul>
+</div>

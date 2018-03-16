@@ -1,0 +1,41 @@
+﻿@model IEnumerable<CommonService.Model.C_Customer_ChangHistory>
+@{
+    Layout = "";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "客户变更列表";
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th width="5%">序号</th>
+            <th width="10%">变更项</th>
+            <th width="25%">修改前内容</th>
+            <th width="25%">新内容</th>
+            <th width="8%">提交人</th>
+            <th width="10%">提交时间</th>
+            <th width="8%">审核人</th>
+            <th width="10%">审核时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int i = 1;
+        }
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Customer_ChangHistory_code">
+                <td>@i</td>
+                <td>@item.C_Customer_ChangHistory_fieldName</td>
+                <td>@item.C_Customer_ChangHistory_oldValue</td>
+                <td>@item.C_Customer_ChangHistory_newValue</td>
+                <td>@item.C_Customer_ChangHistory_submitpersonName</td>
+                <td>@item.C_Customer_ChangHistory_submitDate</td>
+                <td>@item.C_Customer_ChangHistory_checkpersonName</td>
+                <td>@item.C_Customer_ChangHistory_checkDate</td>
+            </tr>
+            
+            i++;
+        }
+    </tbody>
+</table>    

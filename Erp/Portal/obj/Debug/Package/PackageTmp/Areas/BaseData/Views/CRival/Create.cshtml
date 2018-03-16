@@ -1,0 +1,120 @@
+﻿@using CommonService.Model;
+
+@model CommonService.Model.C_CRival
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "法律对手信息";
+}
+@{
+    List<CommonService.Model.C_Parameters> CRivalftype = ViewBag.CRival_ftype;
+    List<CommonService.Model.C_Parameters> CRivalcorgan = ViewBag.CRival_corgan;
+    List<CommonService.Model.C_Parameters> CRivalsmodel = ViewBag.CRival_smodel;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+        function callback(lookupgroup) {
+            var id = lookupgroup + "_Code";
+            var textId = lookupgroup + "_Name";
+            var code = $("#" + id).val();
+            var switchUrl = $("#" + textId).attr("switchurl");
+            switchUrl = switchUrl + code;
+            $("#" + textId).attr("switchurl", switchUrl);
+        }
+    </script>
+}
+@section HeadCss{
+    <style type="text/css">
+        b {
+            color: red;
+            float: left;
+            margin-left: -10px;
+            margin-top: 5px;
+        }
+    </style>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "CRival", FormMethod.Post, new { id = "formCRival", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+                                        @Html.Hidden("C_CRival_id", Model.C_CRival_id)
+                                        @Html.Hidden("C_CRival_code", Model.C_CRival_code)
+                                        @Html.Hidden("C_CRival_number", Model.C_CRival_number)
+                                        @Html.Hidden("C_CRival_isdelete", Model.C_CRival_isdelete)
+                                        @Html.Hidden("C_CRival_cdate", Model.C_CRival_cdate)
+                                        @Html.Hidden("C_CRival_cuserid", Model.C_CRival_cuserid)
+                                        <div class="mulitytext"><b>*</b><label>企业名称</label>@Html.TextBox("C_CRival_name", Model.C_CRival_name, new { @class = "dfinput", requiredInput = "请输入企业名称", maxlength = "50" })<i></i></div>
+                                        <div class="mulitytext"><label>区域</label>@Html.Hidden("regionlookup.Code", Model.C_CRival_region_code, new { mulitylookupgroup = "regionlookup" })@Html.TextBox("regionlookup.Name", Model.C_CRival_region_name, new { onclick = "callback('regionlookup')", maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择区域", switchurl = "/baseData/region/MulityCallbackRefList?selectedRegionCode=" + Model.C_CRival_region_code, dialogwidth = "1080", dialogheight = "400", mulitylookupgroup = "regionlookup" })<i></i></div>
+                                        <div class="mulitytext"><label>工商注册地</label>@Html.TextBox("C_CRival_iland", Model.C_CRival_iland, new { @class = "dfinput", maxlength = "100" })<i></i></div>
+                                        <div class="mulitytext"><label>实际经营地</label>@Html.TextBox("C_CRival_aland", Model.C_CRival_aland, new { @class = "dfinput", maxlength = "100" })<i></i></div>
+                                        <div class="mulitytext"><label>成立时间</label>@Html.TextBox("C_CRival_fregtime", Model.C_CRival_fregtime == null ? "" : Model.C_CRival_fregtime.Value.ToString("yyyy-MM-dd"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd" })<i></i></div>
+                                        <div class="mulitytext">
+                                            <label>企业类型</label>
+                                            @{
+            IList<SelectListItem> crivalftypeItems = new List<SelectListItem>();
+            foreach (var crivalftype in CRivalftype)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = crivalftype.C_Parameters_id.ToString();
+                selectItem.Text = crivalftype.C_Parameters_name;
+
+                crivalftypeItems.Add(selectItem);
+            }
+                                            }
+                                            @Html.DropDownList("C_CRival_ftype", crivalftypeItems, new { })<i></i>
+                                        </div>
+                                        <div class="mulitytext"><label>注册资本</label>@Html.TextBox("C_CRival_rassets", Model.C_CRival_rassets, new { @class = "dfinput", money = "请输入有效金额", maxlength = "20" })<i></i></div>
+                                        <div class="mulitytext">
+                                            <label>资本结构</label>
+                                            @{
+            IList<SelectListItem> crivalcorganItems = new List<SelectListItem>();
+            foreach (var crivalcorgan in CRivalcorgan)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = crivalcorgan.C_Parameters_id.ToString();
+                selectItem.Text = crivalcorgan.C_Parameters_name;
+
+                crivalcorganItems.Add(selectItem);
+            }
+                                            }
+                                            @Html.DropDownList("C_CRival_corgan", crivalcorganItems, new { })<i></i>
+                                        </div>
+                                        <div class="mulitytext">
+                                            <label>经营模式</label>
+                                            @{
+            IList<SelectListItem> crivalsmodelItems = new List<SelectListItem>();
+            foreach (var crivalsmodel in CRivalsmodel)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = crivalsmodel.C_Parameters_id.ToString();
+                selectItem.Text = crivalsmodel.C_Parameters_name;
+
+                crivalsmodelItems.Add(selectItem);
+            }
+                                            }
+                                            @Html.DropDownList("C_CRival_smodel", crivalsmodelItems, new { })<i></i>
+                                        </div>
+                                        <div class="mulitytext"><label>主营项目</label>@Html.TextBox("C_CRival_mitem", Model.C_CRival_mitem, new { @class = "dfinput", maxlength = "500" })<i></i></div>
+                                        <div class="mulitytext"><label>曾经承建的项目</label>@Html.TextBox("C_CRival_eitem", Model.C_CRival_eitem, new { @class = "dfinput", maxlength = "500" })<i></i></div>
+                                        <div class="mulitytext"><label>联系电话</label>@Html.TextBox("C_CRival_phone", Model.C_CRival_phone, new { @class = "dfinput", positiveInteger = "请输入有效数字", maxlength = "20" })<i></i></div>
+                                        <div class="mulitytext"><label>网页链接</label>@Html.TextBox("C_CRival_link", Model.C_CRival_link, new { @class = "dfinput", maxlength = "50" })<i></i></div>
+                                        <div class="mulitytext"><label>电子邮件</label>@Html.TextBox("C_CRival_email", Model.C_CRival_email, new { @class = "dfinput", maxlength = "50" })<i></i></div>
+                                        <div class="mulitytextarealonger"><label>企业荣誉</label>@Html.TextArea("C_CRival_ehonor", Model.C_CRival_ehonor, new { maxlength = "500", positiveInteger = "500字以内" })<i></i></div>
+                                        <div class="mulitytextarealonger"><label>资质情况</label>@Html.TextArea("C_CRival_acase", Model.C_CRival_acase, new { maxlength = "500", positiveInteger = "500字以内" })<i></i></div>
+                                        <div class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></div>
+        }
+    </ul>
+</div>

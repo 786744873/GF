@@ -1,0 +1,36 @@
+﻿@using CommonService.Model.SysManager;
+@model IEnumerable<CommonService.Model.SysManager.C_Roles>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "角色列表";
+}
+<table class="tablelist">
+    <tbody>
+        @{
+            string defaultClass = String.Empty;
+        }
+        @foreach (var item in Model)
+        {
+            defaultClass = String.Empty;
+            if (item.C_Roles_isRelated)
+            {
+                defaultClass = "class=selected";
+            }
+            <tr @defaultClass target="sid_Iterm" rel="@item.C_Roles_id">
+                <td>@item.C_Roles_name</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script language="javascript" type="text/javascript">
+    //页面加载的时候，如果有已选中的角色，则默认为当前行js标识赋值
+    $("tbody tr", $globalTablelist).each(function () {
+        var $this = $(this);
+        if ($this.hasClass('selected')) {
+            var tempUniqueId = commonListData.uniqueId;
+            commonListData.uniqueId = $this.attr('rel');
+        }   
+    });
+</script>

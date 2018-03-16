@@ -1,0 +1,46 @@
+﻿@using CommonService.Model;
+
+@model CommonService.Model.C_CRival_person
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "企业负责人信息";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "CRival_person", FormMethod.Post, new { id = "formCRival_person", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_CRival_person_id", Model.C_CRival_person_id)
+            @Html.Hidden("C_CRival_code", Model.C_CRival_code)
+            @Html.Hidden("C_CRival_person_isDelete", Model.C_CRival_person_isDelete)
+            @Html.Hidden("C_CRival_person_creator", Model.C_CRival_person_creator)
+            @Html.Hidden("C_CRival_person_craeteTime", Model.C_CRival_person_craeteTime)
+            <div class="mulitytext"><label>姓名</label>@Html.TextBox("C_CRival_person_name", Model.C_CRival_person_name, new { @class = "dfinput", requiredInput = "请输入姓名", maxlength = "100" })<i></i></div>
+            <div class="mulitytext"><label>性别</label>@Html.RadioButtonFor(m => m.C_CRival_person_sex, "1", new { @class="dfradio"})<span>男</span>
+                                                       @Html.RadioButtonFor(m => m.C_CRival_person_sex, "0", new { @class = "dfradio" })<span>女</span></div>
+            <div class="mulitytext"><label>出生年月</label>@Html.TextBox("C_CRival_person_birthday", Model.C_CRival_person_birthday == null ? "" : Model.C_CRival_person_birthday.Value.ToString("yyyy-MM-dd"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd" })<i></i></div>
+            <div class="mulitytext"><label>任职时间</label>@Html.TextBox("C_CRival_person_ptime", Model.C_CRival_person_ptime == null ? "" : Model.C_CRival_person_ptime.Value.ToString("yyyy-MM-dd"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd" })<i></i></div>
+            <div class="mulitytext"><label>联系方式</label>@Html.TextBox("C_CRival_person_contact", Model.C_CRival_person_contact, new { @class = "dfinput", positiveInteger = "请输入有效数字", maxlength = "100" })<i></i></div>
+            <div class="mulitytext"><label>职务</label>@Html.TextBox("C_CRival_person_post", Model.C_CRival_person_post, new { @class = "dfinput",  maxlength = "100" })<i></i></div>
+            <div class="mulitytext"><label>其他负责人</label>@Html.TextBox("C_CRival_person_other_person", Model.C_CRival_person_other_person, new { @class = "dfinput",maxlength = "200" })<i></i></div>
+            <div class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></div>
+        }
+    </ul>
+</div>

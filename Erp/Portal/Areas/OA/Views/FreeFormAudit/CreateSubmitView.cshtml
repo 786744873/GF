@@ -1,0 +1,56 @@
+﻿@model CommonService.Model.OA.O_Form
+@{
+    Layout = null;
+}
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+    <h4 class="modal-title">提交申请</h4>
+</div>
+<div class="modal-body">
+    @using (Html.BeginForm("Save", "FreeFormAudit", FormMethod.Post, new { id = "formFreeFormAudit", @class = "form-horizontal", role = "form" }))
+    {
+      <div class="form-body">
+        <div class="alert alert-danger display-hide">
+            <button class="close" data-close="alert"></button>
+            <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+        </div>
+        <div class="alert alert-success display-hide">
+            <button class="close" data-close="alert"></button>
+            <span defaulttext="表单数据验证通过，数据处理中..."></span>
+        </div>
+        @Html.Hidden("hd_receivers")
+        @Html.Hidden("O_Form_code", Model.O_Form_code)
+        <div class="form-group">
+            <label class="control-label col-md-3">
+                选择审批人 <span class="required">
+                    *
+                </span>
+            </label>
+            <div class="col-md-6">
+                <select class="form-control" name="options2" id="select_receivers">
+                    @Html.Raw(ViewBag.userhtml);
+                </select>
+            </div>
+        </div>
+      </div>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn blue" onclick="saveformFreeFormAudit('formFreeFormAudit')">提交</button>
+    <button type="button" class="btn default" data-dismiss="modal">关闭</button>
+</div>
+<script>
+    //初始化select2控件
+    var $selectReceivers = $('#select_receivers').select2({
+        placeholder: "搜索审批人",
+        allowClear: true,
+        formatNoMatches: "没有匹配的审批人"
+    });
+    FormValidation.init('formFreeFormAudit', formDialogAjaxDone);//用表单Id和表单回调函数，初始化表单
+    function saveformFreeFormAudit(formId) {
+        var receiverGuids = $selectReceivers.select2("val");//审批人选中值
+        $('#' + formId).find("input[type=hidden][name='hd_receivers']").val(receiverGuids);//重新赋值审批人Guid
+        saveForm(formId);
+    }
+</script>

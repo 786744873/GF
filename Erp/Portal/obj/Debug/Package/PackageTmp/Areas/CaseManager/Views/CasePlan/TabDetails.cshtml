@@ -1,0 +1,45 @@
+﻿@using Context;
+@using CommonService.Model.SysManager;
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "案件计划";
+}
+@{
+    List<C_Role_Role_Power> roleRolePowers = ViewBag.RoleRolePowers;//权限
+}
+
+<div class="itab">
+    <ul>
+        @if (UIContext.Current.IsPreSetManager)
+        {
+            <li><a id="select1" href="/casemanager/case/CaseTabDetails?caseCode=@ViewBag.fkCode&type=2" tabpanelwidth="100%" tabpanelheight="900">案件信息</a></li>
+            <li><a id="select2" href="/casemanager/case/caseeditplantask?caseCode=@ViewBag.fkCode" tabpanelwidth="100%" tabpanelheight="850">计划任务</a></li>
+            <li><a id="select3" href="/casemanager/Caseprogram/Create?caseCode=@ViewBag.fkCode" tabpanelwidth="100%" tabpanelheight="850">办案方案</a></li>
+            <li><a id="select4" href="/flowmanager/businessflow/defaultlayout?fkCode=@ViewBag.fkCode&type=1&businessFlowCode=@ViewBag.businessFlowCode" tabpanelwidth="100%" tabpanelheight="850" class="selected">分解任务</a></li>
+            <li><a id="select5" href="/casemanager/CaseProceeds/TabDetails?fkCode=@ViewBag.fkCode" tabpanelwidth="100%" tabpanelheight="850">案件收益核算信息</a></li>
+        }
+        else
+        {
+            <li><a id="select1" href="/casemanager/case/CaseTabDetails?caseCode=@ViewBag.fkCode&type=2" tabpanelwidth="100%" tabpanelheight="850" class="selected">案件信息</a></li>
+            if (roleRolePowers.Where(p => p.C_Role_Power_id == 9).Count() != 0)
+            {
+                <li><a id="select2" href="/casemanager/case/caseeditplantask?caseCode=@ViewBag.fkCode" tabpanelwidth="100%" tabpanelheight="850">计划任务</a></li>
+            }
+            if (roleRolePowers.Where(p => p.C_Role_Power_id == 10).Count() != 0 || roleRolePowers.Where(p => p.C_Role_Power_id == 11).Count() != 0)
+            {
+                <li><a id="select3" href="/casemanager/Caseprogram/Create?caseCode=@ViewBag.fkCode" tabpanelwidth="100%" tabpanelheight="850">办案方案</a></li>
+            }
+            if (roleRolePowers.Where(p => p.C_Role_Power_id == 12).Count() != 0)
+            {
+                <li><a id="select4" href="/flowmanager/businessflow/defaultlayout?fkCode=@ViewBag.fkCode&type=1&businessFlowCode=@ViewBag.businessFlowCode" tabpanelwidth="100%" tabpanelheight="850">分解任务</a></li>
+            }
+            if (roleRolePowers.Where(p => p.C_Role_Power_id == 15).Count() != 0)
+            {
+                <li><a id="select5" href="/casemanager/CaseProceeds/TabDetails?fkCode=@ViewBag.fkCode" tabpanelwidth="100%" tabpanelheight="850">案件收益核算信息</a></li>
+            }
+        }
+    </ul>
+
+</div>

@@ -1,0 +1,104 @@
+﻿@using CommonService.Common
+@using Context
+@{
+    Layout = "~/Areas/KMS/Views/Study/DefaultLayout.cshtml";//KMS母版页
+}
+@section HeadCss{
+    <style type="text/css">
+        #menutree li ul {
+            display: block;
+            line-height: 43px;
+        }
+
+        #document {
+            color: #5b9bd1;
+            background-color: #f6f9fb;
+            border-left: 2px solid #5b9bd1;
+            margin-left: -2px;
+        }
+    </style>
+}
+@section HeadScript{
+    <script type="text/javascript" src="/theme/oajs/bar.js"></script>
+    <script>
+
+        //页面首次加载时tab页签选中样式
+        var tabType = '@ViewBag.tabType';
+        if (tabType == 1) {
+            $('#MyPromblemlist_search .tab1').addClass("active");
+        } else if (tabType == 2) {
+            $('#MyPromblemlist_search .tab2').addClass("active");
+        }
+        //左侧菜单选择样式
+        //$("#MyProblem").addClass('active');
+
+        //选择tab时修改tab的样式并激发查询ajax
+        var MyPromblemlist_search = $("#MyPromblemlist_search");
+        $("li", MyPromblemlist_search).each(function () {
+            $(this).click(function (event) {
+                event.preventDefault();
+                var $this = $(this);
+                var tabType = $this.attr("id");//获取点击标签的id
+                $("#tabType").val(tabType);
+                $("#myProblemBtn").trigger("click");
+                var typeId = $("#tabType").val();
+                $('#MyPromblemlist_search li').each(function (index) {
+                    if ($(this).hasClass("active")) {
+                        $(this).removeClass('active');
+                    }
+                    if ($(this).attr("id") == typeId) {
+                        $(this).addClass('active');
+                    }
+                })
+            });
+        })
+
+        var defaultColumns = [
+             { "sName": "K_Problem_code", "bVisible": false },
+             { "sName": "K_Problem_content", "render": function (data, type, full) { if (data.length > 25) { data = data.substring(0, 25) + "..." } return "<a href='' target='_blank' style='color:#5b9bd1'>" + data + "</a>"; } },
+             { "sName": "K_Problem_Knowledge_name" },
+             { "sName": "K_Problem_creatorName", "class": "text-center" },
+             { "sName": "K_Problem_createTime", "class": "text-center" },
+             { "sName": "K_Problem_AnswerCount", "class": "text-center", "render": function (date, type, full) { return "<span class='badge badge-badge badge-warning'>" + (date == "" ? "0" : date) + "</span>" } }
+        ];//table 默认列扩展
+        var submitUrl = '/kms/study/AjaxMyPromblemList';//数据获取地址
+        TableManaged.init('MyPromblemList', "MyPromblemlist_search", defaultColumns, submitUrl);//用table id,table search id,默认列 初始化table对象
+    </script>
+}
+<!-- BEGIN PAGE CONTENT INNER -->
+<div class="tabbable tabbable-custom tabbable-noborder">
+    <ul class="nav nav-tabs" id="MyPromblemlist_search">
+        @Html.Hidden("tabType")
+        <input id="myProblemBtn" type="button" onclick="executeSearch('MyPromblemList', 'MyPromblemlist_search')" style="display:none;" />
+        <li class="tab1" id="1">
+            <a href="#tab_1" data-toggle="tab" aria-expanded="false">
+                已解决问题
+            </a>
+        </li>
+        <li class="tab2" id="2">
+            <a href="#tab_2" data-toggle="tab" aria-expanded="false">
+                待解决问题
+            </a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab_1">
+            <table class="table table-striped table-bordered table-hover" id="MyPromblemList">
+                <thead>
+                    <tr>
+                        <th>问题Guid</th>
+                        <th style="width:44%;">问题</th>
+                        <th>所属知识分类</th>
+                        <th>提问者</th>
+                        <th>时间</th>
+                        <th>回复</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--数据行在这里-->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- END PAGE CONTENT INNER -->

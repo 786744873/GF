@@ -1,0 +1,21 @@
+﻿@{
+    CommonService.Model.CustomerForm.F_FormProperty formPropertyValue = ViewBag.FormPropertyValue;//表单属性值数据实体
+    string htmlAttributes = ViewBag.HtmlAttributes;//验证信息
+    string lookupgroup = formPropertyValue.F_FormProperty_fieldName + "lookup";
+    string hdId = lookupgroup + "_Code_formproperty_" + formPropertyValue.V_FormPropertyValue_Code;
+    string hdName = lookupgroup + ".Code_formproperty_" + formPropertyValue.V_FormPropertyValue_Code;
+    string showId = lookupgroup + "_Name_formproperty_" + formPropertyValue.V_FormPropertyValue_Code;
+    string showName = lookupgroup + ".Name_formproperty_" + formPropertyValue.V_FormPropertyValue_Code;
+    string title = formPropertyValue.F_FormProperty_showName;
+    string switchUrl = formPropertyValue.F_FormProperty_targetUrl;
+    if (switchUrl.Contains("?"))
+    {
+        switchUrl = switchUrl + "&lookupgroup=" + lookupgroup + "&propertyValueCode=" + formPropertyValue.V_FormPropertyValue_Code + "&mappingField=" + formPropertyValue.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + formPropertyValue.F_FormProperty_dataSource_mappingFieldName;
+    }
+    else
+    {
+        switchUrl = switchUrl + "?lookupgroup=" + lookupgroup + "&propertyValueCode=" + formPropertyValue.V_FormPropertyValue_Code + "&mappingField=" + formPropertyValue.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + formPropertyValue.F_FormProperty_dataSource_mappingFieldName;
+    }
+}
+<input id="@hdId" name="@hdName" lookupgroup="@lookupgroup" type="hidden" value="@formPropertyValue.V_FormPropertyValue_Value">
+<input id="@showId" name="@showName" lookupgroup="@lookupgroup" type="text" @htmlAttributes class="textselect" title="@title" dialogheight="500" dialogwidth="1080" selectdialog="selectdialog" switchurl="@switchUrl" value="@formPropertyValue.V_FormPropertyValue_Value_Name">

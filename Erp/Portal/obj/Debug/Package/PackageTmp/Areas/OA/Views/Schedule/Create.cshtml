@@ -1,0 +1,275 @@
+﻿@model CommonService.Model.OA.O_Schedule
+@{
+    Layout = null;
+}
+@{
+    List<CommonService.Model.C_Parameters> RemindTypes = ViewBag.RemindTypes;
+    List<CommonService.Model.C_Parameters> EndConditions = ViewBag.EndConditions;
+    List<CommonService.Model.C_Parameters> RepeatTypes = ViewBag.RepeatTypes;
+    string scheduleUsers = ViewBag.ScheduleUsers;
+    string isRepeatClass = " hide";//是否重复class
+    if (Model.O_Schedule_isRepeat)
+    {
+        isRepeatClass = String.Empty;
+    }
+    string isHasEndDateClass = " hide";//是否有结束重复日期class
+    if (Model.O_Schedule_endRepeatDate != null)
+    {
+        isHasEndDateClass = String.Empty;
+    }
+    string isAllDayEventClass = String.Empty;//是否全天事件class
+    if (Model.O_Schedule_isAllDay)
+    {
+        isAllDayEventClass = " hide";
+    }
+}
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+    <h4 class="modal-title">日程管理</h4>
+</div>
+<div class="modal-body">
+    @using (Html.BeginForm("Save", "Schedule", FormMethod.Post, new { id = "formSchedule", @class = "form-horizontal", role = "form" }))
+    {
+        <div class="form-body">
+            <div class="alert alert-danger display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+            </div>
+            <div class="alert alert-success display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据验证通过，数据处理中..."></span>
+            </div>
+            @Html.Hidden("hd_joiners", scheduleUsers)
+            @Html.Hidden("O_Schedule_id", Model.O_Schedule_id)
+            @Html.Hidden("O_Schedule_code", Model.O_Schedule_code)
+            @Html.Hidden("O_Schedule_creator", Model.O_Schedule_creator)
+            @Html.Hidden("O_Schedule_createTime", Model.O_Schedule_createTime)
+            @Html.Hidden("O_Schedule_isDelete", Model.O_Schedule_isDelete) 
+            @Html.Hidden("O_Schedule_isRepeat", Model.O_Schedule_isRepeat)
+            @Html.Hidden("O_Schedule_calendarid", Model.O_Schedule_calendarid)
+            <div class="form-group">
+                <label class="control-label col-md-3">日程标题 <span class="required">*</span></label>
+                <div class="col-md-9">
+                    <div class="input-icon right">
+                        <i class="fa"></i>
+                        @Html.TextBox("O_Schedule_title", Model.O_Schedule_title, new { @class = "form-control", placeholder = "日程标题", maxlength = "100", validateType = "{required:true}", validateMessage = "{required:'日程标题不能为空'}" })
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3">日程内容<span class="required">*</span></label>
+                <div class="col-md-9">
+                    <div class="input-icon right">
+                        <i class="fa"></i>
+                        @Html.TextArea("O_Schedule_content", Model.O_Schedule_content, new { @class = "form-control", rows = "3", validateType = "{required:true}", validateMessage = "{required:'日程内容不能为空'}", maxlength = "1000" })
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3">开始日期</label>
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="input-group input-medium date date-picker input-icon right" data-date-format="yyyy-mm-dd">
+                                <i class="fa"></i>
+                                @Html.TextBox("O_Schedule_startRiQi", Model.O_Schedule_startRiQi, new { @class = "form-control", validateType = "{required:true}", validateMessage = "{required:'开始日期不能为空'}" })
+                                <span class="input-group-btn">
+                                    <button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                        <hr class="visible-xs" />
+                        <div class="col-md-7">
+                            <div id="startShiJianDv" class="input-group @isAllDayEventClass">
+                                @Html.TextBox("O_Schedule_startShiJian", Model.O_Schedule_startShiJian, new { @class = "form-control timepicker" })
+                                <span class="input-group-btn">
+                                    <button class="btn default" type="button"><i class="fa fa-clock-o"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3">结束日期</label>
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="input-group input-medium date date-picker input-icon right" data-date-format="yyyy-mm-dd">
+                                <i class="fa"></i>
+                                @Html.TextBox("O_Schedule_endRiQi", Model.O_Schedule_endRiQi, new { @class = "form-control", validateType = "{required:true}", validateMessage = "{required:'结束日期不能为空'}" })
+                                <span class="input-group-btn">
+                                    <button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                        <hr class="visible-xs" />
+                        <div class="col-md-7">
+                            <div id="endShiJianDv" class="input-group @isAllDayEventClass">
+                                @Html.TextBox("O_Schedule_endShiJian", Model.O_Schedule_endShiJian, new { @class = "form-control timepicker" })
+                                <span class="input-group-btn">
+                                    <button class="btn default" type="button"><i class="fa fa-clock-o"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3"></label>
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <div class="icheck-inline">
+                            <label>
+                                @Html.CheckBox("O_Schedule_isAllDay", Model.O_Schedule_isAllDay, new { @class = "icheck" })全天
+                            </label>
+                            @*<label>
+                                @Html.CheckBox("O_Schedule_isRepeat", Model.O_Schedule_isRepeat, new { @class = "icheck" })重复
+                            </label>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @{
+               IList<SelectListItem> remindTypeItems = new List<SelectListItem>();
+               foreach (var remindType in RemindTypes)
+               {
+                 SelectListItem selectItem = new SelectListItem();
+                 selectItem.Value = remindType.C_Parameters_id.ToString();
+                 selectItem.Text = remindType.C_Parameters_name;
+
+                 remindTypeItems.Add(selectItem);
+               }
+            }
+            <div class="form-group">
+                <label class="control-label col-md-3">提醒类型</label>
+                <div class="col-md-9">
+                    @Html.DropDownList("O_Schedule_remindType", remindTypeItems, new { @class = "form-control" })
+                </div>
+            </div>
+            @*@{
+              IList<SelectListItem> repeatTypeItems = new List<SelectListItem>();
+              foreach (var repeatType in RepeatTypes)
+              {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = repeatType.C_Parameters_id.ToString();
+                selectItem.Text = repeatType.C_Parameters_name;
+
+                repeatTypeItems.Add(selectItem);
+              }
+            }
+            <div id="repeatTypeDv" class="form-group @isRepeatClass">
+                <label class="control-label col-md-3">重复类型</label>
+                <div class="col-md-9">
+                    @Html.DropDownList("O_Schedule_repeatType", repeatTypeItems, new { @class = "form-control" })
+                </div>
+            </div>
+            @{
+               IList<SelectListItem> endCondItems = new List<SelectListItem>();
+               foreach (var endCond in EndConditions)
+               {
+                 SelectListItem selectItem = new SelectListItem();
+                 selectItem.Value = endCond.C_Parameters_id.ToString();
+                 selectItem.Text = endCond.C_Parameters_name;
+
+                 endCondItems.Add(selectItem);
+               }
+            }
+            <div id="endCondDv" class="form-group @isRepeatClass">
+                <label class="control-label col-md-3">结束条件</label>
+                <div class="col-md-9">
+                    @Html.DropDownList("O_Schedule_endCondition", endCondItems, new { @class = "form-control" })
+                </div>
+            </div>
+            <div id="endRepeatDateDv" class="form-group @isHasEndDateClass">
+                <label class="control-label col-md-3">结束重复日期</label>
+                <div class="col-md-9">
+                    <div class="input-group input-medium date date-picker" data-date="2015-07-28" data-date-format="yyyy-mm-dd">
+                        @Html.TextBox("O_Schedule_endRepeatDate", Model.O_Schedule_endRepeatDate == null ? "" : Model.O_Schedule_endRepeatDate.Value.ToString("yyyy-MM-dd"), new { @class = "form-control" })
+                        <span class="input-group-btn">
+                            <button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>*@
+            <div class="form-group">
+                <label class="control-label col-md-3">参与人<span class="required">*</span></label>
+                <div class="col-md-9">
+                    <select id="select_joiners" name="select_joiners" data-live-search="true" class="form-control bs-select" multiple>
+                        @Html.Raw(ViewBag.userhtml);
+                    </select>
+
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn blue" onclick="saveSchedule('formSchedule')">保存</button>
+    @if (Model.O_Schedule_id > 0)
+    {
+        <button type="button" class="btn green" onclick="btnDialogOperate(this)" switchurl="/oa/schedule/delete?scheduleCode=@Model.O_Schedule_code.Value.ToString()" confirmtip="确认要删除此日程吗？">删除</button>
+    }    
+    <button type="button" class="btn default" data-dismiss="modal">关闭</button>
+</div>
+<!-- BEGIN MAIN JS -->
+<script>
+    //初始化select2控件
+    var $select_joiners = $('#select_joiners').select2({
+        placeholder: "搜索",
+        allowClear: true,
+        formatNoMatches: "没有匹配的参与人"
+    });
+    //设置select2 默认选中值
+    var defaultJoiners = $('#formSchedule').find("input[type=hidden][name='hd_joiners']").val();
+
+    var defaultJoinersGroup = defaultJoiners.split(',');
+    var select_defaultJoiners = '';
+    if (defaultJoiners != '') {
+        for (var i = 0; i < defaultJoinersGroup.length ; i++) {
+            select_defaultJoiners += '"' + defaultJoinersGroup[i] + '",';
+        }
+    }
+    if (select_defaultJoiners != '') {
+        select_defaultJoiners = select_defaultJoiners.substr(0, select_defaultJoiners.length - 1);
+        select_defaultJoiners = "[" + select_defaultJoiners + "]";
+        $select_joiners.val(eval("(" + select_defaultJoiners + ")")).trigger("change");
+    }
+
+    ComponentsPickers.init();
+    FormValidation.init('formSchedule', formDialogAjaxDone);//用表单Id和表单回调函数，初始化表单
+    function saveSchedule(formId, btid) {
+        var joinerGuids = $select_joiners.select2("val");//收件人选中值
+        $('#' + formId).find("input[type=hidden][name='hd_joiners']").val(joinerGuids);//重新赋值参与人Guid
+        saveForm(formId);
+    }
+    //是否全天事件，如何为全天事假，则关闭时间框；否则打开时间框
+    $('#formSchedule').find("input[type=checkbox][name='O_Schedule_isAllDay']").click(function () {
+        if ($(this).attr("checked")) {
+            $('#endShiJianDv').attr("class", "input-group hide");
+            $('#startShiJianDv').attr("class", "input-group hide");
+        } else {
+            $('#endShiJianDv').attr("class", "input-group");
+            $('#startShiJianDv').attr("class", "input-group");
+        }
+    });
+    //是否重复事件
+    $('#formSchedule').find("input[type=checkbox][name='O_Schedule_isRepeat']").click(function () {
+        if ($(this).attr("checked")) {
+            $('#repeatTypeDv').attr("class", "form-group");
+            $('#endCondDv').attr("class", "form-group");
+        } else {
+            $('#repeatTypeDv').attr("class", "form-group hide");
+            $('#endCondDv').attr("class", "form-group hide");
+        }
+    });
+    //结束条件改变事件
+    $('#formSchedule').find("select[name='O_Schedule_endCondition']").change(function () {
+        if ($(this).val()=='507') {
+            $('#endRepeatDateDv').attr("class", "form-group");
+        } else {            
+            $('#endRepeatDateDv').attr("class", "form-group hide");
+        }
+    });
+</script>
+<!-- END MAIN JS -->

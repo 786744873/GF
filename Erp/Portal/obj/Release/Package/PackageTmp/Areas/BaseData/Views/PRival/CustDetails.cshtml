@@ -1,0 +1,17 @@
+﻿@using CommonService.Common;
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "个人详细";
+}
+<div class="itab">
+    <ul>
+        <li><a href="/basedata/PRival/Details?prival_code=@ViewBag.PRival_code" tabpanelwidth="100%" tabpanelheight="500" class="selected">对手信息</a></li>
+        <li><a href="/basedata/PRival_education/viewlist?prival_code=@Model.C_PRival_code" tabpanelwidth="100%" tabpanelheight="500">教育背景</a></li>
+        <li><a href="/basedata/PRival_experience/viewlist?prival_code=@Model.C_PRival_code" tabpanelwidth="100%" tabpanelheight="500">工作经历</a></li>
+        <li><a href="/basedata/Property_trail/PropertyTabDetails?crival_code=@Model.C_PRival_code&property_trail_type=112" tabpanelwidth="100%" tabpanelheight="500">财产状况</a></li>
+        <li><a href="/basedata/Spouse/TabDetails?prival_code=@Model.C_PRival_code" tabpanelwidth="100%" tabpanelheight="500">配偶信息</a></li>
+        <li><a href="/attachmentupload/attachmentlist?relationCode=@Model.C_PRival_code&targetDirectory=@CommonService.Common.BaseEnumHelper.GetUploadAttachmentFolder(CommonService.Common.FileBelongTypeEnum.个人)&fileBelongType=@Convert.ToInt32(CommonService.Common.FileBelongTypeEnum.个人)" tabpanelwidth="100%" tabpanelheight="700">附件信息</a></li>
+    </ul>
+</div>

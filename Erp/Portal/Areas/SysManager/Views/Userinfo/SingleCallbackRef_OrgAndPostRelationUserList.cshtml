@@ -1,0 +1,34 @@
+﻿@using CommonService.Model.SysManager;
+@model IEnumerable<CommonService.Model.SysManager.C_Userinfo>
+
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "组织机构岗位关联人员列表";
+}
+@{
+    
+}
+<table class="tablelist">
+    <tbody>
+    @foreach (var item in Model)
+    {
+        string type = ViewBag.type;
+        string callbackStr = "";
+        switch (type)
+        {
+            case "1":
+                callbackStr = "{'lookupgroup':'consultantlookup','Code':'" + @item.C_Userinfo_code + "','Name':'" + @item.C_Userinfo_name.Trim() + "','RegionCode':'" + @item.C_Userinfo_Regioncode + "','RegionName':'" + @item.C_Userinfo_Regioncode_Name + "'}";
+                break;
+            default:
+                callbackStr = "{'lookupgroup':'mainLawyerlookup','Code':'" + @item.C_Userinfo_code + "','Name':'" + @item.C_Userinfo_name.Trim() + "','RegionCode':'" + @item.C_Userinfo_Regioncode + "','RegionName':'" + @item.C_Userinfo_Regioncode_Name + "'}";
+                break;
+        }
+        <tr target="sid_Iterm" rel="@item.C_Userinfo_code" callbackjson="@callbackStr">
+            <td>@item.C_Userinfo_Organization_name->@item.C_Userinfo_post_name->@item.C_Userinfo_name</td>
+        </tr>
+    }
+    </tbody>
+</table>
+

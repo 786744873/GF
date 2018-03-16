@@ -1,0 +1,58 @@
+﻿@model CommonService.Model.SysManager.C_Post
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "岗位信息";
+}
+@{
+    List<CommonService.Model.SysManager.C_Group> Groups = ViewBag.Groups;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "post", FormMethod.Post, new { id = "formPost", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_Post_id", Model.C_Post_id)
+            @Html.Hidden("C_Post_code", Model.C_Post_code)
+            @*@Html.Hidden("C_Roles_id", Model.C_Roles_id)*@
+            @Html.Hidden("C_Post_isDelete", Model.C_Post_isDelete)
+            @Html.Hidden("C_Post_creator", Model.C_Post_creator)
+            @Html.Hidden("C_Post_createTime", Model.C_Post_createTime)
+
+            <li><label>岗位名称</label>@Html.TextBox("C_Post_name", Model.C_Post_name, new { @class = "dfinput", requiredInput = "请输入岗位名称", maxlength = "200" })<i></i></li>
+            <li>
+                <label>所属分组</label>
+                @{
+            IList<SelectListItem> groupItems = new List<SelectListItem>();
+            foreach (var group in Groups)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = group.C_Group_code.ToString();
+                selectItem.Text = group.C_Group_name;
+
+                groupItems.Add(selectItem);
+            }
+                }
+                @Html.DropDownList("C_Post_group", groupItems, new {  @class = "dfselect" })
+                <i></i>
+            </li>
+          <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></li>
+        }
+    </ul>
+</div>

@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="CommonService.Reporting.R_FirstInstanceVerdict_reporting" %>

@@ -1,0 +1,30 @@
+﻿@{
+    Layout = null;
+}
+<!-- BEGIN PAGE HEADER-->
+@{Html.RenderAction("OAContentPageHead");}
+<!-- END PAGE HEADER-->
+<!-- BEGIN PAGE CONTENT-->
+<div class="row">
+    <div class="col-md-12">
+        <!-- BEGIN EXAMPLE TABLE PORTLET-->
+        <div class="portlet box yellow">
+            <div class="portlet-body">
+                <div class="row" id="sortable_portlets">
+                    @Html.Raw(ViewBag.strHtml)
+                </div>
+
+            </div>
+        </div>
+        <!-- END EXAMPLE TABLE PORTLET-->
+    </div>
+</div>
+@Html.Partial("_OAHidePartial")@*引入页面中用到的一些关联触发*@
+<!-- END PAGE CONTENT-->
+<!-- BEGIN MAIN JS -->
+<script type="text/javascript" src="/theme/oajs/bar.js"></script>
+<script>
+    PortletDraggable.init();
+    commonListData.uniqueId = "123";//去掉没选中信息提示
+</script>
+<!-- END MAIN JS -->
