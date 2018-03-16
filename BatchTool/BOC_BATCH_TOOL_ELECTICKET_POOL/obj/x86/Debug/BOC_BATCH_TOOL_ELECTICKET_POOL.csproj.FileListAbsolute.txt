@@ -1,0 +1,16 @@
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_ELECTICKET_POOL.dll
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_ELECTICKET_POOL.pdb
+C:\代码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.MainView.resources
+C:\代码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.Properties.Resources.resources
+C:\代码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.csproj.GenerateResource.Cache
+C:\代码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.dll
+C:\代码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.pdb
+C:\代码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_ELECTICKET_POOL.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_ELECTICKET_POOL.pdb
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.MainView.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.Properties.Resources.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.csproj.GenerateResource.Cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_ELECTICKET_POOL\obj\x86\Debug\BOC_BATCH_TOOL_ELECTICKET_POOL.pdb

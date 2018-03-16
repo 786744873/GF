@@ -1,0 +1,1424 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0C4658B4-8FD9-49A7-9997-120CFFF70402}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CommonClient</RootNamespace>
+    <AssemblyName>CommonClient</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '4cf|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\4cf\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>..\Debug\CommonClient.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;c:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;c:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'net4cf|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\net4cf\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>..\Debug\CommonClient.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;c:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;c:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'net4|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\net4\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>..\Debug\CommonClient.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;c:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;c:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EPPlus, Version=3.1.3.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\ICSharpCode.SharpZLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI, Version=2.1.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML, Version=2.1.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net, Version=2.1.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats, Version=2.1.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Contract\ModuleWorkSpace.cs" />
+    <Compile Include="Controls\AccountComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\AccountComboBox.designer.cs">
+      <DependentUpon>AccountComboBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AmbiguityInputAgent.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ButtonlikeEntrancePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ErrorProviderExt.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ErrorProviderExt.Designer.cs">
+      <DependentUpon>ErrorProviderExt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ForbiddenLayer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\GradingProgressBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\IDataValidator.cs" />
+    <Compile Include="Controls\LanguageList.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\LanguageList.Designer.cs">
+      <DependentUpon>LanguageList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\LanguageListEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\LanguageListEditor.Designer.cs">
+      <DependentUpon>LanguageListEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MenuItemPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\MenuItemPanel.designer.cs">
+      <DependentUpon>MenuItemPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\NoborderShadowForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\NoborderShadowForm.designer.cs">
+      <DependentUpon>NoborderShadowForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SnapSplitter.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\TablessTabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\TabStyleListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ThemedButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ThemedButton.Designer.cs">
+      <DependentUpon>ThemedButton.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ThemedDataGridView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ThemedPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ThemedPanel.Designer.cs">
+      <DependentUpon>ThemedPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ValidationControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ValidatorList.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ValidatorList.Designer.cs">
+      <DependentUpon>ValidatorList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConvertHelper\CountryHelper.cs" />
+    <Compile Include="ConvertHelper\DataConvertHelper.cs" />
+    <Compile Include="ConvertHelper\DealSerialNoHelper.cs" />
+    <Compile Include="ConvertHelper\MultiLanguageConvertHelper.cs" />
+    <Compile Include="ConvertHelper\MultiLanguageDataHelper.cs" />
+    <Compile Include="ConvertHelper\RegexHelper.cs" />
+    <Compile Include="Entities\AgentExpress.cs" />
+    <Compile Include="Entities\AgentNormal.cs" />
+    <Compile Include="Entities\BankInfo.cs" />
+    <Compile Include="Entities\BatchHeader.cs" />
+    <Compile Include="Entities\BatchMappingSettings.cs" />
+    <Compile Include="Entities\BatchReimbursement.cs" />
+    <Compile Include="Entities\ElecTicketAutoTipExchange.cs" />
+    <Compile Include="Entities\ElecTicketBackNote.cs" />
+    <Compile Include="Entities\ElecTicketPayMoney.cs" />
+    <Compile Include="Entities\ElecTicketPool.cs" />
+    <Compile Include="Entities\ElecTicketRelationAccount.cs" />
+    <Compile Include="Entities\ElecTicketRemit.cs" />
+    <Compile Include="Entities\Entities.cs" />
+    <Compile Include="Entities\InitiativeAllot.cs" />
+    <Compile Include="Entities\InitiativeAllotAccount.cs" />
+    <Compile Include="Entities\NoticeInfo.cs" />
+    <Compile Include="Entities\PayeeInfo.cs" />
+    <Compile Include="Entities\PayeeInfo4TransferGlobal.cs" />
+    <Compile Include="Entities\PayerInfo.cs" />
+    <Compile Include="Entities\PreproccessTransfer.cs" />
+    <Compile Include="Entities\SpplyFinancingApply.cs" />
+    <Compile Include="Entities\SpplyFinancingBill.cs" />
+    <Compile Include="Entities\SpplyFinancingOrder.cs" />
+    <Compile Include="Entities\SpplyFinancingPayOrReceipt.cs" />
+    <Compile Include="Entities\TransferAccount.cs" />
+    <Compile Include="Entities\TransferGlobal.cs" />
+    <Compile Include="Entities\UnitivePaymentFC.cs" />
+    <Compile Include="Entities\UnitivePaymentRMB.cs" />
+    <Compile Include="Entities\VirtualAccount.cs" />
+    <Compile Include="Entities\VirtualAccountInfo.cs" />
+    <Compile Include="FileIO\Excel03.cs" />
+    <Compile Include="FileIO\Excel07.cs" />
+    <Compile Include="FileIO\ExcelLib.cs" />
+    <Compile Include="FileIO\FileRWHelper.cs" />
+    <Compile Include="FileIO\IExcel.cs" />
+    <Compile Include="FileIO\ZipOperatorHelper.cs" />
+    <Compile Include="frmBarPassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmBarPassword.Designer.cs">
+      <DependentUpon>frmBarPassword.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmBase.Designer.cs">
+      <DependentUpon>frmBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmBatchHeader.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmBatchHeader.Designer.cs">
+      <DependentUpon>frmBatchHeader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmConvertWaiting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmConvertWaiting.Designer.cs">
+      <DependentUpon>frmConvertWaiting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmCountryQuery.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCountryQuery.Designer.cs">
+      <DependentUpon>frmCountryQuery.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmCustomerInfoMgr.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCustomerInfoMgr.Designer.cs">
+      <DependentUpon>frmCustomerInfoMgr.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmDealCodeQuery.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDealCodeQuery.Designer.cs">
+      <DependentUpon>frmDealCodeQuery.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmGridPrintPreview.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmGridPrintPreview.designer.cs">
+      <DependentUpon>frmGridPrintPreview.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmImportLocalFiles.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmImportLocalFiles.Designer.cs">
+      <DependentUpon>frmImportLocalFiles.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmOpenBankQuery.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmOpenBankQuery.Designer.cs">
+      <DependentUpon>frmOpenBankQuery.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmNetPassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmNetPassword.Designer.cs">
+      <DependentUpon>frmNetPassword.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmQueryRelateAccount.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmQueryRelateAccount.Designer.cs">
+      <DependentUpon>frmQueryRelateAccount.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmVersion.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmVersion.Designer.cs">
+      <DependentUpon>frmVersion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MatchFile\DataFileHelper.cs" />
+    <Compile Include="MatchFile\FileDataPasswordBarHelper.cs" />
+    <Compile Include="MatchFile\FileDataPasswordHelper.cs" />
+    <Compile Include="MatchFile\MatchFileDataHelper.cs" />
+    <Compile Include="MatchFile\UpdateFileHelper.cs" />
+    <Compile Include="MessageBoxPrime.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MessageBoxPrime.Designer.cs">
+      <DependentUpon>MessageBoxPrime.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="SysCoach\CNSpellTranslator.cs" />
+    <Compile Include="SysCoach\CommandCenter.cs" />
+    <Compile Include="SysCoach\CommonInfomations.cs" />
+    <Compile Include="SysCoach\DataCheckCenter.cs" />
+    <Compile Include="SysCoach\SystemInit.cs" />
+    <Compile Include="SysCoach\SystemSettings.cs" />
+    <Compile Include="TemplateHelper\BatchConsignDataTemplateHelper.cs" />
+    <Compile Include="MatchFile\LoadFileHelper.cs" />
+    <Compile Include="TemplateHelper\TemplateContentHelper.cs" />
+    <Compile Include="TemplateHelper\TemplateHeaderAndFooterHelper.cs" />
+    <Compile Include="TemplateHelper\TemplateReadFileHelper.cs" />
+    <Compile Include="Types\EnumTypes.cs" />
+    <Compile Include="Types\InfrastructureTypes.cs" />
+    <Compile Include="Utilities\ClientUtilities.cs" />
+    <Compile Include="Utilities\DrawingHelper.cs" />
+    <Compile Include="Utilities\AnimateHelper.cs" />
+    <Compile Include="Utilities\LocalStorageHelper2.cs" />
+    <Compile Include="VisualParts2\AdditionalCommentItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\AdditionalCommentItemsPanel.Designer.cs">
+      <DependentUpon>AdditionalCommentItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\AgentExpressEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\AgentExpressEditor.Designer.cs">
+      <DependentUpon>AgentExpressEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\AgentExpressItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\AgentExpressItemsPanel.Designer.cs">
+      <DependentUpon>AgentExpressItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\AgentExpressPayerEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\AgentExpressPayerEditor.Designer.cs">
+      <DependentUpon>AgentExpressPayerEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\AgentExpressPayerItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\AgentExpressPayerItemsPanel.Designer.cs">
+      <DependentUpon>AgentExpressPayerItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\AgentNormalEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\AgentNormalEditor.Designer.cs">
+      <DependentUpon>AgentNormalEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\AgentNormalItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\AgentNormalItemsPanel.Designer.cs">
+      <DependentUpon>AgentNormalItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\BatchAgentExpressHeader.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\BatchAgentExpressHeader.Designer.cs">
+      <DependentUpon>BatchAgentExpressHeader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\BatchAgentNormalHeader.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\BatchAgentNormalHeader.Designer.cs">
+      <DependentUpon>BatchAgentNormalHeader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\BatchInitiativeAllotHeader.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\BatchInitiativeAllotHeader.Designer.cs">
+      <DependentUpon>BatchInitiativeAllotHeader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\BatchReimbursementSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\BatchReimbursementSelector.Designer.cs">
+      <DependentUpon>BatchReimbursementSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketBackNoteItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketBackNoteItemsPanel.Designer.cs">
+      <DependentUpon>ElecTicketBackNoteItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketOtherPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketOtherPanel.Designer.cs">
+      <DependentUpon>ElecTicketOtherPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketPayMoneyItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketPayMoneyItemsPanel.Designer.cs">
+      <DependentUpon>ElecTicketPayMoneyItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketPoolEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketPoolEditor.Designer.cs">
+      <DependentUpon>ElecTicketPoolEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketPoolItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketPoolItemsPanel.Designer.cs">
+      <DependentUpon>ElecTicketPoolItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketPoolOtherPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketPoolOtherPanel.Designer.cs">
+      <DependentUpon>ElecTicketPoolOtherPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketPoolRelateAccountSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketPoolRelateAccountSelector.Designer.cs">
+      <DependentUpon>ElecTicketPoolRelateAccountSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketRelateAccountEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketRelateAccountEditor.Designer.cs">
+      <DependentUpon>ElecTicketRelateAccountEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketRelateAccountItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketRelateAccountItemsPanel.Designer.cs">
+      <DependentUpon>ElecTicketRelateAccountItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketRelateAccountSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketRelateAccountSelector.Designer.cs">
+      <DependentUpon>ElecTicketRelateAccountSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketRemitItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketRemitItemsPanel.Designer.cs">
+      <DependentUpon>ElecTicketRemitItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketStickOnEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketStickOnEditor.Designer.cs">
+      <DependentUpon>ElecTicketStickOnEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketTipExchangeItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketTipExchangeItemsPanel.Designer.cs">
+      <DependentUpon>ElecTicketTipExchangeItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketTypeInfo.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\ElecTicketTypeInfo.Designer.cs">
+      <DependentUpon>ElecTicketTypeInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\FileConverter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\FileConverter.Designer.cs">
+      <DependentUpon>FileConverter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\FileConverterFieldsSetting.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\FileConverterFieldsSetting.Designer.cs">
+      <DependentUpon>FileConverterFieldsSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\FileEncryptionSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\FileEncryptionSettings.Designer.cs">
+      <DependentUpon>FileEncryptionSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\InitiativeAllotAccountEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\InitiativeAllotAccountEditor.Designer.cs">
+      <DependentUpon>InitiativeAllotAccountEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\InitiativeAllotAccountItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\InitiativeAllotAccountItemsPanel.Designer.cs">
+      <DependentUpon>InitiativeAllotAccountItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\InitiativeAllotEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\InitiativeAllotEditor.Designer.cs">
+      <DependentUpon>InitiativeAllotEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\InitiativeAllotItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\InitiativeAllotItemsPanel.Designer.cs">
+      <DependentUpon>InitiativeAllotItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\PayeeEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\PayeeEditor.Designer.cs">
+      <DependentUpon>PayeeEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\PayeeItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\PayeeItemsPanel.Designer.cs">
+      <DependentUpon>PayeeItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\PayeeSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\PayeeSelector.Designer.cs">
+      <DependentUpon>PayeeSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\PayerEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\PayerEditor.Designer.cs">
+      <DependentUpon>PayerEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\PayerItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\PayerItemsPanel.Designer.cs">
+      <DependentUpon>PayerItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\PayerSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\PayerSelector.Designer.cs">
+      <DependentUpon>PayerSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\PreproccessTransferItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\PreproccessTransferItemsPanel.Designer.cs">
+      <DependentUpon>PreproccessTransferItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\PreproccessTransferSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\PreproccessTransferSelector.Designer.cs">
+      <DependentUpon>PreproccessTransferSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\RowIndexPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\RowIndexPanel.Designer.cs">
+      <DependentUpon>RowIndexPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingApplyEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingApplyEditor.Designer.cs">
+      <DependentUpon>SpplyFinancingApplyEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingApplyItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingApplyItemsPanel.Designer.cs">
+      <DependentUpon>SpplyFinancingApplyItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingBillEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingBillEditor.Designer.cs">
+      <DependentUpon>SpplyFinancingBillEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingBillItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingBillItemsPanel.Designer.cs">
+      <DependentUpon>SpplyFinancingBillItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingOrderEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingOrderEditor.Designer.cs">
+      <DependentUpon>SpplyFinancingOrderEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingOrderItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingOrderItemsPanel.Designer.cs">
+      <DependentUpon>SpplyFinancingOrderItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingOrderMgrEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingOrderMgrEditor.Designer.cs">
+      <DependentUpon>SpplyFinancingOrderMgrEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingOrderMgrItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingOrderMgrItemsPanel.Designer.cs">
+      <DependentUpon>SpplyFinancingOrderMgrItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingPayReceiptEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingPayReceiptEditor.Designer.cs">
+      <DependentUpon>SpplyFinancingPayReceiptEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingPayReceiptItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\SpplyFinancingPayReceiptItemsPanel.Designer.cs">
+      <DependentUpon>SpplyFinancingPayReceiptItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\TransferEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\TransferEditor.Designer.cs">
+      <DependentUpon>TransferEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalItemsPanel.Designer.cs">
+      <DependentUpon>TransferGlobalItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalOtherSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalOtherSelector.Designer.cs">
+      <DependentUpon>TransferGlobalOtherSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalPayeeEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalPayeeEditor.Designer.cs">
+      <DependentUpon>TransferGlobalPayeeEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalPayeeItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalPayeeItemsPanel.Designer.cs">
+      <DependentUpon>TransferGlobalPayeeItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalPayeeSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalPayeeSelector.Designer.cs">
+      <DependentUpon>TransferGlobalPayeeSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalRemitSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\TransferGlobalRemitSelector.Designer.cs">
+      <DependentUpon>TransferGlobalRemitSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\TransferItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\TransferItemsPanel.Designer.cs">
+      <DependentUpon>TransferItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\TransferOverBankItemPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\TransferOverBankItemPanel.Designer.cs">
+      <DependentUpon>TransferOverBankItemPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentFCItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentFCItemsPanel.Designer.cs">
+      <DependentUpon>UnitivePaymentFCItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentFCPayerSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentFCPayerSelector.Designer.cs">
+      <DependentUpon>UnitivePaymentFCPayerSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentFCRemitSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentFCRemitSelector.Designer.cs">
+      <DependentUpon>UnitivePaymentFCRemitSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentOther.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentOther.Designer.cs">
+      <DependentUpon>UnitivePaymentOther.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentRMBItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentRMBItemsPanel.Designer.cs">
+      <DependentUpon>UnitivePaymentRMBItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentRMBPayerSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\UnitivePaymentRMBPayerSelector.Designer.cs">
+      <DependentUpon>UnitivePaymentRMBPayerSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\VirtualAccountItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\VirtualAccountItemsPanel.Designer.cs">
+      <DependentUpon>VirtualAccountItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\VirtualAccountSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\VirtualAccountSelector.Designer.cs">
+      <DependentUpon>VirtualAccountSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\VirtualAllotAccountEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\VirtualAllotAccountEditor.Designer.cs">
+      <DependentUpon>VirtualAllotAccountEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\VirtualAllotAccountItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\VirtualAllotAccountItemsPanel.Designer.cs">
+      <DependentUpon>VirtualAllotAccountItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\VisibleTabSwitchSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\VisibleTabSwitchSettings.Designer.cs">
+      <DependentUpon>VisibleTabSwitchSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts2\BatchReimbursementItemsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts2\BatchReimbursementItemsPanel.Designer.cs">
+      <DependentUpon>BatchReimbursementItemsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts\BatchPagesPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts\BatchPagesPanel.Designer.cs">
+      <DependentUpon>BatchPagesPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts\DataOperatePanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts\DataOperatePanel.Designer.cs">
+      <DependentUpon>DataOperatePanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts\FileOperatePanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts\FileOperatePanel.Designer.cs">
+      <DependentUpon>FileOperatePanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts\_BaseModule.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts\_BaseModule.Designer.cs">
+      <DependentUpon>_BaseModule.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualParts\_BaseUC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualParts\_BaseUC.Designer.cs">
+      <DependentUpon>_BaseUC.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wndLinkBankNo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wndLinkBankNo.Designer.cs">
+      <DependentUpon>wndLinkBankNo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wndOpenBankQuery.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wndOpenBankQuery.Designer.cs">
+      <DependentUpon>wndOpenBankQuery.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wndPayeeQuery.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wndPayeeQuery.Designer.cs">
+      <DependentUpon>wndPayeeQuery.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Controls\LanguageListEditor.resx">
+      <DependentUpon>LanguageListEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MenuItemPanel.resx">
+      <DependentUpon>MenuItemPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\NoborderShadowForm.resx">
+      <DependentUpon>NoborderShadowForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SnapSplitter.resx">
+      <DependentUpon>SnapSplitter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmBarPassword.resx">
+      <DependentUpon>frmBarPassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmBase.resx">
+      <DependentUpon>frmBase.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmBatchHeader.en.resx">
+      <DependentUpon>frmBatchHeader.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmBatchHeader.resx">
+      <DependentUpon>frmBatchHeader.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmConvertWaiting.resx">
+      <DependentUpon>frmConvertWaiting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmCountryQuery.resx">
+      <DependentUpon>frmCountryQuery.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmCustomerInfoMgr.resx">
+      <DependentUpon>frmCustomerInfoMgr.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmDealCodeQuery.resx">
+      <DependentUpon>frmDealCodeQuery.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmGridPrintPreview.resx">
+      <DependentUpon>frmGridPrintPreview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmImportLocalFiles.resx">
+      <DependentUpon>frmImportLocalFiles.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmNetPassword.resx">
+      <DependentUpon>frmNetPassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmOpenBankQuery.resx">
+      <DependentUpon>frmOpenBankQuery.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmQueryRelateAccount.en.resx">
+      <DependentUpon>frmQueryRelateAccount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmQueryRelateAccount.resx">
+      <DependentUpon>frmQueryRelateAccount.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmVersion.en.resx">
+      <DependentUpon>frmVersion.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmVersion.resx">
+      <DependentUpon>frmVersion.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MessageBoxPrime.resx">
+      <DependentUpon>MessageBoxPrime.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="VisualParts2\AdditionalCommentItemsPanel.resx">
+      <DependentUpon>AdditionalCommentItemsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentExpressEditor.resx">
+      <DependentUpon>AgentExpressEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentExpressItemsPanel.resx">
+      <DependentUpon>AgentExpressItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentExpressItemsPanel.zh-CN.resx">
+      <DependentUpon>AgentExpressItemsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentExpressPayerEditor.resx">
+      <DependentUpon>AgentExpressPayerEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentExpressPayerEditor.zh-CN.resx">
+      <DependentUpon>AgentExpressPayerEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentExpressPayerItemsPanel.resx">
+      <DependentUpon>AgentExpressPayerItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentExpressPayerItemsPanel.zh-CN.resx">
+      <DependentUpon>AgentExpressPayerItemsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentNormalEditor.resx">
+      <DependentUpon>AgentNormalEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentNormalEditor.zh-CN.resx">
+      <DependentUpon>AgentNormalEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentNormalItemsPanel.resx">
+      <DependentUpon>AgentNormalItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\AgentNormalItemsPanel.zh-CN.resx">
+      <DependentUpon>AgentNormalItemsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\BatchAgentExpressHeader.resx">
+      <DependentUpon>BatchAgentExpressHeader.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\BatchAgentExpressHeader.zh-CN.resx">
+      <DependentUpon>BatchAgentExpressHeader.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\BatchAgentNormalHeader.resx">
+      <DependentUpon>BatchAgentNormalHeader.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\BatchAgentNormalHeader.zh.resx">
+      <DependentUpon>BatchAgentNormalHeader.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\BatchInitiativeAllotHeader.resx">
+      <DependentUpon>BatchInitiativeAllotHeader.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\BatchInitiativeAllotHeader.zh-CN.resx">
+      <DependentUpon>BatchInitiativeAllotHeader.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\BatchInitiativeAllotHeader.zh.resx">
+      <DependentUpon>BatchInitiativeAllotHeader.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\BatchReimbursementSelector.resx">
+      <DependentUpon>BatchReimbursementSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketBackNoteItemsPanel.resx">
+      <DependentUpon>ElecTicketBackNoteItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketOtherPanel.resx">
+      <DependentUpon>ElecTicketOtherPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketPayMoneyItemsPanel.resx">
+      <DependentUpon>ElecTicketPayMoneyItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketPoolEditor.resx">
+      <DependentUpon>ElecTicketPoolEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketPoolItemsPanel.resx">
+      <DependentUpon>ElecTicketPoolItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketPoolOtherPanel.resx">
+      <DependentUpon>ElecTicketPoolOtherPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketPoolRelateAccountSelector.resx">
+      <DependentUpon>ElecTicketPoolRelateAccountSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketRelateAccountEditor.resx">
+      <DependentUpon>ElecTicketRelateAccountEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketRelateAccountItemsPanel.resx">
+      <DependentUpon>ElecTicketRelateAccountItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketRelateAccountSelector.resx">
+      <DependentUpon>ElecTicketRelateAccountSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketRemitItemsPanel.resx">
+      <DependentUpon>ElecTicketRemitItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketStickOnEditor.resx">
+      <DependentUpon>ElecTicketStickOnEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketStickOnEditor.zh-CN.resx">
+      <DependentUpon>ElecTicketStickOnEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketTipExchangeItemsPanel.resx">
+      <DependentUpon>ElecTicketTipExchangeItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\ElecTicketTypeInfo.resx">
+      <DependentUpon>ElecTicketTypeInfo.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\FileConverter.resx">
+      <DependentUpon>FileConverter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\FileConverterFieldsSetting.resx">
+      <DependentUpon>FileConverterFieldsSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\FileEncryptionSettings.resx">
+      <DependentUpon>FileEncryptionSettings.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\InitiativeAllotAccountEditor.resx">
+      <DependentUpon>InitiativeAllotAccountEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\InitiativeAllotAccountItemsPanel.resx">
+      <DependentUpon>InitiativeAllotAccountItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\InitiativeAllotEditor.resx">
+      <DependentUpon>InitiativeAllotEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\InitiativeAllotItemsPanel.resx">
+      <DependentUpon>InitiativeAllotItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\PayeeEditor.resx">
+      <DependentUpon>PayeeEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\PayeeItemsPanel.resx">
+      <DependentUpon>PayeeItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\PayeeSelector.resx">
+      <DependentUpon>PayeeSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\PayerEditor.resx">
+      <DependentUpon>PayerEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\PayerItemsPanel.resx">
+      <DependentUpon>PayerItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\PayerSelector.resx">
+      <DependentUpon>PayerSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\PreproccessTransferItemsPanel.resx">
+      <DependentUpon>PreproccessTransferItemsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\PreproccessTransferSelector.resx">
+      <DependentUpon>PreproccessTransferSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\RowIndexPanel.en.resx">
+      <DependentUpon>RowIndexPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\RowIndexPanel.resx">
+      <DependentUpon>RowIndexPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\SpplyFinancingApplyEditor.resx">
+      <DependentUpon>SpplyFinancingApplyEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\SpplyFinancingApplyItemsPanel.resx">
+      <DependentUpon>SpplyFinancingApplyItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\SpplyFinancingBillEditor.resx">
+      <DependentUpon>SpplyFinancingBillEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\SpplyFinancingBillItemsPanel.resx">
+      <DependentUpon>SpplyFinancingBillItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\SpplyFinancingOrderEditor.resx">
+      <DependentUpon>SpplyFinancingOrderEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\SpplyFinancingOrderItemsPanel.resx">
+      <DependentUpon>SpplyFinancingOrderItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\SpplyFinancingOrderMgrEditor.resx">
+      <DependentUpon>SpplyFinancingOrderMgrEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\SpplyFinancingOrderMgrItemsPanel.resx">
+      <DependentUpon>SpplyFinancingOrderMgrItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\SpplyFinancingPayReceiptEditor.resx">
+      <DependentUpon>SpplyFinancingPayReceiptEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\SpplyFinancingPayReceiptItemsPanel.resx">
+      <DependentUpon>SpplyFinancingPayReceiptItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferEditor.resx">
+      <DependentUpon>TransferEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferGlobalItemsPanel.resx">
+      <DependentUpon>TransferGlobalItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferGlobalOtherSelector.resx">
+      <DependentUpon>TransferGlobalOtherSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferGlobalOtherSelector.zh-CN.resx">
+      <DependentUpon>TransferGlobalOtherSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferGlobalPayeeEditor.resx">
+      <DependentUpon>TransferGlobalPayeeEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferGlobalPayeeEditor.zh-CN.resx">
+      <DependentUpon>TransferGlobalPayeeEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferGlobalPayeeItemsPanel.resx">
+      <DependentUpon>TransferGlobalPayeeItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferGlobalPayeeSelector.resx">
+      <DependentUpon>TransferGlobalPayeeSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferGlobalRemitSelector.resx">
+      <DependentUpon>TransferGlobalRemitSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferItemsPanel.resx">
+      <DependentUpon>TransferItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\TransferOverBankItemPanel.resx">
+      <DependentUpon>TransferOverBankItemPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\UnitivePaymentFCItemsPanel.resx">
+      <DependentUpon>UnitivePaymentFCItemsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\UnitivePaymentFCPayerSelector.resx">
+      <DependentUpon>UnitivePaymentFCPayerSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\UnitivePaymentFCRemitSelector.resx">
+      <DependentUpon>UnitivePaymentFCRemitSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\UnitivePaymentOther.resx">
+      <DependentUpon>UnitivePaymentOther.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\UnitivePaymentRMBItemsPanel.resx">
+      <DependentUpon>UnitivePaymentRMBItemsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\UnitivePaymentRMBPayerSelector.resx">
+      <DependentUpon>UnitivePaymentRMBPayerSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\VirtualAccountItemsPanel.resx">
+      <DependentUpon>VirtualAccountItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\VirtualAccountSelector.resx">
+      <DependentUpon>VirtualAccountSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\VirtualAllotAccountEditor.resx">
+      <DependentUpon>VirtualAllotAccountEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\VirtualAllotAccountItemsPanel.resx">
+      <DependentUpon>VirtualAllotAccountItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\VisibleTabSwitchSettings.resx">
+      <DependentUpon>VisibleTabSwitchSettings.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\BatchReimbursementItemsPanel.resx">
+      <DependentUpon>BatchReimbursementItemsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts2\BatchReimbursementItemsPanel.zh-CN.resx">
+      <DependentUpon>BatchReimbursementItemsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts\BatchPagesPanel.resx">
+      <DependentUpon>BatchPagesPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts\BatchPagesPanel.zh-CN.resx">
+      <DependentUpon>BatchPagesPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts\DataOperatePanel.resx">
+      <DependentUpon>DataOperatePanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts\DataOperatePanel.zh-CN.resx">
+      <DependentUpon>DataOperatePanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts\DataOperatePanel.zh.resx">
+      <DependentUpon>DataOperatePanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts\FileOperatePanel.resx">
+      <DependentUpon>FileOperatePanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts\_BaseModule.resx">
+      <DependentUpon>_BaseModule.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualParts\_BaseUC.resx">
+      <DependentUpon>_BaseUC.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wndLinkBankNo.resx">
+      <DependentUpon>wndLinkBankNo.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wndOpenBankQuery.resx">
+      <DependentUpon>wndOpenBankQuery.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wndPayeeQuery.en.resx">
+      <DependentUpon>wndPayeeQuery.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wndPayeeQuery.resx">
+      <DependentUpon>wndPayeeQuery.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\BankInfo.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\BaseSetting.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\BCS.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\BCSBar.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\C2PBar.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\CNAPS.XML">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\CNAPSBarOE.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\CNAPSBarRMB.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\CNAPSC.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\CNAPSET.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\CommonField.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\MappingsRelation.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\NoticeInfo.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\PayeeInfo.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\PayerInfo.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\TTC.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\ValidationRules.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\biggraybtn.png" />
+    <Content Include="Images\Biglogo.png" />
+    <Content Include="Images\bigredbtn.png" />
+    <Content Include="Images\BOCLOGO.ico" />
+    <Content Include="Images\close.png" />
+    <Content Include="Images\collapse.png" />
+    <Content Include="Images\desclogo.png" />
+    <Content Include="Images\graybigbtn.png" />
+    <Content Include="Images\grayleft.png" />
+    <Content Include="Images\grayright.png" />
+    <Content Include="Images\graysmallbtn.png" />
+    <Content Include="Images\HD\error_hd.png" />
+    <Content Include="Images\HD\information_hd.png" />
+    <Content Include="Images\HD\question_hd.png" />
+    <Content Include="Images\HD\warning_hd.png" />
+    <Content Include="Images\loading.gif" />
+    <Content Include="Images\locked.png" />
+    <Content Include="Images\logobg.png" />
+    <Content Include="Images\menunormalbg.png" />
+    <Content Include="Images\menuredbg.png" />
+    <Content Include="Images\middlebg.png" />
+    <Content Include="Images\middlebtnleft.png" />
+    <Content Include="Images\middlebtnright.png" />
+    <Content Include="Images\multilanguage.png" />
+    <Content Include="Images\redbigbtn.png" />
+    <Content Include="Images\redleft.png" />
+    <Content Include="Images\redright.png" />
+    <Content Include="Images\righttopbg.png" />
+    <Content Include="Images\righttopbgNormal.png" />
+    <Content Include="Images\righttopbgPress.png" />
+    <Content Include="Images\settingred.png" />
+    <Content Include="Images\settingselectedbg.png" />
+    <Content Include="Images\smallgraybtn.png" />
+    <Content Include="Images\star1.png" />
+    <Content Include="Images\tips.png" />
+    <Content Include="Images\unlocked.png" />
+    <Content Include="References\EPPlus.dll" />
+    <Content Include="References\EPPlus.XML" />
+    <Content Include="References\ICSharpCode.SharpZipLib.dll" />
+    <Content Include="References\ICSharpCode.SharpZLib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="References\Microsoft.Office.Interop.Excel.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="References\NPOI.dll" />
+    <Content Include="References\NPOI.OOXML.dll" />
+    <Content Include="References\NPOI.OOXML.XML" />
+    <Content Include="References\NPOI.OpenXml4Net.dll" />
+    <Content Include="References\NPOI.OpenXml4Net.XML" />
+    <Content Include="References\NPOI.OpenXmlFormats.dll" />
+    <Content Include="References\NPOI.XML" />
+    <Content Include="References\Office.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="Resources\third_cur.png" />
+    <None Include="Resources\third.png" />
+    <None Include="Resources\second_cur.png" />
+    <None Include="Resources\second.png" />
+    <None Include="Resources\btn-icon1.png" />
+    <None Include="Resources\btn-icon2.png" />
+    <None Include="Resources\btn-icon3.png" />
+    <None Include="Resources\first.png" />
+    <None Include="Resources\first_cur.png" />
+    <Content Include="Resources\collapse.png" />
+    <Content Include="Resources\hoverBg.png" />
+    <None Include="Resources\pin.png" />
+    <None Include="Resources\warning.bmp" />
+    <None Include="Resources\unlocked.png" />
+    <None Include="Resources\tips.png" />
+    <None Include="Resources\question.bmp" />
+    <None Include="Resources\QueryData.png" />
+    <None Include="Resources\locked.png" />
+    <None Include="Resources\information.bmp" />
+    <None Include="Resources\Error.bmp" />
+    <None Include="Resources\document.png" />
+    <None Include="Resources\business.jpg" />
+    <EmbeddedResource Include="Images\user.jpg" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

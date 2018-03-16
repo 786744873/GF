@@ -1,0 +1,403 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="tbPayeeAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 30</value>
+  </data>
+  <data name="label5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>232, 7</value>
+  </data>
+  <data name="label4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>160, 59</value>
+  </data>
+  <data name="lbPayeeAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>219, 34</value>
+  </data>
+  <data name="lbPayeeAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>95, 12</value>
+  </data>
+  <data name="lbPayeeAddress.Text" xml:space="preserve">
+    <value>Payee  Address:</value>
+  </data>
+  <data name="tbPayeeName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 3</value>
+  </data>
+  <data name="lbPayeeName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>243, 7</value>
+  </data>
+  <data name="lbPayeeName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>71, 12</value>
+  </data>
+  <data name="lbPayeeName.Text" xml:space="preserve">
+    <value>Payee Name:</value>
+  </data>
+  <data name="lbPayeeAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>171, 59</value>
+  </data>
+  <data name="lbPayeeAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 12</value>
+  </data>
+  <data name="lbPayeeAccount.Text" xml:space="preserve">
+    <value>Payee's Account Number:</value>
+  </data>
+  <data name="lblSeperator1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>18, 29</value>
+  </data>
+  <data name="lblSeperator1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>479, 12</value>
+  </data>
+  <data name="lblSeperator1.Text" xml:space="preserve">
+    <value>_______________________________________________________________________________</value>
+  </data>
+  <data name="rbBocAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>29, 12</value>
+  </data>
+  <data name="rbBocAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 16</value>
+  </data>
+  <data name="rbBocAccount.Text" xml:space="preserve">
+    <value>Domestic BOC Account</value>
+  </data>
+  <data name="rbForeignAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>369, 12</value>
+  </data>
+  <data name="rbForeignAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>119, 16</value>
+  </data>
+  <data name="rbForeignAccount.Text" xml:space="preserve">
+    <value>Overseas Account</value>
+  </data>
+  <data name="rbOtherAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>187, 12</value>
+  </data>
+  <data name="rbOtherAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 16</value>
+  </data>
+  <data name="rbOtherAccount.Text" xml:space="preserve">
+    <value>Domestic non-BOC Account</value>
+  </data>
+  <data name="panel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>525, 50</value>
+  </data>
+  <data name="lbSerialNo.Location" type="System.Drawing.Point, System.Drawing">
+    <value>189, 32</value>
+  </data>
+  <data name="lbSerialNo.Size" type="System.Drawing.Size, System.Drawing">
+    <value>125, 12</value>
+  </data>
+  <data name="lbSerialNo.Text" xml:space="preserve">
+    <value>Payee's Customer ID:</value>
+  </data>
+  <data name="tbSerialNo.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 28</value>
+  </data>
+  <data name="tbRowIndex.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 1</value>
+  </data>
+  <data name="tbAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 55</value>
+  </data>
+  <data name="label6.Location" type="System.Drawing.Point, System.Drawing">
+    <value>261, 5</value>
+  </data>
+  <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>53, 12</value>
+  </data>
+  <data name="label6.Text" xml:space="preserve">
+    <value>Row No.:</value>
+  </data>
+  <data name="panel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>525, 78</value>
+  </data>
+  <data name="pAccountDesc.Size" type="System.Drawing.Size, System.Drawing">
+    <value>525, 29</value>
+  </data>
+  <data name="panel4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>525, 55</value>
+  </data>
+  <data name="pAddressDesc.Size" type="System.Drawing.Size, System.Drawing">
+    <value>525, 24</value>
+  </data>
+  <data name="buttonReset.Location" type="System.Drawing.Point, System.Drawing">
+    <value>386, 12</value>
+  </data>
+  <data name="buttonReset.Text" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="btnEdit.Location" type="System.Drawing.Point, System.Drawing">
+    <value>190, 12</value>
+  </data>
+  <data name="btnEdit.Text" xml:space="preserve">
+    <value>Modify</value>
+  </data>
+  <data name="buttonSubmit.Text" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="panel7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>525, 46</value>
+  </data>
+  <data name="tbCountry.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 4</value>
+  </data>
+  <data name="btnQueryCorrespondentBank.Location" type="System.Drawing.Point, System.Drawing">
+    <value>464, 84</value>
+  </data>
+  <data name="btnQueryCorrespondentBank.Size" type="System.Drawing.Size, System.Drawing">
+    <value>55, 23</value>
+  </data>
+  <data name="btnQueryCorrespondentBank.Text" xml:space="preserve">
+    <value>Inquire</value>
+  </data>
+  <data name="btnQueryCountry.Location" type="System.Drawing.Point, System.Drawing">
+    <value>464, 3</value>
+  </data>
+  <data name="btnQueryCountry.Size" type="System.Drawing.Size, System.Drawing">
+    <value>55, 23</value>
+  </data>
+  <data name="btnQueryCountry.Text" xml:space="preserve">
+    <value>Inquire</value>
+  </data>
+  <data name="tbPayeeOpenBankAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 58</value>
+  </data>
+  <data name="tbPayeeOpenBankName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 31</value>
+  </data>
+  <data name="lbFax.Location" type="System.Drawing.Point, System.Drawing">
+    <value>249, 170</value>
+  </data>
+  <data name="lbFax.Size" type="System.Drawing.Size, System.Drawing">
+    <value>65, 12</value>
+  </data>
+  <data name="lbFax.Text" xml:space="preserve">
+    <value>Payee Fax:</value>
+  </data>
+  <data name="btnQueryOpenBank.Location" type="System.Drawing.Point, System.Drawing">
+    <value>464, 30</value>
+  </data>
+  <data name="btnQueryOpenBank.Size" type="System.Drawing.Size, System.Drawing">
+    <value>55, 23</value>
+  </data>
+  <data name="btnQueryOpenBank.Text" xml:space="preserve">
+    <value>Inquire</value>
+  </data>
+  <data name="tbFax.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 166</value>
+  </data>
+  <data name="tbCorrespondentBankName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 85</value>
+  </data>
+  <data name="tbTel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 193</value>
+  </data>
+  <data name="label9.Location" type="System.Drawing.Point, System.Drawing">
+    <value>70, 35</value>
+  </data>
+  <data name="tbCorrespondentBankAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 112</value>
+  </data>
+  <data name="lbEmail.Location" type="System.Drawing.Point, System.Drawing">
+    <value>231, 224</value>
+  </data>
+  <data name="lbEmail.Size" type="System.Drawing.Size, System.Drawing">
+    <value>83, 12</value>
+  </data>
+  <data name="lbEmail.Text" xml:space="preserve">
+    <value>Payee E-Mail:</value>
+  </data>
+  <data name="lbCountry.Location" type="System.Drawing.Point, System.Drawing">
+    <value>21, 8</value>
+  </data>
+  <data name="lbCountry.Size" type="System.Drawing.Size, System.Drawing">
+    <value>293, 12</value>
+  </data>
+  <data name="lbCountry.Text" xml:space="preserve">
+    <value>Payee's Resident Country (Territory) Name &amp; Code:</value>
+  </data>
+  <data name="tbEamil.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 220</value>
+  </data>
+  <data name="label7.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 8</value>
+  </data>
+  <data name="tbPayeeAccountInCorrespondentBank.Location" type="System.Drawing.Point, System.Drawing">
+    <value>314, 139</value>
+  </data>
+  <data name="lbPayeeOpenBankName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>81, 35</value>
+  </data>
+  <data name="lbPayeeOpenBankName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>233, 12</value>
+  </data>
+  <data name="lbPayeeOpenBankName.Text" xml:space="preserve">
+    <value>Beneficiary Account-holding Bank Name:</value>
+  </data>
+  <data name="lbPayeeOpenBankAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>129, 62</value>
+  </data>
+  <data name="lbPayeeOpenBankAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>185, 12</value>
+  </data>
+  <data name="lbPayeeOpenBankAddress.Text" xml:space="preserve">
+    <value>Payee’s Account Bank Address:</value>
+  </data>
+  <data name="lbCorrespondentBankName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>87, 89</value>
+  </data>
+  <data name="lbCorrespondentBankName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>227, 12</value>
+  </data>
+  <data name="lbCorrespondentBankName.Text" xml:space="preserve">
+    <value>Receiving Bank’s Correspondent Name:</value>
+  </data>
+  <data name="lbCorrespondentBankAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>69, 116</value>
+  </data>
+  <data name="lbCorrespondentBankAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>245, 12</value>
+  </data>
+  <data name="lbCorrespondentBankAddress.Text" xml:space="preserve">
+    <value>Receiving Bank’s Correspondent Address:</value>
+  </data>
+  <data name="lbPayeeAccountInCorrespondentBank.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 143</value>
+  </data>
+  <data name="lbPayeeAccountInCorrespondentBank.Size" type="System.Drawing.Size, System.Drawing">
+    <value>311, 12</value>
+  </data>
+  <data name="lbPayeeAccountInCorrespondentBank.Text" xml:space="preserve">
+    <value>Correspondent Account No. of Payee’s Account Bank:</value>
+  </data>
+  <data name="lbTel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>189, 197</value>
+  </data>
+  <data name="lbTel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>125, 12</value>
+  </data>
+  <data name="lbTel.Text" xml:space="preserve">
+    <value>Mobile phone Number:</value>
+  </data>
+  <data name="panel6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>525, 246</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>525, 528</value>
+  </data>
+</root>

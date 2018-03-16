@@ -1,0 +1,16 @@
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_AGENTNORMALIN.dll
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_AGENTNORMALIN.pdb
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.MainView.resources
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.Properties.Resources.resources
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.csproj.GenerateResource.Cache
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.dll
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.pdb
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_AGENTNORMALIN.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_AGENTNORMALIN.pdb
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.MainView.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.Properties.Resources.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.csproj.GenerateResource.Cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALIN\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALIN.pdb

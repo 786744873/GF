@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BaseSettings>
+  <AppliableTypes>49407</AppliableTypes>
+  <AppliableTypesBar>0</AppliableTypesBar>
+  <IsMatchPassword4ShortProxyOut>False</IsMatchPassword4ShortProxyOut>
+  <ShortProxyOutPassword>
+  </ShortProxyOutPassword>
+  <IsMatchPassword4TransferOverCountry>False</IsMatchPassword4TransferOverCountry>
+  <TransferOverCountryPassword>
+  </TransferOverCountryPassword>
+  <IsMatchPassword4TransferForeignMoney>False</IsMatchPassword4TransferForeignMoney>
+  <TransferForeignMoneyPassword>
+  </TransferForeignMoneyPassword>
+  <CureentLanguage>0</CureentLanguage>
+</BaseSettings>

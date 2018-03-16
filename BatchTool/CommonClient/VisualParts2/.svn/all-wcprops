@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/boccop/!svn/ver/66838/branches/p501BatchTool/CommonClient/VisualParts2
+END
+AgentNormalEditor.cs
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/boccop/!svn/ver/66838/branches/p501BatchTool/CommonClient/VisualParts2/AgentNormalEditor.cs
+END
+AgentExpressPayerEditor.cs
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/boccop/!svn/ver/66838/branches/p501BatchTool/CommonClient/VisualParts2/AgentExpressPayerEditor.cs
+END
+PayerSelector.cs
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/boccop/!svn/ver/68090/branches/p501BatchTool/CommonClient/VisualParts2/PayerSelector.cs
+END
+VisibleTabSwitchSettings.resx
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/boccop/!svn/ver/68090/branches/p501BatchTool/CommonClient/VisualParts2/VisibleTabSwitchSettings.resx
+END
+BatchReimbursementSelector.cs
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/boccop/!svn/ver/66838/branches/p501BatchTool/CommonClient/VisualParts2/BatchReimbursementSelector.cs
+END
+PayeeSelector.cs
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/boccop/!svn/ver/68090/branches/p501BatchTool/CommonClient/VisualParts2/PayeeSelector.cs
+END
+VisibleTabSwitchSettings.Designer.cs
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/boccop/!svn/ver/68090/branches/p501BatchTool/CommonClient/VisualParts2/VisibleTabSwitchSettings.Designer.cs
+END
+VisibleTabSwitchSettings.cs
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/boccop/!svn/ver/68090/branches/p501BatchTool/CommonClient/VisualParts2/VisibleTabSwitchSettings.cs
+END
+PayeeEditor.cs
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/boccop/!svn/ver/66838/branches/p501BatchTool/CommonClient/VisualParts2/PayeeEditor.cs
+END

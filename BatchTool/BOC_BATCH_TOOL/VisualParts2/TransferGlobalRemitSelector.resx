@@ -1,0 +1,1182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <metadata name="errorProvider1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>114, 17</value>
+  </metadata>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="lbRemitDate.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="lbRemitDate.Location" type="System.Drawing.Point, System.Drawing">
+    <value>15, 7</value>
+  </data>
+  <data name="lbRemitDate.Size" type="System.Drawing.Size, System.Drawing">
+    <value>91, 13</value>
+  </data>
+  <data name="lbRemitDate.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="lbRemitDate.Text" xml:space="preserve">
+    <value>指定付款日期：</value>
+  </data>
+  <data name="&gt;&gt;lbRemitDate.Name" xml:space="preserve">
+    <value>lbRemitDate</value>
+  </data>
+  <data name="&gt;&gt;lbRemitDate.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbRemitDate.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbRemitDate.ZOrder" xml:space="preserve">
+    <value>34</value>
+  </data>
+  <data name="label2.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 7</value>
+  </data>
+  <data name="label2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 13</value>
+  </data>
+  <data name="label2.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="label2.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label2.Name" xml:space="preserve">
+    <value>label2</value>
+  </data>
+  <data name="&gt;&gt;label2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;label2.ZOrder" xml:space="preserve">
+    <value>33</value>
+  </data>
+  <data name="dtpRemitDate.CustomFormat" xml:space="preserve">
+    <value>yyyy/MM/dd</value>
+  </data>
+  <data name="dtpRemitDate.Location" type="System.Drawing.Point, System.Drawing">
+    <value>104, 3</value>
+  </data>
+  <data name="dtpRemitDate.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 20</value>
+  </data>
+  <data name="dtpRemitDate.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;dtpRemitDate.Name" xml:space="preserve">
+    <value>dtpRemitDate</value>
+  </data>
+  <data name="&gt;&gt;dtpRemitDate.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DateTimePicker, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;dtpRemitDate.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;dtpRemitDate.ZOrder" xml:space="preserve">
+    <value>31</value>
+  </data>
+  <data name="lbCustomerRef.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbCustomerRef.Location" type="System.Drawing.Point, System.Drawing">
+    <value>251, 7</value>
+  </data>
+  <data name="lbCustomerRef.Size" type="System.Drawing.Size, System.Drawing">
+    <value>91, 13</value>
+  </data>
+  <data name="lbCustomerRef.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="lbCustomerRef.Text" xml:space="preserve">
+    <value>客户业务编码：</value>
+  </data>
+  <data name="&gt;&gt;lbCustomerRef.Name" xml:space="preserve">
+    <value>lbCustomerRef</value>
+  </data>
+  <data name="&gt;&gt;lbCustomerRef.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbCustomerRef.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbCustomerRef.ZOrder" xml:space="preserve">
+    <value>28</value>
+  </data>
+  <data name="tbCustomerRef.Location" type="System.Drawing.Point, System.Drawing">
+    <value>340, 3</value>
+  </data>
+  <data name="tbCustomerRef.Size" type="System.Drawing.Size, System.Drawing">
+    <value>140, 20</value>
+  </data>
+  <data name="tbCustomerRef.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;tbCustomerRef.Name" xml:space="preserve">
+    <value>tbCustomerRef</value>
+  </data>
+  <data name="&gt;&gt;tbCustomerRef.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.TextBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbCustomerRef.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbCustomerRef.ZOrder" xml:space="preserve">
+    <value>27</value>
+  </data>
+  <data name="lbPaymentType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbPaymentType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>39, 34</value>
+  </data>
+  <data name="lbPaymentType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbPaymentType.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="lbPaymentType.Text" xml:space="preserve">
+    <value>汇款方式：</value>
+  </data>
+  <data name="&gt;&gt;lbPaymentType.Name" xml:space="preserve">
+    <value>lbPaymentType</value>
+  </data>
+  <data name="&gt;&gt;lbPaymentType.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPaymentType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbPaymentType.ZOrder" xml:space="preserve">
+    <value>26</value>
+  </data>
+  <data name="tbPaymentType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>104, 30</value>
+  </data>
+  <data name="tbPaymentType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 20</value>
+  </data>
+  <data name="tbPaymentType.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="tbPaymentType.Text" xml:space="preserve">
+    <value>电汇</value>
+  </data>
+  <data name="&gt;&gt;tbPaymentType.Name" xml:space="preserve">
+    <value>tbPaymentType</value>
+  </data>
+  <data name="&gt;&gt;tbPaymentType.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.TextBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbPaymentType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbPaymentType.ZOrder" xml:space="preserve">
+    <value>25</value>
+  </data>
+  <data name="lbSendPriority.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbSendPriority.Location" type="System.Drawing.Point, System.Drawing">
+    <value>275, 34</value>
+  </data>
+  <data name="lbSendPriority.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbSendPriority.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="lbSendPriority.Text" xml:space="preserve">
+    <value>发电等级：</value>
+  </data>
+  <data name="&gt;&gt;lbSendPriority.Name" xml:space="preserve">
+    <value>lbSendPriority</value>
+  </data>
+  <data name="&gt;&gt;lbSendPriority.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbSendPriority.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbSendPriority.ZOrder" xml:space="preserve">
+    <value>24</value>
+  </data>
+  <data name="rbNormal.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rbNormal.Location" type="System.Drawing.Point, System.Drawing">
+    <value>340, 32</value>
+  </data>
+  <data name="rbNormal.Size" type="System.Drawing.Size, System.Drawing">
+    <value>49, 17</value>
+  </data>
+  <data name="rbNormal.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="rbNormal.Text" xml:space="preserve">
+    <value>普通</value>
+  </data>
+  <data name="&gt;&gt;rbNormal.Name" xml:space="preserve">
+    <value>rbNormal</value>
+  </data>
+  <data name="&gt;&gt;rbNormal.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rbNormal.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;rbNormal.ZOrder" xml:space="preserve">
+    <value>23</value>
+  </data>
+  <data name="rbExpress.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rbExpress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>433, 32</value>
+  </data>
+  <data name="rbExpress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>49, 17</value>
+  </data>
+  <data name="rbExpress.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="rbExpress.Text" xml:space="preserve">
+    <value>加急</value>
+  </data>
+  <data name="&gt;&gt;rbExpress.Name" xml:space="preserve">
+    <value>rbExpress</value>
+  </data>
+  <data name="&gt;&gt;rbExpress.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rbExpress.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;rbExpress.ZOrder" xml:space="preserve">
+    <value>22</value>
+  </data>
+  <data name="lbRemitCashType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbRemitCashType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>39, 61</value>
+  </data>
+  <data name="lbRemitCashType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbRemitCashType.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="lbRemitCashType.Text" xml:space="preserve">
+    <value>汇款币种：</value>
+  </data>
+  <data name="&gt;&gt;lbRemitCashType.Name" xml:space="preserve">
+    <value>lbRemitCashType</value>
+  </data>
+  <data name="&gt;&gt;lbRemitCashType.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbRemitCashType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbRemitCashType.ZOrder" xml:space="preserve">
+    <value>21</value>
+  </data>
+  <data name="cmbRemitCashType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>104, 57</value>
+  </data>
+  <data name="cmbRemitCashType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 21</value>
+  </data>
+  <data name="cmbRemitCashType.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;cmbRemitCashType.Name" xml:space="preserve">
+    <value>cmbRemitCashType</value>
+  </data>
+  <data name="&gt;&gt;cmbRemitCashType.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.ComboBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbRemitCashType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;cmbRemitCashType.ZOrder" xml:space="preserve">
+    <value>19</value>
+  </data>
+  <data name="label7.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label7.Location" type="System.Drawing.Point, System.Drawing">
+    <value>28, 61</value>
+  </data>
+  <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 13</value>
+  </data>
+  <data name="label7.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="label7.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label7.Name" xml:space="preserve">
+    <value>label7</value>
+  </data>
+  <data name="&gt;&gt;label7.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label7.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;label7.ZOrder" xml:space="preserve">
+    <value>32</value>
+  </data>
+  <data name="label8.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label8.Location" type="System.Drawing.Point, System.Drawing">
+    <value>264, 61</value>
+  </data>
+  <data name="label8.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 13</value>
+  </data>
+  <data name="label8.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="label8.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label8.Name" xml:space="preserve">
+    <value>label8</value>
+  </data>
+  <data name="&gt;&gt;label8.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label8.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;label8.ZOrder" xml:space="preserve">
+    <value>29</value>
+  </data>
+  <data name="lbRemitAmount.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbRemitAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>275, 61</value>
+  </data>
+  <data name="lbRemitAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbRemitAmount.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="lbRemitAmount.Text" xml:space="preserve">
+    <value>汇款金额：</value>
+  </data>
+  <data name="&gt;&gt;lbRemitAmount.Name" xml:space="preserve">
+    <value>lbRemitAmount</value>
+  </data>
+  <data name="&gt;&gt;lbRemitAmount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbRemitAmount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbRemitAmount.ZOrder" xml:space="preserve">
+    <value>20</value>
+  </data>
+  <data name="tbRemitAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>340, 57</value>
+  </data>
+  <data name="tbRemitAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>140, 20</value>
+  </data>
+  <data name="tbRemitAmount.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;tbRemitAmount.Name" xml:space="preserve">
+    <value>tbRemitAmount</value>
+  </data>
+  <data name="&gt;&gt;tbRemitAmount.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.TextBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbRemitAmount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbRemitAmount.ZOrder" xml:space="preserve">
+    <value>17</value>
+  </data>
+  <data name="lbSpotAccount.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbSpotAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>39, 87</value>
+  </data>
+  <data name="lbSpotAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbSpotAccount.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="lbSpotAccount.Text" xml:space="preserve">
+    <value>现汇账户：</value>
+  </data>
+  <data name="&gt;&gt;lbSpotAccount.Name" xml:space="preserve">
+    <value>lbSpotAccount</value>
+  </data>
+  <data name="&gt;&gt;lbSpotAccount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbSpotAccount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbSpotAccount.ZOrder" xml:space="preserve">
+    <value>37</value>
+  </data>
+  <data name="cmbSpotAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>104, 83</value>
+  </data>
+  <data name="cmbSpotAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 21</value>
+  </data>
+  <data name="cmbSpotAccount.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;cmbSpotAccount.Name" xml:space="preserve">
+    <value>cmbSpotAccount</value>
+  </data>
+  <data name="&gt;&gt;cmbSpotAccount.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.ComboBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbSpotAccount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;cmbSpotAccount.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="lbPurchaseAccount.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbPurchaseAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>39, 113</value>
+  </data>
+  <data name="lbPurchaseAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbPurchaseAccount.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="lbPurchaseAccount.Text" xml:space="preserve">
+    <value>购汇账户：</value>
+  </data>
+  <data name="&gt;&gt;lbPurchaseAccount.Name" xml:space="preserve">
+    <value>lbPurchaseAccount</value>
+  </data>
+  <data name="&gt;&gt;lbPurchaseAccount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPurchaseAccount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbPurchaseAccount.ZOrder" xml:space="preserve">
+    <value>38</value>
+  </data>
+  <data name="cmbPurchaseAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>104, 109</value>
+  </data>
+  <data name="cmbPurchaseAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 21</value>
+  </data>
+  <data name="cmbPurchaseAccount.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="&gt;&gt;cmbPurchaseAccount.Name" xml:space="preserve">
+    <value>cmbPurchaseAccount</value>
+  </data>
+  <data name="&gt;&gt;cmbPurchaseAccount.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.ComboBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbPurchaseAccount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;cmbPurchaseAccount.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="lbOtherAccount.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbOtherAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>39, 139</value>
+  </data>
+  <data name="lbOtherAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbOtherAccount.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="lbOtherAccount.Text" xml:space="preserve">
+    <value>其他账户：</value>
+  </data>
+  <data name="&gt;&gt;lbOtherAccount.Name" xml:space="preserve">
+    <value>lbOtherAccount</value>
+  </data>
+  <data name="&gt;&gt;lbOtherAccount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbOtherAccount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbOtherAccount.ZOrder" xml:space="preserve">
+    <value>39</value>
+  </data>
+  <data name="cmbOtherAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>104, 135</value>
+  </data>
+  <data name="cmbOtherAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 21</value>
+  </data>
+  <data name="cmbOtherAccount.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="&gt;&gt;cmbOtherAccount.Name" xml:space="preserve">
+    <value>cmbOtherAccount</value>
+  </data>
+  <data name="&gt;&gt;cmbOtherAccount.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.ComboBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbOtherAccount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;cmbOtherAccount.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="lbPayFeeAccount.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbPayFeeAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>39, 165</value>
+  </data>
+  <data name="lbPayFeeAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbPayFeeAccount.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="lbPayFeeAccount.Text" xml:space="preserve">
+    <value>付费账户：</value>
+  </data>
+  <data name="&gt;&gt;lbPayFeeAccount.Name" xml:space="preserve">
+    <value>lbPayFeeAccount</value>
+  </data>
+  <data name="&gt;&gt;lbPayFeeAccount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPayFeeAccount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbPayFeeAccount.ZOrder" xml:space="preserve">
+    <value>40</value>
+  </data>
+  <data name="lbSpotAmount.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbSpotAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>275, 87</value>
+  </data>
+  <data name="lbSpotAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbSpotAmount.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="lbSpotAmount.Text" xml:space="preserve">
+    <value>现汇金额：</value>
+  </data>
+  <data name="&gt;&gt;lbSpotAmount.Name" xml:space="preserve">
+    <value>lbSpotAmount</value>
+  </data>
+  <data name="&gt;&gt;lbSpotAmount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbSpotAmount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbSpotAmount.ZOrder" xml:space="preserve">
+    <value>18</value>
+  </data>
+  <data name="tbSpotAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>340, 83</value>
+  </data>
+  <data name="tbSpotAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>140, 20</value>
+  </data>
+  <data name="tbSpotAmount.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;tbSpotAmount.Name" xml:space="preserve">
+    <value>tbSpotAmount</value>
+  </data>
+  <data name="&gt;&gt;tbSpotAmount.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.TextBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbSpotAmount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbSpotAmount.ZOrder" xml:space="preserve">
+    <value>15</value>
+  </data>
+  <data name="lbPurchaseAmount.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbPurchaseAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>275, 113</value>
+  </data>
+  <data name="lbPurchaseAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbPurchaseAmount.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="lbPurchaseAmount.Text" xml:space="preserve">
+    <value>购汇金额：</value>
+  </data>
+  <data name="&gt;&gt;lbPurchaseAmount.Name" xml:space="preserve">
+    <value>lbPurchaseAmount</value>
+  </data>
+  <data name="&gt;&gt;lbPurchaseAmount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPurchaseAmount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbPurchaseAmount.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="tbPurchaseAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>340, 109</value>
+  </data>
+  <data name="tbPurchaseAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>140, 20</value>
+  </data>
+  <data name="tbPurchaseAmount.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;tbPurchaseAmount.Name" xml:space="preserve">
+    <value>tbPurchaseAmount</value>
+  </data>
+  <data name="&gt;&gt;tbPurchaseAmount.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.TextBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbPurchaseAmount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbPurchaseAmount.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="lbOtherAmount.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbOtherAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>275, 139</value>
+  </data>
+  <data name="lbOtherAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="lbOtherAmount.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="lbOtherAmount.Text" xml:space="preserve">
+    <value>其他金额：</value>
+  </data>
+  <data name="&gt;&gt;lbOtherAmount.Name" xml:space="preserve">
+    <value>lbOtherAmount</value>
+  </data>
+  <data name="&gt;&gt;lbOtherAmount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbOtherAmount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbOtherAmount.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="tbOtherAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>340, 135</value>
+  </data>
+  <data name="tbOtherAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>140, 20</value>
+  </data>
+  <data name="tbOtherAmount.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="&gt;&gt;tbOtherAmount.Name" xml:space="preserve">
+    <value>tbOtherAmount</value>
+  </data>
+  <data name="&gt;&gt;tbOtherAmount.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.TextBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbOtherAmount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbOtherAmount.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="label17.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label17.Location" type="System.Drawing.Point, System.Drawing">
+    <value>240, 165</value>
+  </data>
+  <data name="label17.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 13</value>
+  </data>
+  <data name="label17.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="label17.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label17.Name" xml:space="preserve">
+    <value>label17</value>
+  </data>
+  <data name="&gt;&gt;label17.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label17.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;label17.ZOrder" xml:space="preserve">
+    <value>36</value>
+  </data>
+  <data name="lbOrgCode.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbOrgCode.Location" type="System.Drawing.Point, System.Drawing">
+    <value>251, 165</value>
+  </data>
+  <data name="lbOrgCode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>91, 13</value>
+  </data>
+  <data name="lbOrgCode.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="lbOrgCode.Text" xml:space="preserve">
+    <value>组织机构代码：</value>
+  </data>
+  <data name="&gt;&gt;lbOrgCode.Name" xml:space="preserve">
+    <value>lbOrgCode</value>
+  </data>
+  <data name="&gt;&gt;lbOrgCode.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbOrgCode.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbOrgCode.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="tbOrgPre.Location" type="System.Drawing.Point, System.Drawing">
+    <value>340, 161</value>
+  </data>
+  <data name="tbOrgPre.MaxLength" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="tbOrgPre.Size" type="System.Drawing.Size, System.Drawing">
+    <value>91, 20</value>
+  </data>
+  <data name="tbOrgPre.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="&gt;&gt;tbOrgPre.Name" xml:space="preserve">
+    <value>tbOrgPre</value>
+  </data>
+  <data name="&gt;&gt;tbOrgPre.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.TextBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbOrgPre.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbOrgPre.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="label19.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label19.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 191</value>
+  </data>
+  <data name="label19.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 13</value>
+  </data>
+  <data name="label19.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="label19.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label19.Name" xml:space="preserve">
+    <value>label19</value>
+  </data>
+  <data name="&gt;&gt;label19.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label19.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;label19.ZOrder" xml:space="preserve">
+    <value>30</value>
+  </data>
+  <data name="lbRemittorName.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbRemittorName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>27, 191</value>
+  </data>
+  <data name="lbRemittorName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>79, 13</value>
+  </data>
+  <data name="lbRemittorName.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="lbRemittorName.Text" xml:space="preserve">
+    <value>汇款人名称：</value>
+  </data>
+  <data name="&gt;&gt;lbRemittorName.Name" xml:space="preserve">
+    <value>lbRemittorName</value>
+  </data>
+  <data name="&gt;&gt;lbRemittorName.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbRemittorName.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbRemittorName.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="tbRemittorName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>104, 187</value>
+  </data>
+  <data name="tbRemittorName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 20</value>
+  </data>
+  <data name="tbRemittorName.TabIndex" type="System.Int32, mscorlib">
+    <value>17</value>
+  </data>
+  <data name="&gt;&gt;tbRemittorName.Name" xml:space="preserve">
+    <value>tbRemittorName</value>
+  </data>
+  <data name="&gt;&gt;tbRemittorName.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.TextBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbRemittorName.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbRemittorName.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="lbRemittorAddress.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbRemittorAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>263, 191</value>
+  </data>
+  <data name="lbRemittorAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>79, 13</value>
+  </data>
+  <data name="lbRemittorAddress.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="lbRemittorAddress.Text" xml:space="preserve">
+    <value>汇款人地址：</value>
+  </data>
+  <data name="&gt;&gt;lbRemittorAddress.Name" xml:space="preserve">
+    <value>lbRemittorAddress</value>
+  </data>
+  <data name="&gt;&gt;lbRemittorAddress.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbRemittorAddress.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbRemittorAddress.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="tbRemittorAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>340, 187</value>
+  </data>
+  <data name="tbRemittorAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>140, 20</value>
+  </data>
+  <data name="tbRemittorAddress.TabIndex" type="System.Int32, mscorlib">
+    <value>18</value>
+  </data>
+  <data name="&gt;&gt;tbRemittorAddress.Name" xml:space="preserve">
+    <value>tbRemittorAddress</value>
+  </data>
+  <data name="&gt;&gt;tbRemittorAddress.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.TextBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbRemittorAddress.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbRemittorAddress.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="label22.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label22.Location" type="System.Drawing.Point, System.Drawing">
+    <value>431, 165</value>
+  </data>
+  <data name="label22.Size" type="System.Drawing.Size, System.Drawing">
+    <value>10, 13</value>
+  </data>
+  <data name="label22.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="label22.Text" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="&gt;&gt;label22.Name" xml:space="preserve">
+    <value>label22</value>
+  </data>
+  <data name="&gt;&gt;label22.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label22.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;label22.ZOrder" xml:space="preserve">
+    <value>35</value>
+  </data>
+  <data name="tbOrgEnd.Location" type="System.Drawing.Point, System.Drawing">
+    <value>442, 161</value>
+  </data>
+  <data name="tbOrgEnd.MaxLength" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="tbOrgEnd.Size" type="System.Drawing.Size, System.Drawing">
+    <value>30, 20</value>
+  </data>
+  <data name="tbOrgEnd.TabIndex" type="System.Int32, mscorlib">
+    <value>16</value>
+  </data>
+  <data name="&gt;&gt;tbOrgEnd.Name" xml:space="preserve">
+    <value>tbOrgEnd</value>
+  </data>
+  <data name="&gt;&gt;tbOrgEnd.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.TextBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbOrgEnd.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbOrgEnd.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="cmbPayFeeAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>104, 161</value>
+  </data>
+  <data name="cmbPayFeeAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 21</value>
+  </data>
+  <data name="cmbPayFeeAccount.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="&gt;&gt;cmbPayFeeAccount.Name" xml:space="preserve">
+    <value>cmbPayFeeAccount</value>
+  </data>
+  <data name="&gt;&gt;cmbPayFeeAccount.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.ComboBoxCanValidate, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbPayFeeAccount.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;cmbPayFeeAccount.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="lblsendtype.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="lblsendtype.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lblsendtype.Location" type="System.Drawing.Point, System.Drawing">
+    <value>263, 33</value>
+  </data>
+  <data name="lblsendtype.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 13</value>
+  </data>
+  <data name="lblsendtype.TabIndex" type="System.Int32, mscorlib">
+    <value>19</value>
+  </data>
+  <data name="lblsendtype.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="lblsendtype.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;lblsendtype.Name" xml:space="preserve">
+    <value>lblsendtype</value>
+  </data>
+  <data name="&gt;&gt;lblsendtype.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lblsendtype.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lblsendtype.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>485, 212</value>
+  </data>
+  <data name="&gt;&gt;errorProvider1.Name" xml:space="preserve">
+    <value>errorProvider1</value>
+  </data>
+  <data name="&gt;&gt;errorProvider1.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.Controls.ErrorProviderExt, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;toolTip1.Name" xml:space="preserve">
+    <value>toolTip1</value>
+  </data>
+  <data name="&gt;&gt;toolTip1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolTip, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>TransferGlobalRemitSelector</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>BOC_BATCH_TOOL.VisualParts.BaseUc, BOC_BATCH_TOOL, Version=1.0.403.6192, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+</root>

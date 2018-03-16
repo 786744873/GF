@@ -1,0 +1,16 @@
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_SETTINGS.dll
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_SETTINGS.pdb
+C:\代码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGSANDCHANGE.MainView.resources
+C:\代码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGS.Properties.Resources.resources
+C:\代码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGS.csproj.GenerateResource.Cache
+C:\代码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGS.dll
+C:\代码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGS.pdb
+C:\代码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGS.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_SETTINGS.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_SETTINGS.pdb
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGS.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGSANDCHANGE.MainView.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGS.Properties.Resources.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGS.csproj.GenerateResource.Cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGS.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_SETTINGSANDCHANGE\obj\x86\Debug\BOC_BATCH_TOOL_SETTINGS.pdb

@@ -1,0 +1,6044 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.IO;
+using System.Data;
+using CommonClient.EnumTypes;
+using CommonClient.Entities;
+using CommonClient.SysCoach;
+using CommonClient.ConvertHelper;
+using CommonClient.Utilities;
+
+namespace CommonClient.MatchFile
+{
+    public static class MatchFileDataHelper
+    {
+        #region 获取数据
+        /// <summary>
+        /// 获取文件头信息，各列字段信息
+        /// 默认读取第一行位列头信息
+        /// </summary>
+        /// <param name="filepath">文件路径</param>
+        /// <returns></returns>
+        public static List<string> GetFileHeader(string filepath, string separator, int startrowindex)
+        {
+            return GetFileRowData(filepath, separator, startrowindex);
+        }
+
+        /// <summary>
+        /// 获取文件头信息，各列字段信息
+        /// </summary>
+        /// <param name="filepath">文件路径</param>
+        /// <returns></returns>
+        public static List<string> GetFileRowData(string filepath, string separator, int rowindex)
+        {
+            List<string> list = new List<string>();
+
+            if (!System.IO.File.Exists(filepath)) return list;
+
+            if (filepath.ToLower().EndsWith(".txt"))
+            { list = FileIO.FileRWHelper.GetFileTXTHeader(filepath, separator, rowindex); }
+            else if (filepath.ToLower().EndsWith(".csv"))
+            { list = FileIO.FileRWHelper.GetFileCSVHeader(filepath, rowindex); }
+            else if (filepath.ToLower().EndsWith(".xls") || filepath.ToLower().EndsWith(".xlsx"))
+            { list = FileIO.FileRWHelper.GetFileExcelHeader(filepath, rowindex); }
+
+            return list;
+        }
+
+        /// <summary>
+        /// 获取文件数据
+        /// List[0]==》错误信息
+        /// List[1]==》对象列表
+        /// </summary>
+        /// <param name="aft"></param>
+        /// <param name="filepath"></param>
+        /// <param name="mrs"></param>
+        /// <param name="batch"></param>
+        /// <returns></returns>
+        public static List<object> GetFileData(AppliableFunctionType aft, FunctionInSettingType fst, string filepath, MappingsRelationSettings mrs, BatchHeader batch)
+        {
+            return GetFileData(aft, fst, filepath, mrs.SeperateChar, mrs.MaxCountPerOperation, mrs.BatchFieldsMappings, mrs.FieldsMappings, mrs.StartRowIndex, batch, mrs.EndRowIndex != null ? (int)mrs.EndRowIndex : mrs.StartRowIndex + mrs.MaxCountPerOperation);
+        }
+
+        /// <summary>
+        /// 获取文件中的数据信息，并返回相关数据对象列表
+        /// </summary>
+        /// <param name="aft"></param>
+        /// <param name="filepath"></param>
+        /// <param name="separator"></param>
+        /// <param name="maxcount"></param>
+        /// <returns></returns>
+        public static List<object> GetFileData(AppliableFunctionType aft, FunctionInSettingType fst, string filepath, string separator, int maxcount, Dictionary<string, string> dicbatch, Dictionary<string, string> dicfield, int startrowindex, BatchHeader batch, int endrowindex = 65535)
+        {
+            List<object> result = new List<object>();
+            object list = null;
+            if (AppliableFunctionType._Empty == aft && FunctionInSettingType.Empty == fst)
+            {
+                result.Add(MultiLanguageConvertHelper.Information_Select_BusinessType);
+                result.Add(list);
+                return result;
+            }
+            else if (AppliableFunctionType._Empty == aft && (FunctionInSettingType.TodayOrHistoryTransferMg == fst))
+            {
+                #region 今日交易和历史交易转换
+                List<List<string>> fields = new List<List<string>>();
+                fields = FileIO.FileRWHelper.GetFileBOCAllData(filepath, separator);
+                list = MatchBusinessObject(fst, fields, separator);
+
+                if (list == null || ((List<string>)list).Count == 0)
+                    result.Add("非法文件格式,转换失败");
+                else result.Add(string.Empty);
+                result.Add(list);
+                return result;
+                #endregion
+            }
+            try
+            {
+                bool flag = AppliableFunctionType.AgentExpressIn == aft
+                || AppliableFunctionType.AgentExpressOut == aft
+                || AppliableFunctionType.AgentNormalIn == aft
+                || AppliableFunctionType.AgentNormalOut == aft
+                || AppliableFunctionType.InitiativeAllot == aft
+                || AppliableFunctionType.AgentExpressOut4Bar == aft;
+
+                #region 获取文件中的列头信息
+                //批信息
+                //List<string> headerbatch = !flag ? new List<string>() : GetFileHeader(filepath, separator);
+                //笔信息
+                List<string> headersingal = new List<string>();
+                try
+                {
+                    headersingal = GetFileHeader(filepath, separator, startrowindex); //!flag ? GetFileHeader(filepath, separator) : GetFileRowData(filepath, separator, 1);
+                }
+                catch (FileLoadException fle) { result.AddRange(new object[] { fle.Message, null }); return result; }
+                #endregion
+
+                #region 获取字段的匹配顺序列表
+                //List<int> indexbatch = new List<int>();
+
+                //批信息
+                //if (flag)
+                //{
+                //indexbatch = MatchFieldIndex(dicbatch, headerbatch, separator);
+                //}
+
+                //笔信息
+                List<int> indexsingal = MatchFieldIndex(dicfield, headersingal, separator);
+                #endregion
+
+                #region 检验匹配列表中是否有缺失的字段
+                //if ((flag && indexbatch.FindAll(o => o == -1).Count > 0) || (indexsingal.FindAll(o => o == -1).Count > 0))
+                if (indexsingal.FindAll(o => o == -1).Count > 0)
+                {
+                    result.Add(MultiLanguageConvertHelper.Information_DataFieldMissing_OpenFile_Fail);
+                    result.Add(list);
+                    return result;
+                }
+                #endregion
+
+                #region 获取数据列表
+                List<List<string>> fields = new List<List<string>>();
+                try
+                {
+                    fields = MatchFieldsData(filepath, indexsingal, separator, maxcount, startrowindex + 1, endrowindex);
+                }
+                catch (FileLoadException fle) { result.AddRange(new object[] { fle.Message, null }); return result; }
+                //List<string> batchs = new List<string>();
+                //if (!flag)
+                //    batchs = GetFileRowData(filepath, separator, 2);
+                #endregion
+
+                #region 获取数据对象列表
+                string ErrorMessage = string.Empty;
+                try
+                {
+                    if (fields.Count == 0 || fields.Exists(o => o.Count == 0))
+                        ErrorMessage = MultiLanguageConvertHelper.DesignMain_Has_NoData_ChangeFile;
+                    else if (aft != AppliableFunctionType._Empty)
+                        list = !flag ? MatchBusinessObject(aft, fields) : MatchBusinessObject(aft, fields, batch);
+                    else if (aft == AppliableFunctionType._Empty && fst != FunctionInSettingType.Empty)
+                        list = MatchBusinessObject(fst, fields, separator);
+                }
+                catch { ErrorMessage = MultiLanguageConvertHelper.Information_DataFieldMissing_OpenFile_Fail; }
+                #endregion
+
+                #region 检验对象中是否存在缺失的必填数据项
+                if (string.IsNullOrEmpty(ErrorMessage))
+                {
+                    if (aft != AppliableFunctionType._Empty)
+                    {
+                        #region
+                        if (aft == AppliableFunctionType.AgentExpressOut4Bar)
+                        {
+                            #region
+                            if (list != null)
+                            {
+                                List<object> lt = list as List<object>;
+                                if (null != lt)
+                                {
+                                    string str = CheckDataAvilidLow(lt[0], aft);
+                                    if (!string.IsNullOrEmpty(str))
+                                        ErrorMessage = string.Format("中行数据中：{0}", str);
+                                    if (string.IsNullOrEmpty(ErrorMessage))
+                                    {
+                                        str = CheckDataAvilidLow(lt[1], aft);
+                                        if (!string.IsNullOrEmpty(str))
+                                            ErrorMessage = string.Format("他行数据中：{0}", str);
+                                    }
+                                }
+                            }
+                            #endregion
+                        }
+                        else if (aft == AppliableFunctionType.TransferForeignMoney4Bar)
+                        {
+                            #region
+                            if (list != null)
+                            {
+                                List<object> lt = list as List<object>;
+                                if (null != lt)
+                                {
+                                    string str = CheckDataAvilidLow(lt[0], aft);
+                                    if (!string.IsNullOrEmpty(str))
+                                        ErrorMessage = string.Format("中行数据中：{0}", str);
+                                    if (string.IsNullOrEmpty(ErrorMessage))
+                                    {
+                                        str = CheckDataAvilidLow(lt[1], aft);
+                                        if (!string.IsNullOrEmpty(str))
+                                            ErrorMessage = string.Format("他行数据中：{0}", str);
+                                    }
+                                }
+                            }
+                            #endregion
+                        }
+                        else
+                            ErrorMessage = CheckDataAvilidLow(list, aft);
+                        #endregion
+                    }
+                    else if (fst != FunctionInSettingType.Empty)
+                    {
+                        if (fst == FunctionInSettingType.PayeeMg)
+                            ErrorMessage = CheckDataAvilidHigh(list, fst);
+                    }
+                }
+                #endregion
+
+                result.Add(ErrorMessage);
+                result.Add(list);
+            }
+            catch
+            {
+                result.Add(MultiLanguageConvertHelper.Information_OpenFile_Fail);
+                result.Add(list);
+            }
+            return result;
+        }
+        #endregion
+
+        #region
+        /// <summary>
+        /// 保存成TXT文件
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="aft"></param>
+        /// <param name="filepath"></param>
+        public static bool SaveDataToTXT(object list, AppliableFunctionType aft, string filepath)
+        {
+            bool flag = false;
+            switch (aft)
+            {
+                case AppliableFunctionType.TransferOverBankIn:
+                case AppliableFunctionType.TransferOverBankOut:
+                case AppliableFunctionType.TransferWithCorp:
+                case AppliableFunctionType.TransferWithIndiv:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<TransferAccount>, filepath, CommonInformations.GetAllAmount(list));
+                    break;
+                case AppliableFunctionType.AgentExpressIn:
+                case AppliableFunctionType.AgentExpressOut:
+                    List<object> tempE = list as List<object>;
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, tempE[1] as List<AgentExpress>, tempE[0] as BatchHeader, filepath);
+                    break;
+                case AppliableFunctionType.AgentNormalIn:
+                case AppliableFunctionType.AgentNormalOut:
+                    List<object> tempN = list as List<object>;
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, tempN[1] as List<AgentNormal>, tempN[0] as BatchHeader, filepath);
+                    break;
+                case AppliableFunctionType.TransferOverCountry:
+                case AppliableFunctionType.TransferForeignMoney:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<TransferGlobal>, filepath, CommonInformations.GetAllAmount(list));
+                    break;
+                case AppliableFunctionType.ElecTicketRemit:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<ElecTicketRemit>, filepath, CommonInformations.GetAllAmount(list));
+                    break;
+                case AppliableFunctionType.ElecTicketBackNote:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<ElecTicketBackNote>, filepath);
+                    break;
+                case AppliableFunctionType.ElecTicketPayMoney:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<ElecTicketPayMoney>, filepath);
+                    break;
+                case AppliableFunctionType.ElecTicketTipExchange:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<ElecTicketAutoTipExchange>, filepath);
+                    break;
+                case AppliableFunctionType.PurchaserOrder:
+                case AppliableFunctionType.SellerOrder:
+                case AppliableFunctionType.PurchaserOrderMgr:
+                case AppliableFunctionType.SellerOrderMgr:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<SpplyFinancingOrder>, filepath);
+                    break;
+                case AppliableFunctionType.BillofDebtReceivablePurchaser:
+                case AppliableFunctionType.BillofDebtReceivableSeller:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<SpplyFinancingBill>, filepath);
+                    break;
+                case AppliableFunctionType.PaymentOrReceiptofDebtReceivablePurchaser:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<SpplyFinancingPayOrReceipt>, filepath);
+                    break;
+                case AppliableFunctionType.ApplyofFranchiserFinancing:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<SpplyFinancingApply>, filepath);
+                    break;
+                case AppliableFunctionType.InitiativeAllot:
+                    List<object> tempI = list as List<object>;
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, tempI[1] as List<InitiativeAllot>, tempI[0] as BatchHeader, filepath);
+                    break;
+                case AppliableFunctionType.ElecTicketPool:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<ElecTicketPool>, filepath, CommonInformations.GetAllAmount(list).ToString());
+                    break;
+                case AppliableFunctionType.TransferOverCountry4Bar:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateDATDocumentBar(aft, list as List<TransferGlobal>, filepath, CommonInformations.GetAllAmount(list));
+                    break;
+                case AppliableFunctionType.TransferForeignMoney4Bar:
+                    #region
+                    List<object> tempFC = list as List<object>;
+                    if (tempFC.Count > 0)
+                    {
+                        string filepathc1 = filepath.Replace("-C5-", "-C1-");
+                        string filepathc2 = filepath.Replace("-C1-", "-C5-");
+                        foreach (var item in tempFC)
+                        {
+                            List<TransferGlobal> tempFCB = item as List<TransferGlobal>;
+                            if (tempFCB != null && tempFCB.Count > 0)
+                            {
+                                AccountBankType banktype = tempFCB[0].PayeeOpenBankType;
+                                if (banktype == AccountBankType.BocAccount)
+                                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateDATDocumentBar(aft, tempFCB, filepathc1, CommonInformations.GetAllAmount(tempFCB)) || flag;
+                                else flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateDATDocumentBar(aft, tempFCB, filepathc2, CommonInformations.GetAllAmount(tempFCB)) || flag;
+                            }
+                        }
+                    }
+                    else flag = false;
+                    #endregion
+                    break;
+                case AppliableFunctionType.AgentExpressOut4Bar:
+                    #region
+                    List<object> tempEB = list as List<object>;
+                    if (tempEB.Count > 0)
+                    {
+                        string filepathc1 = filepath.Replace("-C2-", "-C1-");
+                        string filepathc2 = filepath.Replace("-C1-", "-C2-");
+                        foreach (var item in tempEB)
+                        {
+                            List<object> tempEBB = item as List<object>;
+                            AgentTransferBankType banktype = (tempEBB[0] as BatchHeader).BankType;
+                            if ((tempEBB[1] as List<AgentExpress>).Count > 0)
+                            {
+                                if (banktype == AgentTransferBankType.Boc)
+                                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateDATDocumentBar(aft, tempEBB[0] as BatchHeader, tempEBB[1] as List<AgentExpress>, filepathc1, CommonInformations.GetAllAmount(tempEBB[1])) || flag;
+                                else flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateDATDocumentBar(aft, tempEBB[0] as BatchHeader, tempEBB[1] as List<AgentExpress>, filepathc2, CommonInformations.GetAllAmount(tempEBB[1])) || flag;
+                            }
+                        }
+                    }
+                    else flag = false;
+                    #endregion
+                    break;
+                case AppliableFunctionType.UnitivePaymentRMB:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<UnitivePaymentRMB>, filepath, CommonInformations.GetAllAmount(list).ToString());
+                    break;
+                case AppliableFunctionType.UnitivePaymentFC:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<UnitivePaymentForeignMoney>, filepath);
+                    break;
+                case AppliableFunctionType.VirtualAccountTransfer:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<VirtualAccount>, filepath);
+                    break;
+                case AppliableFunctionType.PreproccessTransfer:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<PreproccessTransfer>, filepath);
+                    break;
+                case AppliableFunctionType.BatchReimbursement:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(aft, list as List<BatchReimbursement>, filepath, CommonInformations.GetAllAmount(list).ToString());
+                    break;
+            }
+            return flag;
+        }
+
+        public static bool SaveDataToTXT(object list, FunctionInSettingType fst, string filepath)
+        {
+            bool flag = false;
+            switch (fst)
+            {
+                case FunctionInSettingType.PayeeMg:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateTxtDocument(fst, list as List<PayeeInfo>, filepath);
+                    break;
+            }
+            return flag;
+        }
+
+        public static bool SaveDataToBOCFile(List<string> list, FunctionInSettingType fst, string roginalFilepath, string filepath)
+        {
+            bool flag = false;
+            switch (fst)
+            {
+                case FunctionInSettingType.TodayOrHistoryTransferMg:
+                    flag = TemplateHelper.BatchConsignDataTemplateHelper.CreateBOCDocument(fst, list, roginalFilepath, filepath);
+                    break;
+            }
+            return flag;
+        }
+        #endregion
+        private static string CreateFilePath(string filepath)
+        {
+            string file = string.Empty;
+            int startindex = filepath.LastIndexOf('/') + 1;
+            int endindex = filepath.LastIndexOf('.');
+            file = filepath.Substring(startindex, endindex - startindex) + DateTime.Now.ToLongDateString() + ".txt";
+            return file;
+        }
+
+        /// <summary>
+        /// 匹配列顺序
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        private static List<int> MatchFieldIndex(string filepath, List<string> list, string separator, int startrowindex)
+        {
+            List<int> intlist = new List<int>();
+            List<string> strlist = new List<string>();
+            list = GetFileHeader(filepath, separator, startrowindex);
+
+            foreach (string item in list)
+            {
+                int index = -1;
+                if (strlist.Exists(o => o == item))
+                    index = strlist.FindIndex(0, o => o == item);
+                intlist.Add(index);
+            }
+
+            return intlist;
+        }
+
+        /// <summary>
+        /// 匹配列顺序
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        private static List<int> MatchFieldIndex(Dictionary<string, string> dic, List<string> flist, string separator)
+        {
+            List<int> intlist = new List<int>();
+            List<string> mlist = new List<string>();
+            foreach (var item in dic.Values)
+            {
+                mlist.Add(item.ToString());
+            }
+
+            foreach (string item in mlist)
+            {
+                if (string.IsNullOrEmpty(item)) continue;
+                int index = -1;
+                if (flist.Exists(o => o == item))
+                    index = flist.FindIndex(0, o => o == item);
+                intlist.Add(index);
+            }
+
+            return intlist;
+        }
+
+        /// <summary>
+        /// 获取各字段数据
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="indexList"></param>
+        /// <param name="separator"></param>
+        /// <param name="maxcount"></param>
+        /// <returns></returns>
+        private static List<List<string>> MatchFieldsData(string filepath, List<int> indexList, string separator, int maxcount, int endRowIndex = 65535)
+        {
+            return MatchFieldsData(filepath, indexList, separator, maxcount, 2, endRowIndex);
+        }
+
+        /// <summary>
+        /// 获取各字段数据
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="indexList"></param>
+        /// <param name="separator"></param>
+        /// <param name="maxcount"></param>
+        /// <returns></returns>
+        private static List<List<string>> MatchFieldsData(string filepath, List<int> indexList, string separator, int maxcount, int startRowIndex, int endRowIndex = 65535)
+        {
+            List<List<string>> list = new List<List<string>>();
+
+            if (!System.IO.File.Exists(filepath)) return list;
+
+            if (filepath.ToLower().EndsWith(".txt"))
+            { list = FileIO.FileRWHelper.GetTXTFieldsData(filepath, indexList, separator, maxcount, startRowIndex, endRowIndex); }
+            else if (filepath.ToLower().EndsWith(".csv"))
+            { list = FileIO.FileRWHelper.GetCSVFieldsData(filepath, indexList, maxcount, startRowIndex, endRowIndex); }
+            else if (filepath.ToLower().EndsWith(".xls") || filepath.ToLower().EndsWith(".xlsx"))
+            { list = FileIO.FileRWHelper.GetExcelFieldsData(filepath, indexList, maxcount, startRowIndex, endRowIndex); }
+
+            return list;
+        }
+
+        /// <summary>
+        /// 获取匹配业务对象
+        /// </summary>
+        /// <param name="aft"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        private static object MatchBusinessObject(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            object list = null;
+
+            switch (aft)
+            {
+                case AppliableFunctionType.TransferWithIndiv:
+                case AppliableFunctionType.TransferWithCorp:
+                    list = MatchTransferAccounts(aft, fields); break;
+                case AppliableFunctionType.AgentExpressIn:
+                case AppliableFunctionType.AgentExpressOut:
+                case AppliableFunctionType.AgentExpressOut4Bar:
+                    list = MatchAgentExpress(aft, fields); break;
+                case AppliableFunctionType.AgentNormalIn:
+                case AppliableFunctionType.AgentNormalOut:
+                    list = MatchAgentNormals(aft, fields); break;
+                case AppliableFunctionType.TransferOverBankIn:
+                case AppliableFunctionType.TransferOverBankOut:
+                    list = MatchOverBankTransfers(aft, fields); break;
+                case AppliableFunctionType.ElecTicketRemit:
+                    list = MatchElecTicketRemits(aft, fields); break;
+                case AppliableFunctionType.ElecTicketBackNote:
+                    list = MatchElecTicketBackNotes(aft, fields); break;
+                case AppliableFunctionType.ElecTicketPayMoney:
+                    list = MatchElecTicketPayMoneys(aft, fields); break;
+                case AppliableFunctionType.ElecTicketTipExchange:
+                    list = MatchElecTicketAutoTipExchanges(aft, fields); break;
+                case AppliableFunctionType.ElecTicketPool:
+                    list = MatchElecTicketPools(aft, fields); break;
+                case AppliableFunctionType.TransferOverCountry:
+                case AppliableFunctionType.TransferForeignMoney:
+                case AppliableFunctionType.TransferOverCountry4Bar:
+                    list = MatchTransferGlobals(aft, fields);
+                    break;
+                case AppliableFunctionType.TransferForeignMoney4Bar:
+                    List<TransferGlobal> temp = MatchTransferGlobals(aft, fields);
+                    List<TransferGlobal> listBoc = temp.FindAll(o => o.PayeeOpenBankType == AccountBankType.BocAccount);
+                    List<TransferGlobal> listOther = temp.FindAll(o => o.PayeeOpenBankType == AccountBankType.OtherBankAccount);
+                    list = new List<object> { listBoc, listOther };
+                    break;
+                case AppliableFunctionType.PurchaserOrder:
+                case AppliableFunctionType.SellerOrder:
+                case AppliableFunctionType.PurchaserOrderMgr:
+                case AppliableFunctionType.SellerOrderMgr:
+                    list = MatchSpplyFinancingOrders(aft, fields); break;
+                case AppliableFunctionType.BillofDebtReceivablePurchaser:
+                case AppliableFunctionType.BillofDebtReceivableSeller:
+                    list = MatchSpplyFinancingBills(aft, fields); break;
+                case AppliableFunctionType.PaymentOrReceiptofDebtReceivablePurchaser:
+                    list = MatchSpplyFinancingPayOrReceipts(aft, fields); break;
+                case AppliableFunctionType.ApplyofFranchiserFinancing:
+                    list = MatchSpplyFinancingApplys(aft, fields); break;
+                case AppliableFunctionType.UnitivePaymentRMB:
+                    list = MatchUnitivePaymentRMB(aft, fields); break;
+                case AppliableFunctionType.UnitivePaymentFC:
+                    list = MatchUnitivePaymentForeignMoney(aft, fields); break;
+                case AppliableFunctionType.VirtualAccountTransfer:
+                    list = MatchVirtualAccount(aft, fields); break;
+                case AppliableFunctionType.PreproccessTransfer:
+                    list = MatchPreproccessTransfer(aft, fields); break;
+                case AppliableFunctionType.BatchReimbursement:
+                    list = MatchBatchReimbursement(aft, fields); break;
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 获取匹配业务对象
+        /// </summary>
+        /// <param name="fst"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        private static object MatchBusinessObject(FunctionInSettingType fst, List<List<string>> fields, string separactor)
+        {
+            object list = null;
+            switch (fst)
+            {
+                case FunctionInSettingType.PayeeMg:
+                    list = MatchPayee(fst, fields); break;
+                case FunctionInSettingType.TodayOrHistoryTransferMg:
+                    list = MatchTradeInfos(fst, fields, separactor);
+                    break;
+                default: break;
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 获取匹配业务对象
+        /// </summary>
+        /// <param name="aft"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        private static object MatchBusinessObject(AppliableFunctionType aft, List<List<string>> fields, List<string> batch)
+        {
+            object list = null;
+
+            switch (aft)
+            {
+                //case AppliableFunctionType.TransferWithIndiv:
+                //case AppliableFunctionType.TransferWithCorp:
+                //    list = MatchTransferAccounts(aft, fields); break;
+                case AppliableFunctionType.AgentExpressIn:
+                case AppliableFunctionType.AgentExpressOut:
+                    list = MatchAgentExpress(aft, fields); break;
+                case AppliableFunctionType.AgentNormalIn:
+                case AppliableFunctionType.AgentNormalOut:
+                    list = MatchAgentNormals(aft, fields); break;
+                //case AppliableFunctionType.TransferOverBankIn:
+                //case AppliableFunctionType.TransferOverBankOut:
+                //    list = MatchOverBankTransfers(aft, fields); break;
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 获取匹配业务对象
+        /// </summary>
+        /// <param name="aft"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        private static object MatchBusinessObject(AppliableFunctionType aft, List<List<string>> fields, BatchHeader batch)
+        {
+            object list = null;
+
+            switch (aft)
+            {
+                //case AppliableFunctionType.TransferWithIndiv:
+                //case AppliableFunctionType.TransferWithCorp:
+                //    list = MatchTransferAccounts(aft, fields); break;
+                case AppliableFunctionType.AgentExpressIn:
+                case AppliableFunctionType.AgentExpressOut:
+                    list = MatchAgentExpress(aft, fields, batch); break;
+                case AppliableFunctionType.AgentExpressOut4Bar:
+                    batch.BankType = AgentTransferBankType.Boc;
+                    List<object> listboc = MatchAgentExpress(aft, fields, batch);
+                    BatchHeader bhother = new BatchHeader() { BankType = AgentTransferBankType.Other, Payer = batch.Payer, AgentFunctionType_Express = batch.AgentFunctionType_Express };
+                    List<object> listother = MatchAgentExpress(aft, fields, bhother);
+                    list = new List<object> { listboc, listother };
+                    break;
+                case AppliableFunctionType.AgentNormalIn:
+                case AppliableFunctionType.AgentNormalOut:
+                    list = MatchAgentNormals(aft, fields, batch); break;
+                //case AppliableFunctionType.TransferOverBankIn:
+                //case AppliableFunctionType.TransferOverBankOut:
+                //    list = MatchOverBankTransfers(aft, fields); break;
+                case AppliableFunctionType.InitiativeAllot:
+                    list = MatchInitiativeAllots(aft, fields, batch); break;
+                case AppliableFunctionType.VirtualAccountTransfer:
+                    list = MatchVirtualAccount(aft, fields); break;
+            }
+            return list;
+        }
+
+        #region 数据转换
+        private static List<TransferAccount> MatchTransferAccounts(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<TransferAccount> list = new List<TransferAccount>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            TransferAccount ta = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                ta = new TransferAccount();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+
+                    if (MultiLanguageConvertHelper.Transfer_Mappings_Amount.Equals(fieldNames[findex]))
+                    { if (!string.IsNullOrEmpty(data[dindex]))ta.PayAmount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", ""); }
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_PayeeName.Equals(fieldNames[findex]))
+                        ta.PayeeName = data[dindex].ToString();
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_PayeeAccount.Equals(fieldNames[findex]))
+                        ta.PayeeAccount = DataConvertHelper.FormatNum(data[dindex]);
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_PayeeOpenBankName.Equals(fieldNames[findex]))
+                        ta.PayeeOpenBank = data[dindex].ToString();
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_CNAPSNo.Equals(fieldNames[findex]))
+                        ta.CNAPSNo = DataConvertHelper.FormatNum(data[dindex]);
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_PayerAccount.Equals(fieldNames[findex]))
+                        ta.PayerAccount = DataConvertHelper.FormatNum(data[dindex]);
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_PayFeeAccount.Equals(fieldNames[findex]))
+                    { if (!string.IsNullOrEmpty(data[dindex])) ta.PayFeeNo = DataConvertHelper.FormatNum(data[dindex]); }
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_Addtion.Equals(fieldNames[findex]))
+                        ta.Addition = data[dindex].ToString();
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_OperateOrder.Equals(fieldNames[findex]))
+                        ta.TChanel = DataConvertHelper.GetTransferChanelType(data[dindex].ToString());
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_Email.Equals(fieldNames[findex]))
+                        ta.Email = data[dindex].ToString();
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_CustomerRef.Equals(fieldNames[findex]))
+                        ta.CustomerRef = data[dindex].ToString();
+                    //    case "付款人名称": ta.PayerName = data[dindex].ToString(); break;
+                    //    case "付款货币": ta.PayCashType = CashType.CNY; break;
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_PayDate.Equals(fieldNames[findex]))
+                        ta.PayDatetime = DataConvertHelper.FormatDateTimeFromInt(data[dindex].ToString()).Replace("/", "");
+                    else if (MultiLanguageConvertHelper.Transfer_Mappings_IsBOCFlag.Equals(fieldNames[findex]))
+                        ta.AccountBankType = DataConvertHelper.GetAccountBankTypeObject(data[dindex], aft);
+                    findex++;
+                    dindex++;
+                }
+                if (ta.PayFeeNo == ta.PayerAccount) ta.PayFeeType = ChargingFeeAccountType.SameAsPayingAccount;
+                if (ta.AccountBankType == AccountBankType.Empty && !string.IsNullOrEmpty(ta.CNAPSNo))
+                {
+                    ResultData rd = DataCheckCenter.CheckCNAPSNo(null, ta.CNAPSNo, null);
+                    if (rd.Result)
+                        ta.AccountBankType = ta.CNAPSNo.StartsWith("104") ? AccountBankType.BocAccount : AccountBankType.OtherBankAccount;
+                }
+                list.Add(ta);
+            }
+
+            return list;
+        }
+
+        private static List<object> MatchAgentExpress(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<object> list = new List<object>();
+            List<AgentExpress> aelist = new List<AgentExpress>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            BatchHeader batch = new BatchHeader();
+            AgentExpress ae;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                ae = new AgentExpress();
+                foreach (string fieldname in flist)
+                {
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (AppliableFunctionType.AgentExpressOut == aft)
+                    {
+                        #region
+                        if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Batch_CutomerRef.Equals(fieldNames[findex]))
+                        {
+                            if (string.IsNullOrEmpty(batch.ProtecolNo))
+                                batch.ProtecolNo = DataConvertHelper.FormatNum(data[dindex]);
+                        }
+                        //    case "付款行联行号": break;
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Batch_PayerAccount.Equals(fieldNames[findex]))
+                        {
+                            if (string.IsNullOrEmpty(batch.Payer.Account))
+                                batch.Payer.Account = data[dindex].ToString();
+                        }
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Batch_PayeeBankName.Equals(fieldNames[findex]))
+                        {
+                            if (string.IsNullOrEmpty(batch.Bank))
+                                batch.Bank = data[dindex].ToString();
+                        }
+                        //    case "代发卡类型": if (string.IsNullOrEmpty(batch.CardType_Normal)) batch.CardType = (AgentCardType)int.Parse(data[dindex].ToString()); break;
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Batch_Usege.Equals(fieldNames[findex]))
+                        {
+                            if (string.IsNullOrEmpty(batch.UseType))
+                                batch.UseType = data[dindex].ToString();
+                        }
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Batch_PayDate.Equals(fieldNames[findex]))
+                            batch.TransferDatetime = DateTime.Parse(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Batch_Addtion.Equals(fieldNames[findex]))
+                        {
+                            if (string.IsNullOrEmpty(batch.Addtion))
+                                batch.Addtion = data[dindex].ToString();
+                        }
+
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))ae.Amount = data[dindex].ToString().Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeName.Equals(fieldNames[findex]))
+                            ae.AccountName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeAccount.Equals(fieldNames[findex]))
+                            ae.AccountNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankNoOrCNAPSNo.Equals(fieldNames[findex]))
+                            ae.Province = DataConvertHelper.GetProvince(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyCardType.Equals(fieldNames[findex]))
+                            ae.CertifyPaperType = DataConvertHelper.GetAgentExpressCertifyPaperType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyNo.Equals(fieldNames[findex]))
+                            ae.CertifyPaperNo = data[dindex].ToString();
+                        #endregion
+                    }
+                    else
+                    {
+                        #region
+                        if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_Batch_CutomerRef.Equals(fieldNames[findex]))
+                        {
+                            if (string.IsNullOrEmpty(batch.ProtecolNo))
+                                batch.ProtecolNo = data[dindex].ToString();
+                        }
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_Batch_PayeeAccount.Equals(fieldNames[findex]))
+                        {
+                            if (string.IsNullOrEmpty(batch.ProtecolNo)) batch.Payer.Account = data[dindex].ToString();
+                        }
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_Batch_Usege.Equals(fieldNames[findex]))
+                        {
+                            if (string.IsNullOrEmpty(batch.UseType))
+                                batch.UseType = data[dindex].ToString();
+                        }
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_Batch_PayDate.Equals(fieldNames[findex]))
+                            batch.TransferDatetime = DateTime.Parse(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_Batch_Addtion.Equals(fieldNames[findex]))
+                        {
+                            if (string.IsNullOrEmpty(batch.Addtion))
+                                batch.Addtion = data[dindex].ToString();
+                        }
+
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))ae.Amount = data[dindex].ToString().Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerName.Equals(fieldNames[findex]))
+                            ae.AccountName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerAccount.Equals(fieldNames[findex]))
+                            ae.AccountNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerOpenBankNoOrCNAPSNo.Equals(fieldNames[findex]))
+                            ae.Province = DataConvertHelper.GetProvince(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerCertifyCardType.Equals(fieldNames[findex]))
+                            ae.CertifyPaperType = DataConvertHelper.GetAgentExpressCertifyPaperType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerCertifyNo.Equals(fieldNames[findex]))
+                            ae.CertifyPaperNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_SerialNo.Equals(fieldNames[findex]))
+                            ae.ProtecolNo = data[dindex].ToString();
+                        #endregion
+                    }
+                    findex++;
+                    dindex++;
+                }
+                aelist.Add(ae);
+            }
+            list.Add(batch);
+            list.Add(aelist);
+
+            return list;
+        }
+
+        private static List<object> MatchAgentExpress(AppliableFunctionType aft, List<List<string>> fields, BatchHeader batch)
+        {
+            List<object> list = new List<object>();
+            List<AgentExpress> aelist = new List<AgentExpress>();
+
+            Dictionary<string, string> dicbatch = SystemSettings.BatchMappingSettings[aft].BatchFieldsMappings;
+            Dictionary<string, string> dicsingal = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dicbatch.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            flist = new List<string>();
+            flist.AddRange(dicsingal.Keys);
+            AgentExpress ae = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                ae = new AgentExpress();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dicsingal[fieldname].ToString())) { findex++; continue; }
+                    if (AppliableFunctionType.AgentExpressOut == aft)
+                    {
+                        #region
+                        if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))    ae.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeName.Equals(fieldNames[findex]))
+                            ae.AccountName = data[dindex];
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeAccount.Equals(fieldNames[findex]))
+                            ae.AccountNo = DataConvertHelper.FormatNum(data[dindex]);
+                        //else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankNoOrCNAPSNo.Equals(fieldNames[findex]))
+                        //{
+                        //    if (batch.BankType == AgentTransferBankType.Boc)
+                        //    {
+                        //        ae.Province = DataConvertHelper.GetProvince(data[dindex].ToString());
+                        //        //ResultData rd = DataCheckCenter.CheckProvince(null, data[dindex], null);
+                        //        //if (!rd.Result) throw new Exception(rd.Message);
+                        //    }
+                        //    else if (batch.BankType == AgentTransferBankType.Other)
+                        //    {
+                        //        ae.BankNo = data[dindex].ToString();
+                        //        //ResultData rd = DataCheckCenter.CheckCNAPSNo(null, data[dindex], null);
+                        //        //if (!rd.Result) throw new Exception(rd.Message);
+                        //    }
+                        //}
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeAccountProvince.Equals(fieldNames[findex]))
+                            ae.Province = DataConvertHelper.GetProvince(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankNo.Equals(fieldNames[findex]))
+                            ae.BankNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyCardType.Equals(fieldNames[findex]))
+                            ae.CertifyPaperType = DataConvertHelper.GetAgentExpressCertifyPaperType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyNo.Equals(fieldNames[findex]))
+                            ae.CertifyPaperNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Usage.Equals(fieldNames[findex]))
+                            ae.UsageType = DataConvertHelper.GetAgentExpressFunctionType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankName.Equals(fieldNames[findex]))
+                            ae.BankName = data[dindex].ToString();
+                        #endregion
+                    }
+                    else if (AppliableFunctionType.AgentExpressOut4Bar == aft)
+                    {
+                        #region
+                        if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))    ae.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeName.Equals(fieldNames[findex]))
+                            ae.AccountName = data[dindex];
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeAccount.Equals(fieldNames[findex]))
+                            ae.AccountNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankNoOrCNAPSNo.Equals(fieldNames[findex]))
+                        {
+                            if (batch.BankType == AgentTransferBankType.Boc)
+                                ae.Province = DataConvertHelper.GetProvince(data[dindex].ToString());
+                            else if (batch.BankType == AgentTransferBankType.Other)
+                                ae.BankNo = data[dindex].ToString();
+                        }
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyCardType.Equals(fieldNames[findex]))
+                            ae.CertifyPaperType = DataConvertHelper.GetAgentExpressCertifyPaperType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyNo.Equals(fieldNames[findex]))
+                            ae.CertifyPaperNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Usage.Equals(fieldNames[findex]))
+                            ae.UsageType = DataConvertHelper.GetAgentExpressFunctionType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankName.Equals(fieldNames[findex]))
+                            ae.BankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Bar_Addition.Equals(fieldNames[findex]))
+                            ae.Bar_Addition = data[dindex].ToString();
+                        #endregion
+                    }
+                    else if (aft == AppliableFunctionType.AgentExpressIn)
+                    {
+                        #region
+                        if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))ae.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerName.Equals(fieldNames[findex]))
+                            ae.AccountName = data[dindex];
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerAccount.Equals(fieldNames[findex]))
+                            ae.AccountNo = DataConvertHelper.FormatNum(data[dindex]);
+                        //else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerOpenBankNoOrCNAPSNo.Equals(fieldNames[findex]))
+                        //{
+                        //    if (batch.BankType == AgentTransferBankType.Boc)
+                        //    {
+                        //        ae.Province = DataConvertHelper.GetProvince(data[dindex].ToString());
+                        //        ResultData rd = DataCheckCenter.CheckProvince(null, data[dindex], null);
+                        //        if (!rd.Result) throw new Exception(rd.Message);
+                        //    }
+                        //    else if (batch.BankType == AgentTransferBankType.Other)
+                        //    {
+                        //        ae.BankNo = data[dindex].ToString();
+                        //        ResultData rd = DataCheckCenter.CheckCNAPSNo(null, data[dindex], null);
+                        //        if (!rd.Result) throw new Exception(rd.Message);
+                        //    }
+                        //}
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerAccountProvince.Equals(fieldNames[findex]))
+                            ae.Province = DataConvertHelper.GetProvince(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerOpenBankNo.Equals(fieldNames[findex]))
+                            ae.BankNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerCertifyCardType.Equals(fieldNames[findex]))
+                            ae.CertifyPaperType = DataConvertHelper.GetAgentExpressCertifyPaperType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerCertifyNo.Equals(fieldNames[findex]))
+                            ae.CertifyPaperNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_SerialNo.Equals(fieldNames[findex]))
+                            ae.ProtecolNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressIn_Mappings_Usage.Equals(fieldNames[findex]))
+                            ae.UsageType = DataConvertHelper.GetAgentExpressFunctionType(data[dindex].ToString());
+                        #endregion
+                    }
+                    findex++;
+                    dindex++;
+                }
+                if (aft == AppliableFunctionType.AgentExpressOut4Bar)
+                {
+                    if (!string.IsNullOrEmpty(ae.BankName))
+                    {
+                        AgentTransferBankType banktype = DataConvertHelper.GetAgentTransferBankType(ae.BankName);
+                        if (batch.BankType != banktype) continue;
+                        if (banktype == AgentTransferBankType.Boc)
+                        {
+                            if (ae.Province == ChinaProvinceType.B0)
+                                ae.Province = DataConvertHelper.GetProvinceFOpenBankName(ae.BankName);
+                            if (ae.Province == ChinaProvinceType.B0)
+                                ae.Province = DataConvertHelper.GetProvinceFOpenBankNameEx(ae.BankName);
+                        }
+                    }
+                    else if (batch.BankType == AgentTransferBankType.Boc) continue;
+                }
+                aelist.Add(ae);
+            }
+            list.Add(batch);
+            list.Add(aelist);
+
+            return list;
+        }
+
+        private static List<object> MatchAgentNormals(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<object> list = new List<object>();
+            List<AgentNormal> anlist = new List<AgentNormal>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            BatchHeader batch = new BatchHeader();
+            AgentNormal an = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                an = new AgentNormal();
+                foreach (string fieldname in flist)
+                {
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (AppliableFunctionType.AgentNormalOut == aft)
+                    {
+                        //case "客户业务编号": batch.ProtecolNo = data[dindex].ToString(); break;
+                        //case "付款行联行号": break;
+                        //case "付款人账号": batch.Payer.Account = data[dindex].ToString(); break;
+                        //case "货币名称": break;
+                        //case "代发卡类型": batch.CardType = (AgentCardType)int.Parse(data[dindex].ToString()); break;
+                        //case "用途类型": batch.UseType = data[dindex].ToString(); break;
+                        //case "手续费账号": batch.PayFeeNo = data[dindex].ToString(); break;
+                        //case "付款日期": batch.TransferDatetime = DateTime.Parse(data[dindex].ToString()); break;
+                        //case "附言": batch.Addtion = data[dindex].ToString(); break;
+
+                        if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))an.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeName.Equals(fieldNames[findex]))
+                            an.AccountName = data[dindex];
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeAccount.Equals(fieldNames[findex]))
+                            an.AccountNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_BankLinkNoOrCNAPSNo.Equals(fieldNames[findex]))
+                            an.BankNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeBankName.Equals(fieldNames[findex]))
+                            an.BankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeCertifyCardType.Equals(fieldNames[findex]))
+                            an.CertifyPaperType = DataConvertHelper.GetAgentNormalCertifyPaperType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeCertifyNo.Equals(fieldNames[findex]))
+                            an.CertifyPaperNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_Usege.Equals(fieldNames[findex]))
+                        {
+                            try
+                            {
+                                an.UseType = DataConvertHelper.GetAgentNormalFunctionType(data[dindex]);
+                                if (string.IsNullOrEmpty(an.UseTypeString))
+                                    an.UseType = AgentNormalFunctionType.Empty;
+                            }
+                            catch { an.UseType = AgentNormalFunctionType.Empty; } break;
+                        }
+                    }
+                    else if (AppliableFunctionType.AgentNormalIn == aft)
+                    {
+                        //case "客户业务编号": if (string.IsNullOrEmpty(batch.ProtecolNo)) batch.ProtecolNo = data[dindex].ToString(); break;
+                        //case "收款行联行号": break;
+                        //case "收款人账号": if (string.IsNullOrEmpty(batch.ProtecolNo)) batch.Payer.Account = data[dindex].ToString(); break;
+                        //case "货币名称": break;
+                        //case "代发卡类型": if (string.IsNullOrEmpty(batch.CardType_Normal)) batch.CardType = (AgentCardType)int.Parse(data[dindex].ToString()); break;
+                        //case "用途类型": if (string.IsNullOrEmpty(batch.UseType)) batch.UseType = data[dindex].ToString(); break;
+                        //case "手续费账号": if (string.IsNullOrEmpty(batch.PayFeeNo)) batch.PayFeeNo = data[dindex].ToString(); break;
+                        //case "收款日期": if (null == batch.TransferDatetime) batch.TransferDatetime = DateTime.Parse(data[dindex].ToString()); break;
+                        //case "附言": if (string.IsNullOrEmpty(batch.Addtion)) batch.Addtion = data[dindex].ToString(); break;
+
+
+                        if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))    an.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerName.Equals(fieldNames[findex]))
+                            an.AccountName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerAccount.Equals(fieldNames[findex]))
+                            an.AccountNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_BankLinkNoOrCNAPSNo.Equals(fieldNames[findex]))
+                            an.BankNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerBankName.Equals(fieldNames[findex]))
+                            an.BankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerCertifyCardType.Equals(fieldNames[findex]))
+                            an.CertifyPaperType = DataConvertHelper.GetAgentNormalCertifyPaperType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerCertifyNo.Equals(fieldNames[findex]))
+                            an.CertifyPaperNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_Usege.Equals(fieldNames[findex]))
+                            an.UseType_In = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_SerialNo.Equals(fieldNames[findex]))
+                            an.ProtecolNo = data[dindex].ToString();
+                    }
+                    findex++;
+                    dindex++;
+                }
+                anlist.Add(an);
+            }
+            list.Add(batch);
+            list.Add(anlist);
+
+            return list;
+        }
+
+        private static List<object> MatchAgentNormals(AppliableFunctionType aft, List<List<string>> fields, BatchHeader batch)
+        {
+            List<object> list = new List<object>();
+            List<AgentNormal> anlist = new List<AgentNormal>();
+
+            Dictionary<string, string> dicbatch = SystemSettings.BatchMappingSettings[aft].BatchFieldsMappings;
+            Dictionary<string, string> dicsingal = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dicbatch.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            flist = new List<string>();
+            flist.AddRange(dicsingal.Keys);
+            AgentNormal an = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                an = new AgentNormal();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dicsingal[fieldname].ToString())) { findex++; continue; }
+                    if (AppliableFunctionType.AgentNormalOut == aft)
+                    {
+                        if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))  an.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeName.Equals(fieldNames[findex]))
+                            an.AccountName = data[dindex];
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeAccount.Equals(fieldNames[findex]))
+                            an.AccountNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_BankLinkNoOrCNAPSNo.Equals(fieldNames[findex]))
+                            an.BankNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeBankName.Equals(fieldNames[findex]))
+                            an.BankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeCertifyCardType.Equals(fieldNames[findex]))
+                            an.CertifyPaperType = DataConvertHelper.GetAgentNormalCertifyPaperType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeCertifyNo.Equals(fieldNames[findex]))
+                            an.CertifyPaperNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalOut_Mappings_Usege.Equals(fieldNames[findex]))
+                        {
+                            try
+                            {
+                                an.UseType = DataConvertHelper.GetAgentNormalFunctionType(data[dindex]);
+                                if (string.IsNullOrEmpty(an.UseTypeString))
+                                    an.UseType = AgentNormalFunctionType.Empty;
+                            }
+                            catch { an.UseType = AgentNormalFunctionType.Empty; } break;
+                        }
+                    }
+                    else
+                    {
+                        if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))an.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerName.Equals(fieldNames[findex]))
+                            an.AccountName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerAccount.Equals(fieldNames[findex]))
+                            an.AccountNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_BankLinkNoOrCNAPSNo.Equals(fieldNames[findex]))
+                            an.BankNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerBankName.Equals(fieldNames[findex]))
+                            an.BankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerCertifyCardType.Equals(fieldNames[findex]))
+                            an.CertifyPaperType = DataConvertHelper.GetAgentNormalCertifyPaperType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerCertifyNo.Equals(fieldNames[findex]))
+                            an.CertifyPaperNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_Usege.Equals(fieldNames[findex]))
+                            an.UseType_In = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentNormalIn_Mappings_SerialNo.Equals(fieldNames[findex]))
+                            an.ProtecolNo = data[dindex].ToString();
+                    }
+                    findex++;
+                    dindex++;
+                }
+                anlist.Add(an);
+            }
+            list.Add(batch);
+            list.Add(anlist);
+
+            return list;
+        }
+
+        private static List<TransferAccount> MatchOverBankTransfers(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<TransferAccount> list = new List<TransferAccount>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            TransferAccount ta = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                ta = new TransferAccount();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.TransferOverBankIn)
+                    {
+                        if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_Amount.Equals(fieldNames[findex]))
+                        {
+                            if (!string.IsNullOrEmpty(data[dindex])) ta.PayAmount = DataConvertHelper.FormatCash(DataConvertHelper.FormatNum(data[dindex]), false).Replace(",", "");
+                        }
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayProtecolNo.Equals(fieldNames[findex]))
+                            ta.PayProtecolNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_BusinessType.Equals(fieldNames[findex]))
+                            ta.BusinessType = DataConvertHelper.GetBusinessType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayerName.Equals(fieldNames[findex]))
+                            ta.PayeeName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayerAccount.Equals(fieldNames[findex]))
+                            ta.PayeeAccount = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayerBank.Equals(fieldNames[findex]))
+                            ta.PayeeOpenBank = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayeeAccount.Equals(fieldNames[findex]))
+                            ta.PayerAccount = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayeeName.Equals(fieldNames[findex]))
+                            ta.PayerName = data[dindex];
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_CutomerRef.Equals(fieldNames[findex]))
+                            ta.CustomerRef = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_Addtion.Equals(fieldNames[findex]))
+                            ta.Addition = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayDateTime.Equals(fieldNames[findex]))
+                            ta.PayDatetime = DataConvertHelper.FormatDateTimeFromInt(data[dindex]).Replace("/", "");
+                    }
+                    else if (aft == AppliableFunctionType.TransferOverBankOut)
+                    {
+                        if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex])) ta.PayAmount = DataConvertHelper.FormatCash(DataConvertHelper.FormatNum(data[dindex]), false).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayeeName.Equals(fieldNames[findex]))
+                            ta.PayeeName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayeeAccount.Equals(fieldNames[findex]))
+                            ta.PayeeAccount = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayeeBankName.Equals(fieldNames[findex]))
+                            ta.PayeeOpenBank = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayeeClearBankNo.Equals(fieldNames[findex]))
+                            ta.PayBankNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayerAccount.Equals(fieldNames[findex]))
+                            ta.PayerAccount = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_CutomerRef.Equals(fieldNames[findex]))
+                            ta.CustomerRef = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayFeeAccount.Equals(fieldNames[findex]))
+                            ta.PayFeeNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_Addtion.Equals(fieldNames[findex]))
+                            ta.Addition = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_Email.Equals(fieldNames[findex]))
+                            ta.Email = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_OperateOrder.Equals(fieldNames[findex]))
+                            ta.TChanel = DataConvertHelper.GetTransferChanelType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayDate.Equals(fieldNames[findex]))
+                            ta.PayDatetime = DataConvertHelper.FormatDateTimeFromInt(data[dindex].ToString()).Replace("/", "");
+                    }
+                    findex++;
+                    dindex++;
+                }
+                list.Add(ta);
+            }
+
+            return list;
+        }
+
+        private static List<ElecTicketRemit> MatchElecTicketRemits(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<ElecTicketRemit> list = new List<ElecTicketRemit>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            ElecTicketRemit etr = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                etr = new ElecTicketRemit();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.ElecTicketRemit)
+                    {
+                        if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_Amount.Equals(fieldNames[findex]))
+                        {
+                            if (!string.IsNullOrEmpty(data[dindex]))
+                                etr.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", "");
+                        }
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_CanAutoTipExchange.Equals(fieldNames[findex]))
+                            etr.AutoTipExchange = DataConvertHelper.GetAutoTipExchange(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_CanAutoReceiveTicket.Equals(fieldNames[findex]))
+                            etr.AutoTipReceiveTicket = DataConvertHelper.GetAutoReceiveTicket(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_CanChange.Equals(fieldNames[findex]))
+                            etr.CanChange = DataConvertHelper.GetCanChangeType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_EndDate.Equals(fieldNames[findex]))
+                            etr.EndDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeAccount.Equals(fieldNames[findex]))
+                            etr.ExchangeAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeName.Equals(fieldNames[findex]))
+                            etr.ExchangeName = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeOpenBankName.Equals(fieldNames[findex]))
+                            etr.ExchangeOpenBankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeOpenBankNo.Equals(fieldNames[findex]))
+                            etr.ExchangeOpenBankNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_Note.Equals(fieldNames[findex]))
+                            etr.Note = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeAccount.Equals(fieldNames[findex]))
+                            etr.PayeeAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeName.Equals(fieldNames[findex]))
+                            etr.PayeeName = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeOpenBankName.Equals(fieldNames[findex]))
+                            etr.PayeeOpenBankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeOpenBankNo.Equals(fieldNames[findex]))
+                            etr.PayeeOpenBankNo = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_RemitAccount.Equals(fieldNames[findex]))
+                            etr.RemitAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_RemitDate.Equals(fieldNames[findex]))
+                            etr.RemitDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_TicketType.Equals(fieldNames[findex]))
+                            etr.TicketType = DataConvertHelper.GetElecTicketType(data[dindex].ToString(), aft);
+                        findex++;
+                        dindex++;
+                    }
+                }
+                list.Add(etr);
+            }
+
+            return list;
+        }
+
+        private static List<ElecTicketBackNote> MatchElecTicketBackNotes(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<ElecTicketBackNote> list = new List<ElecTicketBackNote>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            ElecTicketBackNote etr = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                etr = new ElecTicketBackNote();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.ElecTicketBackNote)
+                    {
+                        if (MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedAccount.Equals(fieldNames[findex]))
+                            etr.BackNotedAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedName.Equals(fieldNames[findex]))
+                            etr.BackNotedName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedOpenBankName.Equals(fieldNames[findex]))
+                            etr.BackNotedOpenBankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedOpenBankNo.Equals(fieldNames[findex]))
+                            etr.BackNotedOpenBankNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_TicketSerialNo.Equals(fieldNames[findex]))
+                            etr.ElecTicketSerialNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_Note.Equals(fieldNames[findex]))
+                            etr.Note = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_Account.Equals(fieldNames[findex]))
+                            etr.RemitAccount = DataConvertHelper.FormatNum(data[dindex]);
+                        findex++;
+                        dindex++;
+                    }
+                }
+                list.Add(etr);
+            }
+
+            return list;
+        }
+
+        private static List<ElecTicketAutoTipExchange> MatchElecTicketAutoTipExchanges(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<ElecTicketAutoTipExchange> list = new List<ElecTicketAutoTipExchange>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            ElecTicketAutoTipExchange etr = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                etr = new ElecTicketAutoTipExchange();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.ElecTicketTipExchange)
+                    {
+                        if (MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_BillSerialNo.Equals(fieldNames[findex]))
+                            etr.BillSerialNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ContactNo.Equals(fieldNames[findex]))
+                            etr.ContractNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_TicketSerialNo.Equals(fieldNames[findex]))
+                            etr.ElecTicketSerialNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeAccount.Equals(fieldNames[findex]))
+                            etr.ExchangeAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeName.Equals(fieldNames[findex]))
+                            etr.ExchangeName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeOpenBankName.Equals(fieldNames[findex]))
+                            etr.ExchangeOpenBankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeOpenBankNo.Equals(fieldNames[findex]))
+                            etr.ExchangeOpenBankNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_Note.Equals(fieldNames[findex]))
+                            etr.Note = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_Account.Equals(fieldNames[findex]))
+                            etr.RemitAccount = data[dindex].ToString();
+                        findex++;
+                        dindex++;
+                    }
+                }
+                list.Add(etr);
+            }
+
+            return list;
+        }
+
+        private static List<ElecTicketPayMoney> MatchElecTicketPayMoneys(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<ElecTicketPayMoney> list = new List<ElecTicketPayMoney>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            ElecTicketPayMoney etr = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                etr = new ElecTicketPayMoney() { PayMoneyType = MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Buyout };
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.ElecTicketPayMoney)
+                    {
+                        if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_BillSerialNo.Equals(fieldNames[findex]))
+                            etr.BillSerialNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ClearType.Equals(fieldNames[findex]))
+                            etr.ClearType = DataConvertHelper.GetClearType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ContactNo.Equals(fieldNames[findex]))
+                            etr.ContractNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_TicketSerialNo.Equals(fieldNames[findex]))
+                            etr.ElecTicketSerialNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_IsContainMoney.Equals(fieldNames[findex]))
+                            etr.ProtocolMoneyType = DataConvertHelper.GetProtocolMoneyType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Note.Equals(fieldNames[findex]))
+                            etr.Note = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyAccount.Equals(fieldNames[findex]))
+                            etr.PayMoneyAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayDate.Equals(fieldNames[findex]))
+                            etr.PayMoneyDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyOpenBankName.Equals(fieldNames[findex]))
+                            etr.PayMoneyOpenBankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyOpenBankNo.Equals(fieldNames[findex]))
+                            etr.PayMoneyOpenBankNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyPercent.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))   etr.PayMoneyPercent = double.Parse(DataConvertHelper.FormatPayMoneyPercent(data[dindex].ToString(), false)); }
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyType.Equals(fieldNames[findex]))
+                            etr.PayMoneyType = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ProtocolMoneyPercent.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))etr.ProtocolMoneyPercent = double.Parse(DataConvertHelper.FormatPayMoneyPercent(data[dindex].ToString(), false)); }
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Account.Equals(fieldNames[findex]))
+                            etr.RemitAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnccount.Equals(fieldNames[findex]))
+                            etr.StickOnAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnName.Equals(fieldNames[findex]))
+                            etr.StickOnName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnOpenBankName.Equals(fieldNames[findex]))
+                            etr.StickOnOpenBankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnOpenBankNo.Equals(fieldNames[findex]))
+                            etr.StickOnOpenBankNo = data[dindex].ToString();
+                        findex++;
+                        dindex++;
+                    }
+                }
+                list.Add(etr);
+            }
+
+            return list;
+        }
+
+        private static List<ElecTicketPool> MatchElecTicketPools(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<ElecTicketPool> list = new List<ElecTicketPool>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            ElecTicketPool etp = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                etp = new ElecTicketPool();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.ElecTicketPool)
+                    {
+                        if (MultiLanguageConvertHelper.ElecTicketPool_Amount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex])) etp.Amount = DataConvertHelper.FormatNum(data[dindex].ToString()).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_ExchangeBank.Equals(fieldNames[findex]))
+                            etp.BankType = DataConvertHelper.GetAccountBankTypeObject(data[dindex].ToString(), aft);
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_BusinessType.Equals(fieldNames[findex]))
+                            etp.BusinessType = DataConvertHelper.GetElecTicketPoolBusinessType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_CustomerRef.Equals(fieldNames[findex]))
+                            etp.CustomerRef = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_ElecTicketSerialNo.Equals(fieldNames[findex]))
+                            etp.ElecTicketSerialNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_ElecTicketType.Equals(fieldNames[findex]))
+                            etp.ElecTicketType = DataConvertHelper.GetElecTicketType(data[dindex].ToString(), aft);
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_EndDate.Equals(fieldNames[findex]))
+                            etp.EndDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_EndDateOperate.Equals(fieldNames[findex]))
+                            etp.EndDateOperate = DataConvertHelper.GetEndDateOperateType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_ExchangeAccount.Equals(fieldNames[findex]))
+                            etp.ExchangeAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_ExchangeOpenBankName.Equals(fieldNames[findex]))
+                            etp.ExchangeBankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_ExchangeBankNo.Equals(fieldNames[findex])
+                            || MultiLanguageConvertHelper.ElecTicketPool_ExchangeOpenBankNo.Equals(fieldNames[findex]))
+                            etp.ExchangeBankNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_ExchangeDate.Equals(fieldNames[findex]))
+                            etp.ExchangeDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_ExchangeName.Equals(fieldNames[findex])
+                            || MultiLanguageConvertHelper.ElecTicketPool_ExchangeBankName.Equals(fieldNames[findex]))
+                            etp.ExchangeName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_PayeeAccount.Equals(fieldNames[findex]))
+                            etp.PayeeAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_PayeeName.Equals(fieldNames[findex]))
+                            etp.PayeeName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_PayeeOpenBankName.Equals(fieldNames[findex]))
+                            etp.PayeeOpenBankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_PayeeOpenBankNo.Equals(fieldNames[findex]))
+                            etp.PayeeOpenBankNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_PreBackNotedPerson.Equals(fieldNames[findex]))
+                            etp.PreBackNotedPerson = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_RemitAccount.Equals(fieldNames[findex]))
+                            etp.RemitAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_RemitDate.Equals(fieldNames[findex]))
+                            etp.RemitDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.ElecTicketPool_RemitName.Equals(fieldNames[findex]))
+                            etp.RemitName = data[dindex].ToString();
+                        findex++;
+                        dindex++;
+                    }
+                }
+                list.Add(etp);
+            }
+
+            return list;
+        }
+
+        private static List<TransferGlobal> MatchTransferGlobals(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<TransferGlobal> list = new List<TransferGlobal>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            TransferGlobal etp = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                etp = new TransferGlobal();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.TransferOverCountry
+                        || aft == AppliableFunctionType.TransferForeignMoney
+                        || aft == AppliableFunctionType.TransferOverCountry4Bar
+                        || aft == AppliableFunctionType.TransferForeignMoney4Bar)
+                    {
+                        if (MultiLanguageConvertHelper.TransferGlobal_PayDate.Equals(fieldNames[findex]))
+                            etp.PayDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex].ToString()).Replace("/", "");
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PaymentType.Equals(fieldNames[findex]))
+                            etp.PaymentType = "电汇";
+                        else if (MultiLanguageConvertHelper.TransferGlobal_SendPriority.Equals(fieldNames[findex]))
+                            etp.SendPriority = DataConvertHelper.GetTransferChanelType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PaymentCashType.Equals(fieldNames[findex]))
+                            etp.PaymentCashType = DataConvertHelper.GetCashType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.TransferGlobal_RemitAmount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))  etp.RemitAmount = DataConvertHelper.FormatCash(data[dindex].ToString(), etp.PaymentCashType == CashType.JPY).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.TransferGlobal_SpotAccount.Equals(fieldNames[findex]))
+                            etp.SpotAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_SpotAmount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex])) etp.SpotAmount = DataConvertHelper.FormatCash(data[dindex].ToString(), etp.PaymentCashType == CashType.JPY).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PurchaseAccount.Equals(fieldNames[findex]))
+                            etp.PurchaseAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PurchaseAmount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))  etp.PurchaseAmount = DataConvertHelper.FormatCash(data[dindex].ToString(), etp.PaymentCashType == CashType.JPY).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.TransferGlobal_OtherAccount.Equals(fieldNames[findex]))
+                            etp.OtherAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_OtherAmount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))  etp.OtherAmount = DataConvertHelper.FormatCash(data[dindex].ToString(), etp.PaymentCashType == CashType.JPY).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayFeeAccount.Equals(fieldNames[findex]))
+                            etp.PayFeeAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_OrgCode.Equals(fieldNames[findex]))
+                            etp.OrgCode = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_RemitName.Equals(fieldNames[findex]))
+                            etp.RemitName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_RemitAddress.Equals(fieldNames[findex]))
+                            etp.RemitAddress = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_CutomerRef.Equals(fieldNames[findex]))
+                            etp.CustomerRef = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayeeAccount.Equals(fieldNames[findex]))
+                            etp.PayeeAccount = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayeeName.Equals(fieldNames[findex]))
+                            etp.PayeeName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayeeAddress.Equals(fieldNames[findex]))
+                            etp.PayeeAddress = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayeeCodeofCountry.Equals(fieldNames[findex]))
+                            etp.PayeeCodeofCountry = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayeeNameofCountry.Equals(fieldNames[findex]))
+                            etp.PayeeNameofCountry = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankType.Equals(fieldNames[findex]))
+                        {
+                            if (aft == AppliableFunctionType.TransferForeignMoney || aft == AppliableFunctionType.TransferForeignMoney4Bar)
+                            {
+                                etp.PayeeOpenBankType = DataConvertHelper.GetAccountBankTypeObject(data[dindex].ToString(), aft);
+                                if (etp.PayeeOpenBankType == AccountBankType.Empty) etp.PayeeOpenBankType = AccountBankType.OtherBankAccount;
+                                if (aft == AppliableFunctionType.TransferForeignMoney4Bar || etp.PayeeOpenBankType == AccountBankType.OtherBankAccount) etp.PayeeOpenBankName = data[dindex].ToString();
+                            }
+                            else if (aft == AppliableFunctionType.TransferOverCountry || aft == AppliableFunctionType.TransferOverCountry4Bar)
+                                etp.PayeeOpenBankName = data[dindex].ToString();
+                        }
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress.Equals(fieldNames[findex]))
+                            etp.PayeeOpenBankAddress = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName.Equals(fieldNames[findex]))
+                            etp.CorrespondentBankName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress.Equals(fieldNames[findex]))
+                            etp.CorrespondentBankAddress = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayeeAccountInCorrespondentBank.Equals(fieldNames[findex]))
+                            etp.PayeeAccountInCorrespondentBank = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_RemitNote.Equals(fieldNames[findex]))
+                            etp.RemitNote = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_AssumeFeeType.Equals(fieldNames[findex]))
+                            etp.AssumeFeeType = DataConvertHelper.GetAssumeFeeType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayFeeType.Equals(fieldNames[findex]))
+                            etp.PayFeeType = DataConvertHelper.GetPayFeeType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.TransferGlobal_DealSerialNoF.Equals(fieldNames[findex]))
+                            etp.DealSerialNoF = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_AmountF.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))    etp.AmountF = DataConvertHelper.FormatCash(data[dindex].ToString(), etp.PaymentCashType == CashType.JPY).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.TransferGlobal_DealNoteF.Equals(fieldNames[findex]))
+                            etp.DealNoteF = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_DealSerialNoS.Equals(fieldNames[findex]))
+                            etp.DealSerialNoS = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_AmountS.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))etp.AmountS = DataConvertHelper.FormatCash(data[dindex].ToString(), etp.PaymentCashType == CashType.JPY).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.TransferGlobal_DealNoteS.Equals(fieldNames[findex]))
+                            etp.DealNoteS = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_IsPayOffLine.Equals(fieldNames[findex]))
+                            etp.IsPayOffLine = DataConvertHelper.GetIsPayOffLine(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.TransferGlobal_ContactNo.Equals(fieldNames[findex]))
+                            etp.ContactNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_BillSerialNo.Equals(fieldNames[findex]))
+                            etp.BillSerialNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_BatchNoOrTNoOrSerialNo.Equals(fieldNames[findex]))
+                            etp.BatchNoOrTNoOrSerialNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_ProposerName.Equals(fieldNames[findex]))
+                            etp.ProposerName = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_Telephone.Equals(fieldNames[findex]))
+                            etp.Telephone = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PaymentPropertyType.Equals(fieldNames[findex]))
+                            etp.PaymentPropertyType = aft == AppliableFunctionType.TransferForeignMoney4Bar
+                                ? DataConvertHelper.GetPaymentPropertyTypeBar(data[dindex])
+                                : DataConvertHelper.GetPaymentPropertyType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankSwiftCode.Equals(fieldNames[findex])
+                            || MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankSwiftCode_Bar_OC.Equals(fieldNames[findex]))
+                            etp.PayeeOpenBankSwiftCode = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankSwiftCode.Equals(fieldNames[findex])
+                            || MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankSwiftCode_Bar_OC.Equals(fieldNames[findex]))
+                            etp.CorrespondentBankSwiftCode = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeAccountProvince.Equals(fieldNames[findex]))
+                            etp.Province = DataConvertHelper.GetProvince(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyCardType.Equals(fieldNames[findex]))
+                            etp.CertifyPaperType = DataConvertHelper.GetAgentExpressCertifyPaperType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyNo.Equals(fieldNames[findex]))
+                            etp.CertifyPaperNo = data[dindex].ToString();
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Business.Equals(fieldNames[findex]))
+                            etp.AgentFunctionType_Express = DataConvertHelper.GetAgentExpressFunctionType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.TransferGlobal_BarApplyFlagType.Equals(fieldNames[findex]))
+                            etp.BarApplyFlagType = DataConvertHelper.GetBarApplyFlagType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.TransferGlobal_BarBusinessType.Equals(fieldNames[findex]))
+                            etp.BarBusinessType = DataConvertHelper.GetBarBusinessType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.AgentExpressOut_Mappings_Bar_Addition.Equals(fieldNames[findex]))
+                            etp.Bar_Addition = data[dindex].ToString();
+                        findex++;
+                        dindex++;
+                    }
+                }
+                if (aft == AppliableFunctionType.TransferForeignMoney4Bar
+                    || aft == AppliableFunctionType.TransferOverCountry4Bar)
+                {
+                    etp.PayFeeAccount = etp.SpotAccount;
+                    if (!string.IsNullOrEmpty(etp.PurchaseAccount))
+                        etp.PayFeeAccount = etp.PurchaseAccount;
+
+                    if (!string.IsNullOrEmpty(etp.SpotAmount)) etp.RemitAmount = etp.SpotAmount;
+                    else if (!string.IsNullOrEmpty(etp.PurchaseAmount)) etp.RemitAmount = etp.PurchaseAmount;
+
+                    if (aft == AppliableFunctionType.TransferForeignMoney4Bar)
+                    {
+                        if (!string.IsNullOrEmpty(etp.PayeeOpenBankName))
+                        {
+                            AccountBankType banktype = DataConvertHelper.GetAccountBankTypeObject(etp.PayeeOpenBankName, aft);
+                            //if (etp.PayeeOpenBankType != AccountBankType.BocAccount) continue;
+                            if (banktype == AccountBankType.BocAccount)
+                            {
+                                if (etp.Province == ChinaProvinceType.B0)
+                                    etp.Province = DataConvertHelper.GetProvinceFOpenBankName(etp.PayeeOpenBankName);
+                                if (etp.Province == ChinaProvinceType.B0)
+                                    etp.Province = DataConvertHelper.GetProvinceFOpenBankNameEx(etp.PayeeOpenBankName);
+                            }
+                        }
+                    }
+                }
+                if (!string.IsNullOrEmpty(etp.RemitAmount)) etp.RemitAmount = DataConvertHelper.FormatCash(etp.RemitAmount, etp.PaymentCashType == CashType.JPY).Replace(",", "");
+                if (!string.IsNullOrEmpty(etp.SpotAmount)) etp.SpotAmount = DataConvertHelper.FormatCash(etp.SpotAmount, etp.PaymentCashType == CashType.JPY).Replace(",", "");
+                if (!string.IsNullOrEmpty(etp.PurchaseAmount)) etp.PurchaseAmount = DataConvertHelper.FormatCash(etp.PurchaseAmount, etp.PaymentCashType == CashType.JPY).Replace(",", "");
+                if (!string.IsNullOrEmpty(etp.OtherAmount)) etp.OtherAmount = DataConvertHelper.FormatCash(etp.OtherAmount, etp.PaymentCashType == CashType.JPY).Replace(",", "");
+                if (!string.IsNullOrEmpty(etp.AmountF)) etp.AmountF = DataConvertHelper.FormatCash(etp.AmountF, etp.PaymentCashType == CashType.JPY).Replace(",", "");
+                if (!string.IsNullOrEmpty(etp.AmountS)) etp.AmountS = DataConvertHelper.FormatCash(etp.AmountS, etp.PaymentCashType == CashType.JPY).Replace(",", "");
+                list.Add(etp);
+            }
+
+            return list;
+        }
+
+        private static List<SpplyFinancingApply> MatchSpplyFinancingApplys(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<SpplyFinancingApply> list = new List<SpplyFinancingApply>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            SpplyFinancingApply sfa = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                sfa = new SpplyFinancingApply();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.ApplyofFranchiserFinancing)
+                    {
+                        if (MultiLanguageConvertHelper.SpplyFinancingApply_AgrementNo.Equals(fieldNames[findex]))
+                            sfa.AgreementNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_ApplyAmount.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex])) sfa.ApplyAmount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_ApplyDays.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex]))    sfa.ApplyDays = int.Parse(DataConvertHelper.FormatNum(data[dindex])); }
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_CashType.EndsWith(fieldNames[findex]))
+                            sfa.ContractOrOrderCashType = DataConvertHelper.GetCashType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_ContractOrOrderNo.EndsWith(fieldNames[findex]))
+                            sfa.ContractOrOrderNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_DeliveryDate.Equals(fieldNames[findex]))
+                            sfa.DeliveryDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_GoodsDesc.Equals(fieldNames[findex]))
+                            sfa.GoodsDesc = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_InterestFloatingPercent.Equals(fieldNames[findex]))
+                            sfa.InterestFloatingPercent = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_InterestFloatType.Equals(fieldNames[findex]))
+                            sfa.InterestFloatType = DataConvertHelper.GetInterestFloatType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_OrderAmount.Equals(fieldNames[findex]))
+                            sfa.ContractOrOrderAmount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", "");
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_OrderDate.Equals(fieldNames[findex]))
+                            sfa.OrderDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_ReceiptNo.Equals(fieldNames[findex]))
+                            sfa.ReceiptNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_RiskTakingLetterNo.Equals(fieldNames[findex]))
+                            sfa.RiskTakingLetterNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_SettlementType.Equals(fieldNames[findex]))
+                            sfa.SettlementType = DataConvertHelper.GetSettlementType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingApply_TaxInvoiceNo.Equals(fieldNames[findex]))
+                            sfa.TaxInvoiceNo = data[dindex];
+                        findex++;
+                        dindex++;
+                    }
+                }
+                list.Add(sfa);
+            }
+
+            return list;
+        }
+
+        private static List<SpplyFinancingOrder> MatchSpplyFinancingOrders(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<SpplyFinancingOrder> list = new List<SpplyFinancingOrder>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            SpplyFinancingOrder sfo = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                sfo = new SpplyFinancingOrder();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.PurchaserOrder
+                        || aft == AppliableFunctionType.SellerOrder
+                        || aft == AppliableFunctionType.PurchaserOrderMgr
+                        || aft == AppliableFunctionType.SellerOrderMgr)
+                    {
+                        if (MultiLanguageConvertHelper.SpplyFinancingOrder_OrderNo.Equals(fieldNames[findex]))
+                            sfo.OrderNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingOrder_Amount.Equals(fieldNames[findex])
+                            || MultiLanguageConvertHelper.SpplyFinancingOrderMgr_PayAmountForThisTime.Equals(fieldNames[findex]))
+                        { if (!string.IsNullOrEmpty(data[dindex])) sfo.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", ""); }
+                        else if (MultiLanguageConvertHelper.SpplyFinancingOrder_CashType.Equals(fieldNames[findex]))
+                            sfo.CashType = DataConvertHelper.GetCashType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerNo_Seller.Equals(fieldNames[findex]))
+                            sfo.CustomerApplyNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingOrder_ERPCode_Seller.Equals(fieldNames[findex]))
+                            sfo.ERPCode = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingOrder_PayDate_Seller.Equals(fieldNames[findex])
+                            || MultiLanguageConvertHelper.SpplyFinancingOrder_PayDate_Purchase.Equals(fieldNames[findex]))
+                            sfo.PayDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerName_Purchase.Equals(fieldNames[findex]))
+                            sfo.CustomerName = data[dindex];
+                    }
+                    findex++;
+                    dindex++;
+                }
+                list.Add(sfo);
+            }
+
+            return list;
+        }
+
+        private static List<SpplyFinancingBill> MatchSpplyFinancingBills(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<SpplyFinancingBill> list = new List<SpplyFinancingBill>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            SpplyFinancingBill sfb = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                sfb = new SpplyFinancingBill();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.BillofDebtReceivablePurchaser || aft == AppliableFunctionType.BillofDebtReceivableSeller)
+                    {
+                        if (MultiLanguageConvertHelper.SpplyFinancingBill_Amount.Equals(fieldNames[findex]))
+                        {
+                            if (!string.IsNullOrEmpty(data[dindex]))
+                                sfb.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", "");
+                        }
+                        else if (MultiLanguageConvertHelper.SpplyFinancingBill_BillDate.Equals(fieldNames[findex]))
+                            sfb.BillDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingBill_BillSerialNo.Equals(fieldNames[findex]))
+                            sfb.BillSerialNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingBill_CashType.Equals(fieldNames[findex]))
+                            sfb.CashType = DataConvertHelper.GetCashType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingBill_ContractNo.Equals(fieldNames[findex]))
+                            sfb.ContractNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingBill_CustomerName_Purchase.Equals(fieldNames[findex])
+                            || MultiLanguageConvertHelper.SpplyFinancingBill_CustomerName_Seller.Equals(fieldNames[findex]))
+                            sfb.CustomerName = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingBill_CustomerNo_Purchase.Equals(fieldNames[findex])
+                            || MultiLanguageConvertHelper.SpplyFinancingBill_CustomerNo_Seller.Equals(fieldNames[findex]))
+                            sfb.CustomerNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingBill_EndDate.Equals(fieldNames[findex]))
+                            sfb.EndDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingBill_StartDate.Equals(fieldNames[findex]))
+                            sfb.StartDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex]);
+                        findex++;
+                        dindex++;
+                    }
+                }
+                list.Add(sfb);
+            }
+
+            return list;
+        }
+
+        private static List<SpplyFinancingPayOrReceipt> MatchSpplyFinancingPayOrReceipts(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<SpplyFinancingPayOrReceipt> list = new List<SpplyFinancingPayOrReceipt>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            SpplyFinancingPayOrReceipt sfpr = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                sfpr = new SpplyFinancingPayOrReceipt();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.PaymentOrReceiptofDebtReceivablePurchaser)
+                    {
+                        if (MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_AmountThisTime.Equals(fieldNames[findex]))
+                        {
+                            if (!string.IsNullOrEmpty(data[dindex]))
+                                sfpr.PayAmountForThisTime = DataConvertHelper.FormatNum(data[dindex]).Replace(",", "");
+                        }
+                        else if (MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_BillSerialNo.Equals(fieldNames[findex]))
+                            sfpr.BillSerialNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CashType.Equals(fieldNames[findex]))
+                            sfpr.CashType = DataConvertHelper.GetCashType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CustomerName.Equals(fieldNames[findex]))
+                            sfpr.CustomerName = data[dindex];
+                        else if (MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CustomerNo.Equals(fieldNames[findex]))
+                            sfpr.CustomerNo = data[dindex];
+                        findex++;
+                        dindex++;
+                    }
+                }
+                list.Add(sfpr);
+            }
+
+            return list;
+        }
+
+        private static List<UnitivePaymentRMB> MatchUnitivePaymentRMB(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<UnitivePaymentRMB> list = new List<UnitivePaymentRMB>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            UnitivePaymentRMB sfpr = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                sfpr = new UnitivePaymentRMB();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.UnitivePaymentRMB)
+                    {
+                        if (MultiLanguageConvertHelper.UnitivePaymentRMB_Amount.Equals(fieldNames[findex]))
+                        {
+                            if (!string.IsNullOrEmpty(data[dindex]))
+                                sfpr.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", "");
+                        }
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_BankType.Equals(fieldNames[findex]))
+                            sfpr.BankType = DataConvertHelper.GetAccountBankTypeObject(data[dindex], aft);
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_CustomerBusinissNo.Equals(fieldNames[findex]))
+                            sfpr.CustomerBusinissNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_IsTipPayee.Equals(fieldNames[findex]))
+                            sfpr.IsTipPayee = DataConvertHelper.GetIsTipPayee(data[dindex]);
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_NominalPayerAccount.Equals(fieldNames[findex]))
+                            sfpr.NominalPayerAccount = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_NominalPayerName.Equals(fieldNames[findex]))
+                            sfpr.NominalPayerName = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_OrderPayDate.Equals(fieldNames[findex]))
+                        {
+                            if (!string.IsNullOrEmpty(data[dindex]))
+                            {
+                                string[] tl = data[dindex].Split(new string[] { " " }, StringSplitOptions.None);
+                                if (tl.Length >= 1) sfpr.OrderPayDate = DataConvertHelper.FormatDateTimeFromInt(tl[0].Trim()) + " ";
+                                if (tl.Length == 2) sfpr.OrderPayTime = DataConvertHelper.FormatTime(tl[1].Trim());
+                            }
+                        }
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeAccount.Equals(fieldNames[findex]))
+                            sfpr.PayeeAccount = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeCNAPS.Equals(fieldNames[findex]))
+                            sfpr.PayeeCNAPS = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeName.Equals(fieldNames[findex]))
+                            sfpr.PayeeName = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeOpenBankName.Equals(fieldNames[findex]))
+                            sfpr.PayeeOpenBankName = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_PayerAccount.Equals(fieldNames[findex]))
+                            sfpr.PayerAccount = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_PayerName.Equals(fieldNames[findex]))
+                            sfpr.PayerName = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_Purpose.Equals(fieldNames[findex]))
+                            sfpr.Purpose = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_TipPayeePhone.Equals(fieldNames[findex]))
+                            sfpr.TipPayeePhone = data[dindex];
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_TransferChanelType.Equals(fieldNames[findex]))
+                            sfpr.TransferChanelType = DataConvertHelper.GetTransferChanelType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.UnitivePaymentRMB_UnitivePaymentType.Equals(fieldNames[findex]))
+                            sfpr.UnitivePaymentType = DataConvertHelper.GetUnitivePaymentType(data[dindex]);
+                        findex++;
+                        dindex++;
+                    }
+                }
+                if (sfpr.BankType == AccountBankType.BocAccount)
+                    sfpr.PayeeCNAPS = string.Empty;
+                list.Add(sfpr);
+            }
+
+            return list;
+        }
+
+        private static List<object> MatchInitiativeAllots(AppliableFunctionType aft, List<List<string>> fields, BatchHeader batch)
+        {
+            List<object> list = new List<object>();
+            List<InitiativeAllot> anlist = new List<InitiativeAllot>();
+
+            Dictionary<string, string> dicbatch = SystemSettings.BatchMappingSettings[aft].BatchFieldsMappings;
+            Dictionary<string, string> dicsingal = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dicbatch.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            flist = new List<string>();
+            flist.AddRange(dicsingal.Keys);
+            InitiativeAllot an = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                an = new InitiativeAllot();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dicsingal[fieldname].ToString())) { findex++; continue; }
+                    if (AppliableFunctionType.InitiativeAllot == aft)
+                    {
+                        if (MultiLanguageConvertHelper.InitiativeAllot_AccountIn.Equals(fieldNames[findex]))
+                            an.AccountIn = data[dindex];
+                        else if (MultiLanguageConvertHelper.InitiativeAllot_AccountOut.Equals(fieldNames[findex]))
+                            an.AccountOut = data[dindex];
+                        else if (MultiLanguageConvertHelper.InitiativeAllot_Addition.Equals(fieldNames[findex]))
+                            an.Addition = data[dindex];
+                        else if (MultiLanguageConvertHelper.InitiativeAllot_Amount.Equals(fieldNames[findex]))
+                            an.Amount = DataConvertHelper.FormatNum(data[dindex]).Replace(",", "");
+                        else if (MultiLanguageConvertHelper.InitiativeAllot_CashType.Equals(fieldNames[findex]))
+                            an.CashType = DataConvertHelper.GetCashType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.InitiativeAllot_NameIn.Equals(fieldNames[findex]))
+                            an.NameIn = data[dindex];
+                        else if (MultiLanguageConvertHelper.InitiativeAllot_NameOut.Equals(fieldNames[findex]))
+                            an.NameOut = data[dindex];
+                    }
+                    findex++;
+                    dindex++;
+                }
+                anlist.Add(an);
+            }
+            list.Add(batch);
+            list.Add(anlist);
+
+            return list;
+        }
+
+        private static List<VirtualAccount> MatchVirtualAccount(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<VirtualAccount> list = new List<VirtualAccount>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            VirtualAccount sfpr = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                sfpr = new VirtualAccount();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.VirtualAccountTransfer)
+                    {
+                        if (MultiLanguageConvertHelper.Virtual_AccountOut.Equals(fieldNames[findex]))
+                            sfpr.AccountOut = data[dindex];
+                        else if (MultiLanguageConvertHelper.Virtual_NameOut.Equals(fieldNames[findex]))
+                            sfpr.NameOut = data[dindex];
+                        else if (MultiLanguageConvertHelper.Virtual_AccountIn.Equals(fieldNames[findex]))
+                            sfpr.AccountIn = data[dindex];
+                        else if (MultiLanguageConvertHelper.Virtual_NameIn.Equals(fieldNames[findex]))
+                            sfpr.NameIn = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Virtual_CashType.Equals(fieldNames[findex]))
+                            sfpr.CashType = DataConvertHelper.GetCashType(data[dindex].ToString());
+                        else if (MultiLanguageConvertHelper.Virtual_Amount.Equals(fieldNames[findex]))
+                            sfpr.Amount = data[dindex].Replace(",", "");
+                        else if (MultiLanguageConvertHelper.Virtual_Pursion.Equals(fieldNames[findex]))
+                            sfpr.Purpose = data[dindex];
+                        else if (MultiLanguageConvertHelper.Virtual_CustomerBusinissNo.Equals(fieldNames[findex]))
+                            sfpr.CustomerBusinissNo = data[dindex];
+                        findex++;
+                        dindex++;
+                    }
+                }
+                if (!string.IsNullOrEmpty(sfpr.Amount)) sfpr.Amount = DataConvertHelper.FormatCash(sfpr.Amount, sfpr.CashType == CashType.JPY).Replace(",", "");
+                list.Add(sfpr);
+            }
+
+            return list;
+        }
+
+        private static List<PayeeInfo> MatchPayee(FunctionInSettingType fst, List<List<string>> fields)
+        {
+            List<PayeeInfo> list = new List<PayeeInfo>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchSettingsMappingSettings[fst].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(fst);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            PayeeInfo payee = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                payee = new PayeeInfo();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (fst == FunctionInSettingType.PayeeMg)
+                    {
+                        if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Account.Equals(fieldNames[findex]))
+                            payee.Account = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Address.Equals(fieldNames[findex]))
+                            payee.Address = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_CertifyCardNo.Equals(fieldNames[findex]))
+                            payee.CertifyPaperNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_CertifyCardType.Equals(fieldNames[findex]))
+                            payee.CertifyPaperType = DataConvertHelper.GetPayeeCertifyPaperType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_ClearBankName.Equals(fieldNames[findex]))
+                            payee.ClearBankName = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Email.Equals(fieldNames[findex]))
+                            payee.Email = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Fax.Equals(fieldNames[findex]))
+                            payee.Fax = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Name.Equals(fieldNames[findex]))
+                            payee.Name = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_OpenBankName.Equals(fieldNames[findex]))
+                            payee.OpenBankName = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_SerialNo.Equals(fieldNames[findex]))
+                            payee.SerialNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Telephone.Equals(fieldNames[findex]))
+                            payee.Telephone = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Select_AccountType.Equals(fieldNames[findex]))
+                            payee.AccountType = DataConvertHelper.GetAccountCategoryTypeObject(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_BankType.Equals(fieldNames[findex]))
+                            payee.BankType = DataConvertHelper.GetAccountBankTypeObject(data[dindex], FunctionInSettingType.PayeeMg);
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_OpenBankNo.Equals(fieldNames[findex]))
+                            payee.CNAPSNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_ClearBankNo.Equals(fieldNames[findex]))
+                            payee.CNAPSNoR = data[dindex];
+                    }
+                    findex++;
+                    dindex++;
+                }
+                list.Add(payee);
+            }
+
+            return list;
+        }
+
+        static List<string> MatchTradeInfos(FunctionInSettingType fst, List<List<string>> fields, string separactor)
+        {
+            List<string> list = new List<string>();
+
+            try
+            {
+                int newblockIndex = 0;
+                for (int i = 0; i < fields.Count; i++)
+                {
+                    if (fields[i].Count == 1 && string.IsNullOrEmpty(fields[i][0]))
+                        newblockIndex = i + 1;
+                    else if (i == newblockIndex + 6)
+                    {
+                        fields[i].RemoveAt(13);
+                        fields[i].Insert(13, "借方发生额[ Debit Amount ]");
+                        fields[i].Insert(14, "贷方发生额[ Credit Amount ]");
+                    }
+                    else if (i > newblockIndex + 6)
+                    {
+                        string amount = fields[i][13];
+                        fields[i].RemoveAt(13);
+                        bool DCflag = !amount.Contains("-");
+                        while (fields[i].Count < fields[6].Count)
+                            fields[i].Add(string.Empty);
+                        fields[i].Insert(13, DCflag ? string.Empty : amount.Replace("-", ""));
+                        fields[i].Insert(14, DCflag ? amount.Replace("-", "") : string.Empty);
+                    }
+                    list.Add(CombeList(fields[i], separactor));
+                }
+            }
+            catch
+            {
+                list.Clear();
+            }
+            return list;
+        }
+
+        static string CombeList(List<string> fields, string separactor)
+        {
+            StringBuilder str = new StringBuilder();
+            foreach (var item in fields)
+            {
+                if (!string.IsNullOrEmpty(str.ToString())) str.Append(separactor);
+                str.Append(item);
+            }
+            return str.ToString();
+        }
+
+        private static List<UnitivePaymentForeignMoney> MatchUnitivePaymentForeignMoney(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<UnitivePaymentForeignMoney> list = new List<UnitivePaymentForeignMoney>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            UnitivePaymentForeignMoney etr = null;
+            try
+            {
+                foreach (List<string> data in fields)
+                {
+                    int findex = 0;
+                    int dindex = 0;
+                    etr = new UnitivePaymentForeignMoney();
+                    foreach (string fieldname in flist)
+                    {
+                        if (findex >= flist.Count) break;
+                        if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                        if (aft == AppliableFunctionType.UnitivePaymentFC)
+                        {
+                            if (MultiLanguageConvertHelper.UnitivePaymentFC_PayerAccount.Equals(fieldNames[findex]))
+                                etr.PayerAccount = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_PayerName.Equals(fieldNames[findex]))
+                                etr.PayerName = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerName.Equals(fieldNames[findex]))
+                                etr.NominalPayerName = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerAccount.Equals(fieldNames[findex]))
+                                etr.NominalPayerAccount = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_CashType.Equals(fieldNames[findex]))
+                                etr.CashType = DataConvertHelper.GetCashType(data[dindex].ToString());
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccount.Equals(fieldNames[findex]))
+                                etr.PayeeAccount = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_PayeeName.Equals(fieldNames[findex]))
+                                etr.PayeeName = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankName.Equals(fieldNames[findex]))
+                                etr.PayeeOpenBankName = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_OrgCode.Equals(fieldNames[findex]))
+                                etr.OrgCode = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_OpenBankAddress.Equals(fieldNames[findex]))
+                                etr.OpenBankAddress = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankSwiftCode.Equals(fieldNames[findex]))
+                                etr.PayeeOpenBankSwiftCode = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankName.Equals(fieldNames[findex]))
+                                etr.CorrespondentBankName = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankSwiftCode.Equals(fieldNames[findex]))
+                                etr.CorrespondentBankSwiftCode = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankAddress.Equals(fieldNames[findex]))
+                                etr.CorrespondentBankAddress = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccountInCorrespondentBank.Equals(fieldNames[findex]))
+                                etr.PayeeAccountInCorrespondentBank = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_Amount.Equals(fieldNames[findex]))
+                                etr.Amount = data[dindex].ToString().Replace(",", "");
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_Address.Equals(fieldNames[findex]))
+                                etr.Address = data[dindex].ToString();
+                            //else if (MultiLanguageConvertHelper.UnitivePaymentFC_AccountBankType.Equals(fieldNames[findex]))
+                            //    etr.PayeeOpenBankType = DataConvertHelper.GetAccountBankTypeObject(Convert.ToInt32(data[dindex].ToString()));
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_CustomerBusinissNo.Equals(fieldNames[findex]))
+                                etr.CustomerBusinissNo = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_Purpose.Equals(fieldNames[findex]))
+                                etr.Purpose = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_OrderPayDate.Equals(fieldNames[findex]))
+                                etr.OrderPayDate = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_Addtion.Equals(fieldNames[findex]))
+                                etr.Addtion = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_CodeofCountry.Equals(fieldNames[findex]))
+                                etr.CodeofCountry = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_IsNoSavePay.Equals(fieldNames[findex]))
+                                etr.IsImportCancelAfterVerificationType = DataConvertHelper.GetIsImportCancelAfterVerificationType(data[dindex].ToString());
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_UnitivePaymentType.Equals(fieldNames[findex]))
+                                etr.UnitivePaymentType = DataConvertHelper.GetPayFeeType(data[dindex].ToString());
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_PaymentNature.Equals(fieldNames[findex]))
+                                etr.PaymentNature = DataConvertHelper.GetPaymentPropertyType(data[dindex].ToString());
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode1.Equals(fieldNames[findex]))
+                                etr.TransactionCode1 = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode2.Equals(fieldNames[findex]))
+                                etr.TransactionCode2 = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1.Equals(fieldNames[findex]))
+                                etr.IPPSMoneyTypeAmount1 = data[dindex].ToString().Replace(",", "");
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2.Equals(fieldNames[findex]))
+                                etr.IPPSMoneyTypeAmount2 = data[dindex].ToString().Replace(",", "");
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion1.Equals(fieldNames[findex]))
+                                etr.TransactionAddtion1 = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion2.Equals(fieldNames[findex]))
+                                etr.TransactionAddtion2 = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_IsPayOffLineString.Equals(fieldNames[findex]))
+                                etr.IsPayOffLine = data[dindex].ToString() == "是" ? true : false;
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_ContractNo.Equals(fieldNames[findex]))
+                                etr.ContractNo = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_InvoiceNo.Equals(fieldNames[findex]))
+                                etr.InvoiceNo = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_BatchNoOrTNoOrSerialNo.Equals(fieldNames[findex]))
+                                etr.BatchNoOrTNoOrSerialNo = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_ApplicantName.Equals(fieldNames[findex]))
+                                etr.ApplicantName = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_Contactnumber.Equals(fieldNames[findex]))
+                                etr.Contactnumber = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_SendPriority.Equals(fieldNames[findex]))
+                                etr.SendPriority = DataConvertHelper.GetTransferChanelType(data[dindex].ToString());
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_realPayAddress.Equals(fieldNames[findex]))
+                                etr.realPayAddress = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerAddress.Equals(fieldNames[findex]))
+                                etr.NominalPayerAddress = data[dindex].ToString();
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_PaymentCountryOrArea.Equals(fieldNames[findex]))
+                                etr.PaymentCountryOrArea = DataConvertHelper.GetTransfer2CountryType(data[dindex].ToString());
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccountType.Equals(fieldNames[findex]))
+                                etr.PayeeAccountType = DataConvertHelper.GetOverCountryPayeeAccountTypeObject(Convert.ToInt32(data[dindex].ToString()));
+                            else if (MultiLanguageConvertHelper.UnitivePaymentFC_FCPayeeAccountType.Equals(fieldNames[findex]))
+                                etr.FCPayeeAccountType = DataConvertHelper.GetUnitiveFCPayeeAccountType(data[dindex].ToString());
+                            else if (MultiLanguageConvertHelper.TransferGlobal_AssumeFeeType.Equals(fieldNames[findex]))
+                                etr.AssumeFeeType = DataConvertHelper.GetAssumeFeeType(data[dindex]);
+
+                            findex++;
+                            dindex++;
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(etr.Amount)) etr.Amount = DataConvertHelper.FormatCash(etr.Amount, etr.CashType == CashType.JPY).Replace(",", "");
+                    if (!string.IsNullOrEmpty(etr.IPPSMoneyTypeAmount1)) etr.IPPSMoneyTypeAmount1 = DataConvertHelper.FormatCash(etr.IPPSMoneyTypeAmount1, etr.CashType == CashType.JPY).Replace(",", "");
+                    if (!string.IsNullOrEmpty(etr.IPPSMoneyTypeAmount2)) etr.IPPSMoneyTypeAmount2 = DataConvertHelper.FormatCash(etr.IPPSMoneyTypeAmount2, etr.CashType == CashType.JPY).Replace(",", "");
+
+                    list.Add(etr);
+                }
+            }
+            catch { }
+
+
+            return list;
+        }
+
+        private static List<PreproccessTransfer> MatchPreproccessTransfer(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<PreproccessTransfer> list = new List<PreproccessTransfer>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            PreproccessTransfer sfpr = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                sfpr = new PreproccessTransfer();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.PreproccessTransfer)
+                    {
+                        if (MultiLanguageConvertHelper.Preproccess_BatchTradeSerialNo.Equals(fieldNames[findex]))
+                            sfpr.BatchTradeSerialNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.Preproccess_CashType.Equals(fieldNames[findex]))
+                            sfpr.CashType = DataConvertHelper.GetCashType(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Preproccess_Content.Equals(fieldNames[findex]))
+                            sfpr.Content = data[dindex];
+                        else if (MultiLanguageConvertHelper.Preproccess_InvolvedAccount.Equals(fieldNames[findex]))
+                            sfpr.InvolvedAccount = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.Preproccess_InvolvedName.Equals(fieldNames[findex]))
+                            sfpr.InvolvedName = data[dindex];
+                        else if (MultiLanguageConvertHelper.Preproccess_MainAccount.Equals(fieldNames[findex]))
+                            sfpr.MainAccount = data[dindex];
+                        else if (MultiLanguageConvertHelper.Preproccess_PreproccessAccount.Equals(fieldNames[findex]))
+                            sfpr.PreproccessAccount = data[dindex];
+                        else if (MultiLanguageConvertHelper.Preproccess_PreproccessAmount.Equals(fieldNames[findex]))
+                            sfpr.PreproccessAmount = data[dindex].Replace(",", "");
+                        else if (MultiLanguageConvertHelper.Preproccess_PreproccessName.Equals(fieldNames[findex]))
+                            sfpr.PreproccessName = data[dindex];
+                        else if (MultiLanguageConvertHelper.Preproccess_TradeAmount.Equals(fieldNames[findex]))
+                            sfpr.Amount = data[dindex].Replace(",", "");
+                        else if (MultiLanguageConvertHelper.Preproccess_TradeDate.Equals(fieldNames[findex]))
+                            sfpr.TradeDate = DataConvertHelper.FormatDateTimeFromInt(data[dindex]).Replace("/", "");
+                        else if (MultiLanguageConvertHelper.Preproccess_TradeSerialNo.Equals(fieldNames[findex]))
+                            sfpr.TradeSerialNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.Preproccess_VirtualAccount.Equals(fieldNames[findex]))
+                            sfpr.VirtualAccount = data[dindex];
+                        findex++;
+                        dindex++;
+                    }
+                }
+                if (!string.IsNullOrEmpty(sfpr.PreproccessAmount)) sfpr.PreproccessAmount = DataConvertHelper.FormatCash(sfpr.PreproccessAmount, sfpr.CashType == CashType.JPY).Replace(",", "");
+                list.Add(sfpr);
+            }
+
+            return list;
+        }
+
+        private static List<BatchReimbursement> MatchBatchReimbursement(AppliableFunctionType aft, List<List<string>> fields)
+        {
+            List<BatchReimbursement> list = new List<BatchReimbursement>();
+
+            Dictionary<string, string> dic = SystemSettings.BatchMappingSettings[aft].FieldsMappings;
+            List<string> flist = new List<string>();
+            flist.AddRange(dic.Keys);
+            MappingsRelationSettings mrs = SystemInit.GetMappingRelation(aft);
+            string[] fieldNames = new string[mrs.FieldsMappings.Count];
+            mrs.FieldsMappings.Keys.CopyTo(fieldNames, 0);
+
+            BatchReimbursement sfpr = null;
+            foreach (List<string> data in fields)
+            {
+                int findex = 0;
+                int dindex = 0;
+                sfpr = new BatchReimbursement();
+                foreach (string fieldname in flist)
+                {
+                    if (findex >= flist.Count) break;
+                    if (string.IsNullOrEmpty(dic[fieldname].ToString())) { findex++; continue; }
+                    if (aft == AppliableFunctionType.BatchReimbursement)
+                    {
+                        if (MultiLanguageConvertHelper.BatchReimbursement_CardNo.Equals(fieldNames[findex]))
+                            sfpr.CardNo = data[dindex];
+                        else if (MultiLanguageConvertHelper.BatchReimbursement_PayAmount.Equals(fieldNames[findex]))
+                            sfpr.PayAmount = data[dindex].Replace(",", "");
+                        else if (MultiLanguageConvertHelper.BatchReimbursement_PayDateTime.Equals(fieldNames[findex]))
+                            sfpr.PayDateTime = DataConvertHelper.FormatDateTimeFromInt(data[dindex]);
+                        else if (MultiLanguageConvertHelper.BatchReimbursement_PayPassword.Equals(fieldNames[findex]))
+                            sfpr.PayPassword = DataConvertHelper.FormatNum(data[dindex]);
+                        else if (MultiLanguageConvertHelper.BatchReimbursement_ReimburseAmount.Equals(fieldNames[findex]))
+                            sfpr.ReimburseAmount = data[dindex].Replace(",", "");
+                        else if (MultiLanguageConvertHelper.BatchReimbursement_Usage.Equals(fieldNames[findex]))
+                            sfpr.Usage = data[dindex];
+                        findex++;
+                        dindex++;
+                    }
+                }
+                if (!string.IsNullOrEmpty(sfpr.PayAmount)) sfpr.PayAmount = DataConvertHelper.FormatCash(sfpr.PayAmount, false).Replace(",", "");
+                if (!string.IsNullOrEmpty(sfpr.ReimburseAmount)) sfpr.ReimburseAmount = DataConvertHelper.FormatCash(sfpr.ReimburseAmount, false).Replace(",", "");
+                list.Add(sfpr);
+            }
+
+            return list;
+        }
+        #endregion
+
+        #region 数据校验
+        /// <summary>
+        /// 弱校验
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="aft"></param>
+        /// <returns></returns>
+        public static string CheckDataAvilidLow(object list, AppliableFunctionType aft)
+        {
+            int count = 1;
+            string result = string.Empty;
+            ResultData rd;
+            if (AppliableFunctionType.TransferOverBankIn == aft
+                || AppliableFunctionType.TransferOverBankOut == aft
+                || AppliableFunctionType.TransferWithCorp == aft
+                || AppliableFunctionType.TransferWithIndiv == aft)
+            {
+                #region
+                List<TransferAccount> dataList = list as List<TransferAccount>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.PayerAccount))
+                    {
+                        if ((aft == AppliableFunctionType.TransferWithIndiv || aft == AppliableFunctionType.TransferWithCorp) && (SystemSettings.CurrentVersion & VersionType.v405) == VersionType.v405)
+                        {
+                            rd = DataCheckCenter.CheckAgrementNoEx(null, data.PayerAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_Mappings_PayerAccount : MultiLanguageConvertHelper.Transfer_Mappings_PayeeAccount); break; }
+                        }
+                        else
+                        {
+                            rd = DataCheckCenter.CheckPayerAccount(null, data.PayerAccount, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_Mappings_PayerAccount : MultiLanguageConvertHelper.Transfer_Mappings_PayeeAccount); break; }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeAccount))
+                    {
+                        rd = DataCheckCenter.CheckPayeeAccount(null, data.PayeeAccount, "收/付款人账号", null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_Mappings_PayerAccount : MultiLanguageConvertHelper.Transfer_Mappings_PayeeAccount); break; }
+                    }
+                    if (aft == AppliableFunctionType.TransferWithCorp
+                        || aft == AppliableFunctionType.TransferWithIndiv
+                        || aft == AppliableFunctionType.TransferOverBankIn)
+                    {
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBank))
+                        {
+                            if (data.AccountBankType == AccountBankType.OtherBankAccount)
+                            {
+                                rd = DataCheckCenter.CheckOpenBankName(null, data.PayeeOpenBank, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.TransferWithIndiv || aft == AppliableFunctionType.TransferWithCorp ? MultiLanguageConvertHelper.Transfer_Mappings_PayeeOpenBankName : MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayeeBankName); break; }
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeName))
+                    {
+                        rd = DataCheckCenter.CheckPayeeOrElecTicketPersonName(null, data.PayeeName, "", aft == AppliableFunctionType.TransferOverBankIn ? 70 : 76, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_Mappings_PayeeName : MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayerName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayAmount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.PayAmount, "", 15, false, null);
+                        if (!rd.Result)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_Amount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayFeeNo))
+                    {
+                        if ((aft == AppliableFunctionType.TransferWithIndiv || aft == AppliableFunctionType.TransferWithCorp) && (SystemSettings.CurrentVersion & VersionType.v405) == VersionType.v405)
+                        {
+                            rd = DataCheckCenter.CheckAgrementNoEx(null, data.PayerAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_Mappings_PayerAccount : MultiLanguageConvertHelper.Transfer_Mappings_PayeeAccount); break; }
+                        }
+                        else
+                        {
+                            rd = DataCheckCenter.CheckPayFeeNo(null, data.PayFeeNo, false, null);
+                            if (!rd.Result)
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_PayFeeAccount); break; }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayDatetime))
+                    {
+                        rd = DataCheckCenter.CheckPayDatetime(null, data.PayDatetime, null);
+                        if (!rd.Result)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_Mappings_PayDate : MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayDateTime); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Addition))
+                    {
+                        rd = DataCheckCenter.CheckAddtion(null, data.Addition, null);
+                        if (!rd.Result)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_Addtion); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Email))
+                    {
+                        rd = DataCheckCenter.CheckEmail(null, data.Email, null);
+                        if (!rd.Result)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_Email); break; }
+                    }
+                    if (AppliableFunctionType.TransferOverBankOut == aft)
+                    {
+                        if (!string.IsNullOrEmpty(data.PayBankNo))
+                        {
+                            rd = DataCheckCenter.CheckClearBankNo(null, data.PayBankNo, null);
+                            if (!rd.Result)
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayeeClearBankNo); break; }
+                        }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.AgentExpressIn == aft
+                || AppliableFunctionType.AgentExpressOut == aft
+                || AppliableFunctionType.AgentExpressOut4Bar == aft)
+            {
+                #region
+                List<object> temp = list as List<object>;
+                BatchHeader batch = temp[0] as BatchHeader;
+                List<AgentExpress> dataList = temp[1] as List<AgentExpress>;
+
+                #region 检验批信息
+                //ResultData rd = DataCheckCenter.CheckCustomerReferenceNo(batch.ProtecolNo);
+                //if (!rd.Result) { return "批信息中数据格式有误"; }
+                //rd = DataCheckCenter.CheckPayerAccount(batch.Payer.Account);
+                //if (!rd.Result) { return "批信息中数据格式有误"; }
+                //rd = DataCheckCenter.CheckPayDatetime(batch.TransferDatetime);
+                //if (!rd.Result) { return "批信息中数据格式有误"; }
+                //rd = DataCheckCenter.CheckAddtion(batch.Addtion, 80);
+                //if (!rd.Result) { return "批信息中数据格式有误"; }
+                //if (AppliableFunctionType.AgentNormalOut == aft)
+                //{
+                //    rd = DataCheckCenter.CheckLinkBankNo(batch.BankNo);
+                //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                //}
+                //else if (AppliableFunctionType.AgentNormalIn == aft)
+                //{
+                //    rd = DataCheckCenter.CheckUseType(batch.UseType);
+                //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                //}
+                #endregion
+
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.AccountNo))
+                    {
+                        rd = DataCheckCenter.CheckPayeeAccount(null, data.AccountNo, "收/付款人账号", null);
+                        if (!rd.Result)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.AgentExpressOut || aft == AppliableFunctionType.AgentExpressOut4Bar ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeAccount : MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.AccountName))
+                    {
+                        rd = DataCheckCenter.CheckPayeeOrElecTicketPersonName(null, data.AccountName, "", 58, null);
+                        if (!rd.Result)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.AgentExpressOut || aft == AppliableFunctionType.AgentExpressOut4Bar ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeName : MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Amount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.Amount.Trim(), "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.AgentExpressOut || aft == AppliableFunctionType.AgentExpressOut4Bar ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_Amount : MultiLanguageConvertHelper.AgentExpressIn_Mappings_Amount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.BankNo))
+                    {
+                        if (batch.BankType == AgentTransferBankType.Boc)
+                        {
+                            rd = DataCheckCenter.CheckProvince(null, data.BankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.AgentExpressOut || aft == AppliableFunctionType.AgentExpressOut4Bar ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeAccountProvince : MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerAccountProvince); break; }
+                        }
+                        else if (batch.BankType == AgentTransferBankType.Other)
+                        {
+                            rd = DataCheckCenter.CheckCNAPSNo(null, data.BankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.AgentExpressIn ? MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerOpenBankNo : MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankNo); break; }
+                        }
+                    }
+                    if (aft == AppliableFunctionType.AgentExpressIn)
+                    {
+                        if (!string.IsNullOrEmpty(data.ProtecolNo))
+                        {
+                            rd = DataCheckCenter.CheckProtecolNo(null, data.ProtecolNo, "", 60, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressIn_Mappings_SerialNo); break; }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(data.Bar_Addition))
+                    {
+                        rd = DataCheckCenter.CheckLength(null, data.Bar_Addition, "", 80, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressOut_Mappings_Bar_Addition); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.AgentNormalIn == aft
+                || AppliableFunctionType.AgentNormalOut == aft)
+            {
+                #region
+                List<object> temp = list as List<object>;
+                BatchHeader batch = temp[0] as BatchHeader;
+                List<AgentNormal> dataList = temp[1] as List<AgentNormal>;
+                bool isIn = aft == AppliableFunctionType.AgentNormalIn;
+
+                #region 检验批信息
+                //ResultData rd = DataCheckCenter.CheckCustomerReferenceNo(batch.ProtecolNo);
+                //if (!rd.Result) { return "批信息中数据格式有误"; }
+                //rd = DataCheckCenter.CheckPayerAccount(batch.Payer.Account);
+                //if (!rd.Result) { return "批信息中数据格式有误"; }
+                //rd = DataCheckCenter.CheckAgentCardType(batch.CardType_Normal);
+                //if (!rd.Result) { return "批信息中数据格式有误"; }
+                //rd = DataCheckCenter.CheckAddtion(batch.Addtion, 80);
+                //if (!rd.Result) { return "批信息中数据格式有误"; }
+                //rd = DataCheckCenter.CheckPayFeeNo(batch.PayFeeNo, false);
+                //if (!rd.Result) { return "批信息中数据格式有误"; }
+                //if (AppliableFunctionType.AgentNormalOut == aft)
+                //{
+                //    rd = DataCheckCenter.CheckUseType(batch.UseType, true);
+                //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                //    rd = DataCheckCenter.CheckPayDatetime(batch.TransferDatetime);
+                //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                //}
+                //else if (AppliableFunctionType.AgentNormalIn == aft)
+                //{
+                //    rd = DataCheckCenter.CheckLinkBankNo(batch.BankNo);
+                //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                //    rd = DataCheckCenter.CheckAgentCardType(batch.CardType_Normal);
+                //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                //    rd = DataCheckCenter.CheckUseType(batch.UseType, false);
+                //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                //}
+                #endregion
+
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.BankNo))
+                    {
+                        if (batch.CardType == AgentCardType.OtherBankCard)
+                        {
+                            rd = DataCheckCenter.CheckCNAPSNo(null, data.BankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.AgentNormalOut ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_BankLinkNoOrCNAPSNo : MultiLanguageConvertHelper.AgentNormalIn_Mappings_BankLinkNoOrCNAPSNo); break; }
+                        }
+                        else
+                        {
+                            rd = DataCheckCenter.CheckLinkBankNo(null, data.BankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.AgentNormalOut ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_BankLinkNoOrCNAPSNo : MultiLanguageConvertHelper.AgentNormalIn_Mappings_BankLinkNoOrCNAPSNo); break; }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(data.AccountNo))
+                    {
+                        rd = DataCheckCenter.CheckPayeeOrElecTicketPersonName(null, data.AccountNo, "", isIn ? 30 : 20, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.AgentNormalOut ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeAccount : MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.AccountName))
+                    {
+                        rd = DataCheckCenter.CheckPayeeName(null, data.AccountName, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.AgentNormalOut ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeName : MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Amount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.Amount, "", 14, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.AgentNormalOut ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_Amount : MultiLanguageConvertHelper.AgentNormalIn_Mappings_Amount); break; }
+                    }
+                    if (isIn && !string.IsNullOrEmpty(data.UseType_In))
+                    {
+                        rd = DataCheckCenter.CheckAddtion(null, data.UseType_In, 60, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentNormalIn_Mappings_Usege); break; }
+                    }
+                    else if (!isIn)
+                    {
+                        if (data.UseType != AgentNormalFunctionType.Empty)
+                        {
+                            if (string.IsNullOrEmpty(data.UseTypeString)) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentNormalOut_Mappings_Usege); break; }
+                            else if (!string.IsNullOrEmpty(data.UseTypeString))
+                            {
+                                if (batch.UseType.Equals("0") && data.UseType != AgentNormalFunctionType.A10) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentNormalOut_Mappings_Usege); break; }
+                                else if (batch.UseType.Equals("1") && (data.UseType == AgentNormalFunctionType.A10)) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentNormalOut_Mappings_Usege); break; }
+                            }
+                        }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.ElecTicketRemit == aft)
+            {
+                #region
+                List<ElecTicketRemit> dataList = list as List<ElecTicketRemit>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.Amount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.Amount, "", 18, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_Amount); break; }
+                    } if (!string.IsNullOrEmpty(data.RemitDate))
+                    {
+                        rd = DataCheckCenter.CheckPayDatetime(null, data.RemitDate, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_RemitDate); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.EndDate) && !string.IsNullOrEmpty(data.RemitDate))
+                    {
+                        rd = DataCheckCenter.CheckEndDatetime(null, data.EndDate, data.RemitDate, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_EndDate, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_EndDate); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ExchangeAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.ExchangeAccount, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ExchangeName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeName, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ExchangeOpenBankName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeOpenBankName, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeOpenBankName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ExchangeOpenBankNo))
+                    {
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.ExchangeOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeOpenBankNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Note))
+                    {
+                        rd = DataCheckCenter.CheckAddtion(null, data.Note, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_Note, 256, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_Note); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.PayeeAccount, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.PayeeName, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeOpenBankName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.PayeeOpenBankName, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeOpenBankName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeOpenBankNo))
+                    {
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.PayeeOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeOpenBankNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.RemitAccount, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_RemitAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_RemitAccount); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.ElecTicketBackNote == aft)
+            {
+                #region
+                List<ElecTicketBackNote> dataList = list as List<ElecTicketBackNote>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.BackNotedAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.BackNotedAccount, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.BackNotedName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.BackNotedName, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.BackNotedOpenBankName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.BackNotedOpenBankName, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedOpenBankName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.BackNotedOpenBankNo))
+                    {
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.BackNotedOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedOpenBankNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ElecTicketSerialNo))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketSerialNo(null, data.ElecTicketSerialNo, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_TicketSerialNo, 30, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_TicketSerialNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Note))
+                    {
+                        rd = DataCheckCenter.CheckAddtion(null, data.Note, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_Note, 256, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_Note); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.RemitAccount, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_Account, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_Account); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.ElecTicketPayMoney == aft)
+            {
+                #region
+                List<ElecTicketPayMoney> dataList = list as List<ElecTicketPayMoney>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.BillSerialNo))
+                    {
+                        rd = DataCheckCenter.CheckBillSerialNo(null, data.BillSerialNo, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_BillSerialNo, 60, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_BillSerialNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ContractNo))
+                    {
+                        rd = DataCheckCenter.CheckContractNo(null, data.ContractNo, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ContactNo, 60, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ContactNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ElecTicketSerialNo))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketSerialNo(null, data.ElecTicketSerialNo, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_TicketSerialNo, 30, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_TicketSerialNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Note))
+                    {
+                        rd = DataCheckCenter.CheckAddtion(null, data.Note, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Note, 512, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Note); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayMoneyAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.PayMoneyAccount, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayMoneyOpenBankName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.PayMoneyOpenBankName, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyOpenBankName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayMoneyOpenBankNo))
+                    {
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.PayMoneyOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyOpenBankNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayMoneyDate))
+                    {
+                        rd = DataCheckCenter.CheckPayDatetime(null, data.PayMoneyDate, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayDate, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayDate); break; }
+                    }
+                    if (data.PayMoneyPercent != 0d)
+                    {
+                        rd = DataCheckCenter.CheckPayMoneyPercent(null, data.PayMoneyPercent.ToString(), MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyPercent, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyPercent); break; }
+                    }
+                    if (data.ProtocolMoneyPercent != 0d)
+                    {
+                        rd = DataCheckCenter.CheckProtocolPercent(null, data.ProtocolMoneyPercent.ToString(), MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ProtocolMoneyPercent, null, false);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ProtocolMoneyPercent); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.RemitAccount, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Account, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Account); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.StickOnAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.StickOnAccount, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.StickOnName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.StickOnName, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.StickOnOpenBankName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.StickOnOpenBankName, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnOpenBankName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.StickOnOpenBankNo))
+                    {
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.StickOnOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnOpenBankNo); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.ElecTicketTipExchange == aft)
+            {
+                #region
+                List<ElecTicketAutoTipExchange> dataList = list as List<ElecTicketAutoTipExchange>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.BillSerialNo))
+                    {
+                        rd = DataCheckCenter.CheckBillSerialNo(null, data.BillSerialNo, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_BillSerialNo, 60, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_BillSerialNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ContractNo))
+                    {
+                        rd = DataCheckCenter.CheckContractNo(null, data.ContractNo, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ContactNo, 60, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ContactNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ElecTicketSerialNo))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketSerialNo(null, data.ElecTicketSerialNo, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_TicketSerialNo, 30, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_TicketSerialNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ExchangeAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.ExchangeAccount, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ExchangeName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeName, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ExchangeOpenBankName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeOpenBankName, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeOpenBankName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ExchangeOpenBankNo))
+                    {
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.ExchangeOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeOpenBankNo_RegexDescription); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Note))
+                    {
+                        rd = DataCheckCenter.CheckAddtion(null, data.Note, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_Note, 512, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_Note); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.RemitAccount, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_Account, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_Account); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.ElecTicketPool == aft)
+            {
+                #region
+                List<ElecTicketPool> dataList = list as List<ElecTicketPool>;
+                foreach (var data in dataList)
+                {
+                    //if (string.IsNullOrEmpty(data.ElecTicketTypeString))
+                    //{ result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                    if (!string.IsNullOrEmpty(data.CustomerRef))
+                    {
+                        rd = DataCheckCenter.CheckCustomerRefNo(null, data.CustomerRef, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_CustomerRef); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ElecTicketSerialNo))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketSerialNo(null, data.ElecTicketSerialNo, MultiLanguageConvertHelper.ElecTicketPool_ElecTicketSerialNo, 30, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ElecTicketSerialNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitDate))
+                    {
+                        try { DateTime.Parse(data.RemitDate); }
+                        catch { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_RemitDate); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ExchangeDate))
+                    {
+                        try { DateTime.Parse(data.ExchangeDate); }
+                        catch { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeDate); break; }
+                        if (!string.IsNullOrEmpty(data.RemitDate) && DateTime.Parse(data.RemitDate).Date > DateTime.Parse(data.ExchangeDate).Date)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeDate); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.EndDate))
+                    {
+                        try { DateTime.Parse(data.EndDate); }
+                        catch { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_EndDate); break; }
+                        if (!string.IsNullOrEmpty(data.RemitDate) && DateTime.Parse(data.RemitDate).Date > DateTime.Parse(data.EndDate).Date)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_EndDate); break; }
+                        if (!string.IsNullOrEmpty(data.ExchangeDate) && DateTime.Parse(data.ExchangeDate).Date > DateTime.Parse(data.EndDate).Date)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_EndDate); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Amount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.Amount, "", 16, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_Amount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.RemitAccount, MultiLanguageConvertHelper.ElecTicketPool_RemitAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_RemitAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.RemitName, MultiLanguageConvertHelper.ElecTicketPool_RemitName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_RemitName); break; }
+                    }
+                    if (data.ElecTicketType == ElecTicketType.AC01)
+                    {
+                        if (!string.IsNullOrEmpty(data.ExchangeName))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeName, MultiLanguageConvertHelper.ElecTicketPool_ExchangeBankName, 120, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeBankName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ExchangeBankNo))
+                        {
+                            rd = DataCheckCenter.CheckCNAPSNo(null, data.ExchangeBankNo, MultiLanguageConvertHelper.ElecTicketPool_ExchangeBankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeBankNo); break; }
+                        }
+                    }
+                    else if (data.ElecTicketType == ElecTicketType.AC02)
+                    {
+                        if (!string.IsNullOrEmpty(data.ExchangeAccount))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.ExchangeAccount, MultiLanguageConvertHelper.ElecTicketPool_ExchangeAccount, 32, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeAccount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ExchangeName))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeName, MultiLanguageConvertHelper.ElecTicketPool_ExchangeName, 120, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ExchangeBankNo))
+                        {
+                            rd = DataCheckCenter.CheckCNAPSNo(null, data.ExchangeBankNo, MultiLanguageConvertHelper.ElecTicketPool_ExchangeOpenBankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeOpenBankNo); break; }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.PayeeAccount, MultiLanguageConvertHelper.ElecTicketPool_PayeeAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_PayeeAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.PayeeName, MultiLanguageConvertHelper.ElecTicketPool_PayeeName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_PayeeName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeOpenBankName))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.PayeeOpenBankName, MultiLanguageConvertHelper.ElecTicketPool_PayeeOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_PayeeOpenBankName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeOpenBankNo))
+                    {
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.PayeeOpenBankNo, MultiLanguageConvertHelper.ElecTicketPool_PayeeOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_PayeeOpenBankNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PreBackNotedPerson))
+                    {
+                        rd = DataCheckCenter.CheckPreBackNotedPerson(null, data.PreBackNotedPerson, MultiLanguageConvertHelper.ElecTicketPool_PreBackNotedPerson, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_PreBackNotedPerson); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.BusinessTypeString))
+                    {
+                        if (data.BusinessType != ElecTicketPoolBusinessType.InPool2Struste && data.ElecTicketType == ElecTicketType.AC02)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_BusinessType); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.TransferOverCountry == aft
+                || AppliableFunctionType.TransferForeignMoney == aft
+                || AppliableFunctionType.TransferForeignMoney4Bar == aft
+                || AppliableFunctionType.TransferOverCountry4Bar == aft)
+            {
+                #region
+                List<TransferGlobal> dataList = list as List<TransferGlobal>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.PayDate))
+                    {
+                        rd = DataCheckCenter.CheckPayDatetime(null, data.PayDate, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayDate); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.CustomerRef))
+                    {
+                        rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerRef, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CutomerRef); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitAmount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.RemitAmount, "", 15, data.PaymentCashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitAmount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.SpotAccount))
+                    {
+                        rd = DataCheckCenter.CheckPayerAccount(null, data.SpotAccount, MultiLanguageConvertHelper.TransferGlobal_SpotAccount, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_SpotAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.SpotAmount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.SpotAmount.ToString(), "", 15, data.PaymentCashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_SpotAmount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PurchaseAccount))
+                    {
+                        rd = DataCheckCenter.CheckPayerAccount(null, data.PurchaseAccount, MultiLanguageConvertHelper.TransferGlobal_PurchaseAccount, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PurchaseAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PurchaseAmount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.PurchaseAmount.ToString(), "", 15, data.PaymentCashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PurchaseAmount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.OtherAccount))
+                    {
+                        rd = DataCheckCenter.CheckPayerAccount(null, data.OtherAccount, MultiLanguageConvertHelper.TransferGlobal_OtherAccount, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_OtherAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.OtherAmount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.OtherAmount.ToString(), "", 15, data.PaymentCashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_OtherAmount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.OrgCode) && !data.Equals("-"))
+                    {
+                        rd = DataCheckCenter.CheckOrgCode(null, data.OrgCode, MultiLanguageConvertHelper.TransferGlobal_OrgCode, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_OrgCode); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitName))
+                    {
+                        rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.RemitName, MultiLanguageConvertHelper.TransferGlobal_RemitName, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitAddress))
+                    {
+                        rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.RemitAddress, MultiLanguageConvertHelper.TransferGlobal_RemitAddress, aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.OtherBankAccount ? 64 : 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitAddress); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeOpenBankSwiftCode))
+                    {
+                        rd = DataCheckCenter.CheckSwiftCode(null, data.PayeeOpenBankSwiftCode, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankSwiftCode, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankSwiftCode); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.CorrespondentBankSwiftCode))
+                    {
+                        rd = DataCheckCenter.CheckSwiftCode(null, data.CorrespondentBankSwiftCode, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankSwiftCode, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankSwiftCode); break; }
+                    }
+                    if (aft == AppliableFunctionType.TransferOverCountry4Bar)
+                    {
+                        if (!string.IsNullOrEmpty(data.RemitAddress + data.RemitName))
+                        {
+
+                        }
+                        rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.RemitAddress, data.RemitName, MultiLanguageConvertHelper.TransferGlobal_RemitAddress, MultiLanguageConvertHelper.TransferGlobal_RemitName, 140, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitAddress + "和" + MultiLanguageConvertHelper.TransferGlobal_RemitName); break; }
+                    }
+                    if (aft == AppliableFunctionType.TransferOverCountry
+                        || aft == AppliableFunctionType.TransferOverCountry4Bar)
+                    {
+                        if (!string.IsNullOrEmpty(data.PayeeAccount))
+                        {
+                            rd = DataCheckCenter.CheckPayeeAccountGJ(null, data.PayeeAccount, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount, 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeName, MultiLanguageConvertHelper.TransferGlobal_PayeeName, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeAddress))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeAddress, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeName) || !string.IsNullOrEmpty(data.PayeeAddress))
+                        {
+                            rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.PayeeName, data.PayeeAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeName, MultiLanguageConvertHelper.TransferGlobal_PayeeAddress, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeName + "和" + MultiLanguageConvertHelper.TransferGlobal_PayeeAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeOpenBankName, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankAddress))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeOpenBankAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankName) || !string.IsNullOrEmpty(data.PayeeOpenBankAddress))
+                        {
+                            rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.PayeeOpenBankName, data.PayeeOpenBankAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName + "和" + MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.CorrespondentBankName, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.CorrespondentBankAddress, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankName) || !string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                        {
+                            rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.CorrespondentBankName, data.CorrespondentBankAddress, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName + "和" + MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeAccountInCorrespondentBank))
+                        {
+                            rd = DataCheckCenter.CheckPayeeAccountInCorrespondentBankGJ(null, data.PayeeAccountInCorrespondentBank, MultiLanguageConvertHelper.TransferGlobal_PayeeAccountInCorrespondentBank, 34, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAccountInCorrespondentBank); break; }
+                        }
+                    }
+                    else if (aft == AppliableFunctionType.TransferForeignMoney
+                        || aft == AppliableFunctionType.TransferForeignMoney4Bar)
+                    {
+                        if (!string.IsNullOrEmpty(data.PayeeAccount))
+                        {
+                            if (data.PayeeOpenBankType == AccountBankType.BocAccount)
+                            {
+                                rd = DataCheckCenter.CheckPayeeAccountGJEx(null, data.PayeeAccount, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount, 20, true, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount); break; }
+                            }
+                            else if (data.PayeeOpenBankType == AccountBankType.OtherBankAccount)
+                            {
+                                rd = DataCheckCenter.CheckPayeeAccountGJEx(null, data.PayeeAccount, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount, 35, false, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount); break; }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeName, MultiLanguageConvertHelper.TransferGlobal_PayeeName, aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.OtherBankAccount ? 64 : 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeAddress))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeAddress, aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.OtherBankAccount ? 64 : 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAddress); break; }
+                        }
+                        if (data.PayeeOpenBankType == AccountBankType.OtherBankAccount)
+                        {
+                            if (!string.IsNullOrEmpty(data.PayeeOpenBankName))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankName, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName, 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.PayeeOpenBankSwiftCode))
+                            {
+                                rd = DataCheckCenter.CheckSwiftCode(null, data.PayeeOpenBankSwiftCode, MultiLanguageConvertHelper.DesignMain_Swift_Code, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.DesignMain_Swift_Code); break; }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankAddress))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress, 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.CorrespondentBankName, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName, 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankSwiftCode))
+                        {
+                            rd = DataCheckCenter.CheckSwiftCode(null, data.CorrespondentBankSwiftCode, MultiLanguageConvertHelper.DesignMain_Swift_Code, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.DesignMain_Swift_Code); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.CorrespondentBankAddress, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress, 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeAccountInCorrespondentBank))
+                        {
+                            rd = DataCheckCenter.CheckPayeeAccountInCorrespondentBankGJ(null, data.PayeeAccountInCorrespondentBank, MultiLanguageConvertHelper.TransferGlobal_PayeeAccountInCorrespondentBank, 32, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAccountInCorrespondentBank); break; }
+                        }
+                        if (aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.BocAccount)
+                        {
+                            if (!string.IsNullOrEmpty(data.CertifyPaperNo))
+                            {
+                                bool flag = data.CertifyPaperType == AgentExpressCertifyPaperType.IDCard;
+                                if (flag) rd = DataCheckCenter.CheckCertifyCardNo(null, data.CertifyPaperNo, "", flag, null);
+                                else rd = DataCheckCenter.CheckCertifyCardNo(null, data.CertifyPaperNo, "", null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.Bar_Addition))
+                            {
+                                rd = DataCheckCenter.CheckLength(null, data.Bar_Addition, "", 80, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressOut_Mappings_Bar_Addition); break; }
+                            }
+                        }
+                    }
+                    //if (string.IsNullOrEmpty(data.PayeeNameofCountry) || string.IsNullOrEmpty(data.PayeeCodeofCountry))
+                    //{ result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                    if (!string.IsNullOrEmpty(data.PayeeNameofCountry))
+                    {
+                        rd = DataCheckCenter.CheckCountryName(null, data.PayeeNameofCountry, "", 30, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeNameofCountry); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeCodeofCountry))
+                    {
+                        if ((SystemSettings.CurrentVersion & VersionType.v403bar) == VersionType.v403bar)
+                            rd = DataCheckCenter.CheckCountryCodeBar(null, data.PayeeCodeofCountry, "", 3, null);
+                        else
+                            rd = DataCheckCenter.CheckCountryCode(null, data.PayeeCodeofCountry, "", 3, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeCodeofCountry); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RemitNote))
+                    {
+                        if (aft == AppliableFunctionType.TransferOverCountry
+                           || aft == AppliableFunctionType.TransferOverCountry4Bar)
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.RemitNote, MultiLanguageConvertHelper.TransferGlobal_RemitNote, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitNote); break; }
+                        }
+                        else if (aft == AppliableFunctionType.TransferForeignMoney
+                            || aft == AppliableFunctionType.TransferForeignMoney4Bar)
+                        {
+                            rd = DataCheckCenter.CheckAddtion(null, data.RemitNote, MultiLanguageConvertHelper.TransferGlobal_RemitNote, aft == AppliableFunctionType.TransferForeignMoney4Bar ? 140 : 50, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitNote); break; }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(data.DealSerialNoF))
+                    {
+                        rd = DataCheckCenter.CheckDealSerialNo(null, data.DealSerialNoF, MultiLanguageConvertHelper.TransferGlobal_DealSerialNoF, 6, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_DealSerialNoF); break; }
+                        if (!string.IsNullOrEmpty(data.AmountF))
+                        {
+                            rd = DataCheckCenter.CheckCash(null, data.AmountF.ToString(), "", 15, data.PaymentCashType == CashType.JPY, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_AmountF); break; }
+                        }
+                        if (aft == AppliableFunctionType.TransferOverCountry
+                            || aft == AppliableFunctionType.TransferOverCountry4Bar)
+                        {
+                            if (!string.IsNullOrEmpty(data.DealNoteF))
+                            {
+                                rd = DataCheckCenter.CheckAddtion(null, data.DealNoteF, MultiLanguageConvertHelper.TransferGlobal_DealNoteF, 100, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_DealNoteF); break; }
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(data.DealSerialNoS))
+                    {
+                        rd = DataCheckCenter.CheckDealSerialNo(null, data.DealSerialNoS, MultiLanguageConvertHelper.TransferGlobal_DealSerialNoS, 6, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_DealSerialNoS); break; }
+                        if (!string.IsNullOrEmpty(data.AmountS))
+                        {
+                            rd = DataCheckCenter.CheckCash(null, data.AmountS.ToString(), "", 15, data.PaymentCashType == CashType.JPY, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_AmountS); break; }
+                        }
+                        if (aft == AppliableFunctionType.TransferOverCountry
+                            || aft == AppliableFunctionType.TransferOverCountry4Bar)
+                        {
+                            if (!string.IsNullOrEmpty(data.DealNoteS))
+                            {
+                                rd = DataCheckCenter.CheckAddtion(null, data.DealNoteS, MultiLanguageConvertHelper.TransferGlobal_DealNoteS, 100, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_DealNoteS); break; }
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(data.ContactNo))
+                    {
+                        rd = DataCheckCenter.CheckSerialNoEx(null, data.ContactNo, MultiLanguageConvertHelper.TransferGlobal_ContactNo, 20, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_ContactNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.BillSerialNo))
+                    {
+                        rd = DataCheckCenter.CheckSerialNoEx(null, data.BillSerialNo, MultiLanguageConvertHelper.TransferGlobal_BillSerialNo, aft == AppliableFunctionType.TransferForeignMoney ? 20 : aft == AppliableFunctionType.TransferOverCountry ? 50 : 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_BillSerialNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.BatchNoOrTNoOrSerialNo))
+                    {
+                        rd = DataCheckCenter.CheckSerialNoEx(null, data.BatchNoOrTNoOrSerialNo, MultiLanguageConvertHelper.TransferGlobal_BatchNoOrTNoOrSerialNo, 20, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_BatchNoOrTNoOrSerialNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ProposerName))
+                    {
+                        rd = DataCheckCenter.CheckProposerName(null, data.ProposerName, MultiLanguageConvertHelper.TransferGlobal_ProposerName, 20, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_ProposerName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Telephone))
+                    {
+                        rd = DataCheckCenter.CheckTelePhone(null, data.Telephone, MultiLanguageConvertHelper.TransferGlobal_Telephone, 20, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_Telephone); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.InitiativeAllot == aft)
+            {
+                #region
+                List<object> temp = list as List<object>;
+                BatchHeader batch = temp[0] as BatchHeader;
+                List<InitiativeAllot> dataList = temp[1] as List<InitiativeAllot>;
+
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.AccountOut))
+                    {
+                        rd = DataCheckCenter.CheckAccountExIA(null, data.AccountOut.Trim(), MultiLanguageConvertHelper.InitiativeAllot_AccountOut, 22, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_AccountOut); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.NameOut))
+                    {
+                        rd = DataCheckCenter.CheckNameExIA(null, data.NameOut.Trim(), MultiLanguageConvertHelper.InitiativeAllot_NameOut, 76, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_NameOut); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.AccountIn))
+                    {
+                        rd = DataCheckCenter.CheckAccountExIA(null, data.AccountIn.Trim(), MultiLanguageConvertHelper.InitiativeAllot_AccountIn, 22, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_AccountIn); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.NameIn))
+                    {
+                        rd = DataCheckCenter.CheckNameExIA(null, data.NameIn.Trim(), MultiLanguageConvertHelper.InitiativeAllot_NameIn, 76, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_NameIn); break; }
+                    }
+                    rd = DataCheckCenter.CheckCash(null, data.Amount.ToString().Trim(), MultiLanguageConvertHelper.InitiativeAllot_Amount, 14, false, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_Amount); break; }
+                    if (!string.IsNullOrEmpty(data.Addition))
+                    {
+                        rd = DataCheckCenter.CheckAddtionExIAOrUPOrBR(null, data.Addition.Trim(), MultiLanguageConvertHelper.InitiativeAllot_Addition, 200, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_Addition); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.ApplyofFranchiserFinancing == aft)
+            {
+                #region
+                List<SpplyFinancingApply> dataList = list as List<SpplyFinancingApply>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.ContractOrOrderNo))
+                    {
+                        rd = DataCheckCenter.CheckContractOrOrderNo(null, data.ContractOrOrderNo, MultiLanguageConvertHelper.SpplyFinancingApply_ContractOrOrderNo, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_ContractOrOrderNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ContractOrOrderAmount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.ContractOrOrderAmount, "", 15, data.ContractOrOrderCashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_OrderAmount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.TaxInvoiceNo))
+                    {
+                        rd = DataCheckCenter.CheckTaxBillSerialNo(null, data.TaxInvoiceNo, MultiLanguageConvertHelper.SpplyFinancingApply_TaxInvoiceNo, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_TaxInvoiceNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ReceiptNo))
+                    {
+                        rd = DataCheckCenter.CheckReceiptNo(null, data.ReceiptNo, MultiLanguageConvertHelper.SpplyFinancingApply_ReceiptNo, 40, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_ReceiptNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.RiskTakingLetterNo))
+                    {
+                        rd = DataCheckCenter.CheckRiskTakingLetterNo(null, data.RiskTakingLetterNo, MultiLanguageConvertHelper.SpplyFinancingApply_RiskTakingLetterNo, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_RiskTakingLetterNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.GoodsDesc))
+                    {
+                        rd = DataCheckCenter.CheckGoodsDesc(null, data.GoodsDesc, MultiLanguageConvertHelper.SpplyFinancingApply_GoodsDesc, 600, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_GoodsDesc); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ApplyAmount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.ApplyAmount, "", 15, data.ContractOrOrderCashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_ApplyAmount); break; }
+                    }
+                    if (data.ApplyDays != 0)
+                    {
+                        rd = DataCheckCenter.CheckApplyDays(null, data.ApplyDays.ToString(), MultiLanguageConvertHelper.SpplyFinancingApply_ApplyDays, 4, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_ApplyDays); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.AgreementNo))
+                    {
+                        rd = DataCheckCenter.CheckAgrementNo(null, data.AgreementNo, MultiLanguageConvertHelper.SpplyFinancingApply_AgrementNo, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_AgrementNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.InterestFloatingPercent))
+                    {
+                        rd = DataCheckCenter.CheckInterestFloatingPercent(null, data.InterestFloatingPercent, MultiLanguageConvertHelper.SpplyFinancingApply_InterestFloatingPercent, 12, null);
+                        if (!rd.Result)
+                        {
+                            if (data.InterestFloatType == InterestFloatType.No && data.InterestFloatingPercent.Equals("0"))
+                                result = string.Empty;
+                            else
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_InterestFloatingPercent); break; }
+                        }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.PurchaserOrder == aft
+                || AppliableFunctionType.SellerOrder == aft)
+            {
+                #region
+                List<SpplyFinancingOrder> dataList = list as List<SpplyFinancingOrder>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.OrderNo))
+                    {
+                        rd = DataCheckCenter.CheckOrderNo(null, data.OrderNo, MultiLanguageConvertHelper.SpplyFinancingOrder_OrderNo, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_OrderNo); break; }
+                    }
+                    rd = DataCheckCenter.CheckCash(null, data.Amount.ToString(), "", 15, data.CashType == CashType.JPY, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_Amount); break; }
+                    if (aft == AppliableFunctionType.PurchaserOrder)
+                    {
+                        if (!string.IsNullOrEmpty(data.ERPCode))
+                        {
+                            rd = DataCheckCenter.CheckERPCode(null, data.ERPCode, MultiLanguageConvertHelper.SpplyFinancingOrder_ERPCode_Seller, 40, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_ERPCode_Seller); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CustomerApplyNo))
+                        {
+                            rd = DataCheckCenter.CheckBankCustomerNo(null, data.CustomerApplyNo, MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerNo_Seller, 40, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerNo_Seller); break; }
+                        }
+                    }
+                    else if (aft == AppliableFunctionType.SellerOrder)
+                    {
+                        rd = DataCheckCenter.CheckCustomerNamePurchase(null, data.CustomerName, MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerName_Purchase, 80, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerName_Purchase); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.PurchaserOrderMgr == aft
+                || AppliableFunctionType.SellerOrderMgr == aft)
+            {
+                #region
+                List<SpplyFinancingOrder> dataList = list as List<SpplyFinancingOrder>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.OrderNo))
+                    {
+                        rd = DataCheckCenter.CheckOrderNo(null, data.OrderNo, MultiLanguageConvertHelper.SpplyFinancingOrder_OrderNo, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_OrderNo); break; }
+                    }
+                    rd = DataCheckCenter.CheckCash(null, data.Amount, "", 15, false, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_Amount); break; }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.BillofDebtReceivablePurchaser == aft
+                || AppliableFunctionType.BillofDebtReceivableSeller == aft)
+            {
+                #region
+                List<SpplyFinancingBill> dataList = list as List<SpplyFinancingBill>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.BillSerialNo))
+                    {
+                        rd = DataCheckCenter.CheckBillSerialNoSF(null, data.BillSerialNo.Trim(), MultiLanguageConvertHelper.SpplyFinancingBill_BillSerialNo, 20, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingBill_BillSerialNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ContractNo))
+                    {
+                        rd = DataCheckCenter.CheckContractNoEx(null, data.ContractNo.Trim(), MultiLanguageConvertHelper.SpplyFinancingBill_ContractNo, 40, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingBill_ContractNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.CustomerNo))
+                    {
+                        rd = DataCheckCenter.CheckBankCustomerNo(null, data.CustomerNo.Trim(), aft == AppliableFunctionType.BillofDebtReceivableSeller ? MultiLanguageConvertHelper.SpplyFinancingBill_CustomerNo_Purchase : MultiLanguageConvertHelper.SpplyFinancingBill_CustomerNo_Seller, 16, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.BillofDebtReceivableSeller ? MultiLanguageConvertHelper.SpplyFinancingBill_CustomerNo_Purchase : MultiLanguageConvertHelper.SpplyFinancingBill_CustomerNo_Seller); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.CustomerName))
+                    {
+                        rd = DataCheckCenter.CheckCustomerName(null, data.CustomerName.Trim(), aft == AppliableFunctionType.BillofDebtReceivableSeller ? MultiLanguageConvertHelper.SpplyFinancingBill_CustomerName_Purchase : MultiLanguageConvertHelper.SpplyFinancingBill_CustomerName_Seller, 80, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.BillofDebtReceivableSeller ? MultiLanguageConvertHelper.SpplyFinancingBill_CustomerName_Purchase : MultiLanguageConvertHelper.SpplyFinancingBill_CustomerName_Seller); break; }
+                    }
+                    //if (data.CashType == CashType.Empty) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                    if (!string.IsNullOrEmpty(data.Amount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.Amount.ToString(), "", 15, data.CashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingBill_Amount); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.PaymentOrReceiptofDebtReceivablePurchaser == aft)
+            {
+                #region
+                List<SpplyFinancingPayOrReceipt> dataList = list as List<SpplyFinancingPayOrReceipt>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.BillSerialNo))
+                    {
+                        rd = DataCheckCenter.CheckBillSerialNoSF(null, data.BillSerialNo.Trim(), MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_BillSerialNo, 20, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_BillSerialNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.CustomerNo))
+                    {
+                        rd = DataCheckCenter.CheckBankCustomerNo(null, data.CustomerNo, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CustomerNo, 16, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CustomerNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.CustomerName))
+                    {
+                        rd = DataCheckCenter.CheckCustomerName(null, data.CustomerName.Trim(), MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CustomerName, 80, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CustomerName); break; }
+                    }
+                    rd = DataCheckCenter.CheckCash(null, data.PayAmountForThisTime.ToString(), "", 17, data.CashType == CashType.JPY, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_AmountThisTime); break; }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.UnitivePaymentRMB == aft)
+            {
+                #region
+                List<UnitivePaymentRMB> dataList = list as List<UnitivePaymentRMB>;
+                foreach (var data in dataList)
+                {
+                    if (!string.IsNullOrEmpty(data.PayerAccount))
+                    {
+                        rd = DataCheckCenter.CheckPayerAccountUP(null, data.PayerAccount, "", 12, 18, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayerAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayerName))
+                    {
+                        rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.PayerName, "", 200, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayerName); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeAccount))
+                    {
+                        rd = DataCheckCenter.CheckPayeeAccountUP(null, data.PayeeAccount, "", 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayeeName))
+                    {
+                        rd = DataCheckCenter.CheckPayeeNameAgentInOrUP(null, data.PayeeName, "", 76, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeName); break; }
+                    }
+                    if (data.BankType == AccountBankType.OtherBankAccount)
+                    {
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeOpenBankName); break; }
+                        } if (!string.IsNullOrEmpty(data.PayeeCNAPS))
+                        {
+                            rd = DataCheckCenter.CheckCNAPSNo(null, data.PayeeCNAPS, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeCNAPS); break; }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(data.NominalPayerAccount))
+                    {
+                        rd = DataCheckCenter.CheckAccountUP(null, data.NominalPayerAccount, "", 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_NominalPayerAccount); break; }
+                    } if (!string.IsNullOrEmpty(data.NominalPayerName))
+                    {
+                        rd = DataCheckCenter.CheckPayeeNameAgentInOrUP(null, data.NominalPayerName, "", 76, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_NominalPayerName); break; }
+                    }
+                    //if (!string.IsNullOrEmpty(data.NominalPayerBankLinkNo))
+                    //{
+                    //    rd = DataCheckCenter.CheckLinkBankNo(null, data.NominalPayerBankLinkNo, "", null);
+                    //    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                    //} if (!string.IsNullOrEmpty(data.NominalPayerOpenBankName))
+                    //{
+                    //    rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.NominalPayerOpenBankName, "", 160, null);
+                    //    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                    //}
+                    if (!string.IsNullOrEmpty(data.Amount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.Amount.ToString(), "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_Amount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Purpose))
+                    {
+                        rd = DataCheckCenter.CheckAddtionExIAOrUPOrBR(null, data.Purpose, "", 20, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_Purpose); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.CustomerBusinissNo))
+                    {
+                        rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerBusinissNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_CustomerBusinissNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.TipPayeePhone))
+                    {
+                        rd = DataCheckCenter.CheckPayeePhone(null, data.TipPayeePhone, 11, 15, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_TipPayeePhone); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.UnitivePaymentFC == aft)
+            {
+                #region
+                List<UnitivePaymentForeignMoney> dataList = list as List<UnitivePaymentForeignMoney>;
+                foreach (var data in dataList)
+                {
+                    if (data.PayeeAccountType == OverCountryPayeeAccountType.BocAccount)
+                    {
+                        #region
+                        if (!string.IsNullOrEmpty(data.PayerAccount))
+                        {
+                            rd = DataCheckCenter.CheckPayerAccountUP(null, data.PayerAccount, "", 12, 18, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerAccount); break; }
+
+                        }
+                        if (!string.IsNullOrEmpty(data.PayerName))
+                        {
+                            rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.PayerName, "", 200, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.NominalPayerAccount))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonAccountFC(null, data.NominalPayerAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerAccount); break; }
+
+                        }
+                        if (!string.IsNullOrEmpty(data.NominalPayerName))
+                        {
+                            rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.NominalPayerName, "", 200, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerName); break; }
+
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeAccount))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonAccountFC(null, data.PayeeAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccount); break; }
+
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameAgentInOrUP(null, data.PayeeName, "", 240, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeName); break; }
+
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankName); break; }
+
+                        }
+                        if (!string.IsNullOrEmpty(data.CodeofCountry))
+                        {
+                            rd = DataCheckCenter.CheckCountryCode(null, data.CodeofCountry, "", 3, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CodeofCountry); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CustomerBusinissNo))
+                        {
+                            rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerBusinissNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CustomerBusinissNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Amount))
+                        {
+                            rd = DataCheckCenter.CheckCash(null, Convert.ToDouble(data.Amount), 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Amount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Addtion))
+                        {
+                            rd = DataCheckCenter.CheckPayeeAddtion(null, data.Addtion, "", 120, true, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Addtion); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Purpose))
+                        {
+                            rd = DataCheckCenter.CheckAddtionFCForeign(null, data.Purpose, "", 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Purpose); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.TransactionCode1))
+                        {
+                            rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode1, "", 6, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode1); break; }
+                            if (string.IsNullOrEmpty(data.IPPSMoneyTypeAmount1))
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1); break; }
+                            else
+                            {
+                                rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount1, "", 15, data.CashType == CashType.JPY, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionAddtion1))
+                            {
+                                rd = DataCheckCenter.CheckAddtion(null, data.TransactionAddtion1, "", 100, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion1); break; }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.TransactionCode2))
+                        {
+                            rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode2, "", 6, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode2); break; }
+                            if (string.IsNullOrEmpty(data.IPPSMoneyTypeAmount2))
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2); break; }
+                            else
+                            {
+                                rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount2, "", 15, data.CashType == CashType.JPY, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionAddtion2))
+                            {
+                                rd = DataCheckCenter.CheckAddtion(null, data.TransactionAddtion2, "", 100, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion2); break; }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.ContractNo))
+                        {
+                            rd = DataCheckCenter.CheckLength(null, data.ContractNo, "", 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ContractNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.BatchNoOrTNoOrSerialNo))
+                        {
+                            rd = DataCheckCenter.CheckLength(null, data.BatchNoOrTNoOrSerialNo, "", 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_BatchNoOrTNoOrSerialNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.InvoiceNo))
+                        {
+                            rd = DataCheckCenter.CheckBillSerialNoSF(null, data.InvoiceNo, "", 50, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_InvoiceNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ApplicantName))
+                        {
+                            rd = DataCheckCenter.CheckProposerName(null, data.ApplicantName, "", 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ApplicantName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Contactnumber))
+                        {
+                            rd = DataCheckCenter.CheckTelePhone(null, data.Contactnumber, "", 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Contactnumber); break; }
+                        }
+                        #endregion
+                    }
+                    else if (data.PayeeAccountType == OverCountryPayeeAccountType.OtherAccount)
+                    {
+                        #region
+                        if (!string.IsNullOrEmpty(data.PayerAccount))
+                        {
+                            rd = DataCheckCenter.CheckPayerAccountUP(null, data.PayerAccount, "", 12, 18, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerAccount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayerName))
+                        {
+                            rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.PayerName, "", 200, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.NominalPayerAccount))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonAccountFC(null, data.NominalPayerAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerAccount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.NominalPayerName))
+                        {
+                            rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.NominalPayerName, "", 200, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeAccount))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonAccountFC(null, data.PayeeAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeName, "", 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Address))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.Address, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Address); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CodeofCountry))
+                        {
+                            rd = DataCheckCenter.CheckCountryCode(null, data.CodeofCountry, "", 3, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CodeofCountry); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankSwiftCode))
+                        {
+                            rd = DataCheckCenter.CheckSwiftCode(null, data.PayeeOpenBankSwiftCode, "", null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankSwiftCode); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.OpenBankAddress))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.OpenBankAddress, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_OpenBankAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.CorrespondentBankName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankSwiftCode))
+                        {
+                            rd = DataCheckCenter.CheckSwiftCode(null, data.CorrespondentBankSwiftCode, "", null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankSwiftCode); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                        {
+                            rd = DataCheckCenter.CheckCountryName(null, data.CorrespondentBankAddress, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeAccountInCorrespondentBank))
+                        {
+                            rd = DataCheckCenter.CheckPayeeAccountInCorrespondentBankGJ(null, data.PayeeAccountInCorrespondentBank, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccountInCorrespondentBank); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CodeofCountry))
+                        {
+                            rd = DataCheckCenter.CheckCountryCode(null, data.CodeofCountry, "", 3, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CodeofCountry); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Amount))
+                        {
+                            rd = DataCheckCenter.CheckCash(null, Convert.ToDouble(data.Amount), 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Amount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.OrgCode))
+                        {
+                            rd = DataCheckCenter.CheckOrgCode(null, data.OrgCode, "", null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_OrgCode); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CustomerBusinissNo))
+                        {
+                            rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerBusinissNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CustomerBusinissNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.realPayAddress))
+                        {
+                            rd = DataCheckCenter.ChecktbRemittorAddress(null, data.realPayAddress, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_realPayAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Addtion))
+                        {
+                            rd = DataCheckCenter.CheckPayeeAddtion(null, data.Addtion, "", 120, false, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Addtion); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.TransactionCode1))
+                        {
+                            rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode1, "", 6, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode1); break; }
+                            if (!string.IsNullOrEmpty(data.IPPSMoneyTypeAmount1))
+                            {
+                                rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount1, "", 15, data.CashType == CashType.JPY, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionAddtion1))
+                            {
+                                rd = DataCheckCenter.CheckAddtion(null, data.TransactionAddtion1, "", 100, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion1); break; }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.TransactionCode2))
+                        {
+                            rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode2, "", 6, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode2); break; }
+                            if (!string.IsNullOrEmpty(data.IPPSMoneyTypeAmount2))
+                            {
+                                rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount2, "", 15, data.CashType == CashType.JPY, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionAddtion2))
+                            {
+                                rd = DataCheckCenter.CheckAddtion(null, data.TransactionAddtion2, "", 100, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion2); break; }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.ContractNo))
+                        {
+                            rd = DataCheckCenter.CheckLength(null, data.ContractNo, "", 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ContractNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.BatchNoOrTNoOrSerialNo))
+                        {
+                            rd = DataCheckCenter.CheckLength(null, data.BatchNoOrTNoOrSerialNo, "", 40, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_BatchNoOrTNoOrSerialNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.InvoiceNo))
+                        {
+                            rd = DataCheckCenter.CheckLength(null, data.InvoiceNo, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_InvoiceNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ApplicantName))
+                        {
+                            rd = DataCheckCenter.CheckProposerName(null, data.ApplicantName, "", 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ApplicantName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Contactnumber))
+                        {
+                            rd = DataCheckCenter.CheckTelePhone(null, data.Contactnumber, "", 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Contactnumber); break; }
+                        }
+                        #endregion
+                    }
+                    else if (data.PayeeAccountType == OverCountryPayeeAccountType.ForeignAccount)
+                    {
+                        #region
+                        if (!string.IsNullOrEmpty(data.PayerAccount))
+                        {
+                            rd = DataCheckCenter.CheckPayerAccountUP(null, data.PayerAccount, "", 12, 18, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerAccount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayerName))
+                        {
+                            rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.PayerName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.NominalPayerAccount))
+                        {
+                            rd = DataCheckCenter.CheckAccountUP(null, data.NominalPayerAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerAccount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.NominalPayerName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.NominalPayerName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeAccount))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeAccount, "", 34, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Address))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.Address, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Address); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankSwiftCode))
+                        {
+                            rd = DataCheckCenter.CheckSwiftCodeFC(null, data.PayeeOpenBankSwiftCode, "", null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankSwiftCode); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.OpenBankAddress))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.OpenBankAddress, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_OpenBankAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankName))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.CorrespondentBankName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankSwiftCode))
+                        {
+                            rd = DataCheckCenter.CheckSwiftCodeFC(null, data.CorrespondentBankSwiftCode, "", null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankSwiftCode); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                        {
+                            rd = DataCheckCenter.CheckCountryName(null, data.CorrespondentBankAddress, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeAccountInCorrespondentBank))
+                        {
+                            rd = DataCheckCenter.CheckPayeeAccountInCorrespondentBankGJ(null, data.PayeeAccountInCorrespondentBank, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccountInCorrespondentBank); break; }
+                        }
+                        //if (string.IsNullOrEmpty(data.CodeofCountry))
+                        //{ result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                        if (!string.IsNullOrEmpty(data.CodeofCountry))
+                        {
+                            rd = DataCheckCenter.CheckCountryCode(null, data.CodeofCountry, "", 3, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CodeofCountry); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Amount))
+                        {
+                            rd = DataCheckCenter.CheckCash(null, Convert.ToDouble(data.Amount), 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Amount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.OrgCode))
+                        {
+                            rd = DataCheckCenter.CheckOrgCode(null, data.OrgCode, "", null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_OrgCode); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CustomerBusinissNo))
+                        {
+                            rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerBusinissNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CustomerBusinissNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.realPayAddress))
+                        {
+                            rd = DataCheckCenter.ChecktbRemittorAddress(null, data.realPayAddress, null, data.PayeeAccountType);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_realPayAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.NominalPayerAddress))
+                        {
+                            rd = DataCheckCenter.CheckNominalAddressFC(null, data.NominalPayerAddress, "", 280, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerAddress); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Addtion))
+                        {
+                            rd = DataCheckCenter.CheckAddtionFCForeign(null, data.Addtion, "", 120, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Addtion); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.TransactionCode1))
+                        {
+                            rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode1, "", 6, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode1); break; }
+                            if (!string.IsNullOrEmpty(data.IPPSMoneyTypeAmount1))
+                            {
+                                rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount1, "", 15, data.CashType == CashType.JPY, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionAddtion1))
+                            {
+                                rd = DataCheckCenter.CheckAddtionFCForeign(null, data.TransactionAddtion1, "", 50, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion1); break; }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.TransactionCode2))
+                        {
+                            rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode2, "", 6, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode2); break; }
+                            if (!string.IsNullOrEmpty(data.IPPSMoneyTypeAmount2))
+                            {
+                                rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount2, "", 15, data.CashType == CashType.JPY, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionAddtion2))
+                            {
+                                rd = DataCheckCenter.CheckAddtionFCForeign(null, data.TransactionAddtion2, "", 50, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion2); break; }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.ContractNo))
+                        {
+                            rd = DataCheckCenter.CheckLength(null, data.ContractNo, "", 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ContractNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.BatchNoOrTNoOrSerialNo))
+                        {
+                            rd = DataCheckCenter.CheckLength(null, data.BatchNoOrTNoOrSerialNo, "", 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_BatchNoOrTNoOrSerialNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.InvoiceNo))
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.InvoiceNo, "", 50, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_InvoiceNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ApplicantName))
+                        {
+                            rd = DataCheckCenter.CheckProposerName(null, data.ApplicantName, "", 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ApplicantName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Contactnumber))
+                        {
+                            rd = DataCheckCenter.CheckTelePhone(null, data.Contactnumber, "", 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Contactnumber); break; }
+                        }
+                        #endregion
+                    }
+                    else { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccountType); break; }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.VirtualAccountTransfer == aft)
+            {
+                #region
+                List<VirtualAccount> dataListV = list as List<VirtualAccount>;
+                foreach (var data in dataListV)
+                {
+                    if (!string.IsNullOrEmpty(data.AccountOut))
+                    {
+                        rd = DataCheckCenter.CheckAccountUP(null, data.AccountOut.Trim(), MultiLanguageConvertHelper.Virtual_AccountOut, 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_AccountOut); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.NameOut))
+                    {
+                        rd = DataCheckCenter.CheckVirtualAccountName(null, data.NameOut.Trim(), MultiLanguageConvertHelper.Virtual_NameOut, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_NameOut); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.AccountIn))
+                    {
+                        rd = DataCheckCenter.CheckAccountUP(null, data.AccountIn.Trim(), MultiLanguageConvertHelper.Virtual_AccountIn, 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_AccountIn); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.NameIn))
+                    {
+                        rd = DataCheckCenter.CheckVirtualAccountName(null, data.NameIn.Trim(), MultiLanguageConvertHelper.Virtual_NameIn, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_NameIn); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Amount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.Amount.ToString().Trim(), MultiLanguageConvertHelper.Virtual_Amount, 14, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_Amount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Purpose))
+                    {
+                        rd = DataCheckCenter.CheckPayeeAddtion(null, data.Purpose.Trim(), MultiLanguageConvertHelper.Virtual_Pursion, 200, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_Pursion); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.CustomerBusinissNo))
+                    {
+                        rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerBusinissNo.Trim(), null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_CustomerBusinissNo); break; }
+                    }
+                    count++;
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.PreproccessTransfer == aft)
+            {
+                #region
+                List<PreproccessTransfer> dataListP = list as List<PreproccessTransfer>;
+                foreach (var data in dataListP)
+                {
+                    rd = DataCheckCenter.CheckVirtualAccountName(null, data.PreproccessName, MultiLanguageConvertHelper.Preproccess_PreproccessName, 120, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_PreproccessName); break; }
+                    rd = DataCheckCenter.CheckAccountUP(null, data.PreproccessAccount, MultiLanguageConvertHelper.Preproccess_PreproccessAccount, 35, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_PreproccessAccount); break; }
+                    if (string.IsNullOrEmpty(data.CashTypeString)) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_PreproccessAccount); break; }
+                    rd = DataCheckCenter.CheckCash(null, data.PreproccessAmount.Replace("-", ""), MultiLanguageConvertHelper.Preproccess_PreproccessAmount, 16, data.CashType == CashType.JPY, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_PreproccessAmount); break; }
+                    rd = DataCheckCenter.CheckAccountUP(null, data.MainAccount, MultiLanguageConvertHelper.Preproccess_MainAccount, 35, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_MainAccount); break; }
+                    rd = DataCheckCenter.CheckPayerAccountUP(null, data.TradeSerialNo, MultiLanguageConvertHelper.Preproccess_TradeSerialNo, 1, 12, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_TradeSerialNo); break; }
+                    rd = DataCheckCenter.CheckPayerAccountUP(null, data.BatchTradeSerialNo, MultiLanguageConvertHelper.Preproccess_BatchTradeSerialNo, 1, 20, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_BatchTradeSerialNo); break; }
+                    rd = DataCheckCenter.CheckVirtualAccountName(null, data.InvolvedName, MultiLanguageConvertHelper.Preproccess_InvolvedName, 120, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_InvolvedName); break; }
+                    rd = DataCheckCenter.CheckAccountUP(null, data.InvolvedAccount, MultiLanguageConvertHelper.Preproccess_InvolvedAccount, 35, null);
+                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_InvolvedAccount); break; }
+                    try { DateTime.Parse(DataConvertHelper.FormatDateTimeFromInt(data.TradeDate)); }
+                    catch { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_TradeDate); break; }
+                    if (!string.IsNullOrEmpty(data.Content))
+                    {
+                        rd = DataCheckCenter.CheckGoodsDesc(null, data.Content, MultiLanguageConvertHelper.Preproccess_Content, 50, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_Content); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.VirtualAccount))
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccountFC(null, data.VirtualAccount, MultiLanguageConvertHelper.Preproccess_VirtualAccount, 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_VirtualAccount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Amount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.Amount.Replace("-", ""), MultiLanguageConvertHelper.Preproccess_TradeAmount, 14, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_TradeAmount); break; }
+                    }
+                }
+                #endregion
+            }
+            else if (AppliableFunctionType.BatchReimbursement == aft)
+            {
+                #region
+                List<BatchReimbursement> dataListBR = list as List<BatchReimbursement>;
+                foreach (var data in dataListBR)
+                {
+                    if (!string.IsNullOrEmpty(data.CardNo))
+                    {
+                        rd = DataCheckCenter.CheckCardNo(null, data.CardNo, "", 16, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_CardNo); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayAmount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.PayAmount, "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_PayAmount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayDateTime))
+                    {
+                        try
+                        {
+                            DateTime dt = DateTime.Parse(data.PayDateTime);
+                            if (dt.Date > DateTime.Today.Date || dt.Date < DateTime.Today.AddYears(-1).Date)
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_PayAmount); break; }
+                        }
+                        catch { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_PayDateTime); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.PayPassword))
+                    {
+                        rd = DataCheckCenter.CheckPayPassword(null, data.PayPassword, "", 13, 16, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_PayPassword); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.ReimburseAmount))
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.ReimburseAmount, "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_ReimburseAmount); break; }
+                    }
+                    if (!string.IsNullOrEmpty(data.Usage))
+                    {
+                        rd = DataCheckCenter.CheckAddtionExIAOrUPOrBR(null, data.Usage, "", 50, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_Usage); break; }
+                    }
+                }
+                #endregion
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 强校验
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="aft"></param>
+        /// <returns></returns>
+        public static string CheckDataAvilidHigh(object list, AppliableFunctionType aft)
+        {
+            int count = 1;
+            string result = string.Empty;
+            ResultData rd = new ResultData();
+            switch (aft)
+            {
+                case AppliableFunctionType.TransferWithCorp:
+                case AppliableFunctionType.TransferWithIndiv:
+                    #region
+                    List<TransferAccount> dataTAList = list as List<TransferAccount>;
+                    foreach (var data in dataTAList)
+                    {
+                        if ((aft == AppliableFunctionType.TransferWithIndiv || aft == AppliableFunctionType.TransferWithCorp) && (SystemSettings.CurrentVersion & VersionType.v405) == VersionType.v405)
+                        {
+                            rd = DataCheckCenter.CheckAgrementNoEx(null, data.PayerAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_Mappings_PayerAccount : MultiLanguageConvertHelper.Transfer_Mappings_PayeeAccount); break; }
+                        }
+                        else
+                        {
+                            rd = DataCheckCenter.CheckPayerAccount(null, data.PayerAccount, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_PayerAccount); break; }
+                        }
+                        rd = DataCheckCenter.CheckPayeeAccount(null, data.PayeeAccount, "", null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_PayeeAccount); break; }
+                        if (data.AccountBankType == AccountBankType.OtherBankAccount)
+                        {
+                            rd = DataCheckCenter.CheckOpenBankName(null, data.PayeeOpenBank, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_PayeeOpenBankName); break; }
+                        }
+                        rd = DataCheckCenter.CheckPayeeOrElecTicketPersonName(null, data.PayeeName, "", 76, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_PayeeName); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.PayAmount, "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_Amount); break; }
+                        if ((aft == AppliableFunctionType.TransferWithIndiv || aft == AppliableFunctionType.TransferWithCorp) && (SystemSettings.CurrentVersion & VersionType.v405) == VersionType.v405)
+                        {
+                            rd = DataCheckCenter.CheckAgrementNoEx(null, data.PayFeeNo, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_Mappings_PayerAccount : MultiLanguageConvertHelper.Transfer_Mappings_PayeeAccount); break; }
+                        }
+                        else
+                        {
+                            rd = DataCheckCenter.CheckPayFeeNo(null, data.PayFeeNo, false, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_PayFeeAccount); break; }
+                        }
+                        rd = DataCheckCenter.CheckPayDatetime(null, data.PayDatetime, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_PayDate); break; }
+                        if (rd.Result) rd = DataCheckCenter.CheckAddtion(null, data.Addition, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_Addtion); break; }
+                        if (!string.IsNullOrEmpty(data.Email))
+                        {
+                            rd = DataCheckCenter.CheckEmail(null, data.Email, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_Email); break; }
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.TransferOverBankIn:
+                case AppliableFunctionType.TransferOverBankOut:
+                    #region
+                    List<TransferAccount> dataTOList = list as List<TransferAccount>;
+                    foreach (var data in dataTOList)
+                    {
+                        if (!string.IsNullOrEmpty(data.CustomerRef))
+                        {
+                            rd = DataCheckCenter.CheckCustomerReferenceNo(null, data.CustomerRef, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_Mappings_CustomerRef); break; }
+                        }
+                        rd = DataCheckCenter.CheckPayerAccount(null, data.PayerAccount, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_Mappings_PayerAccount : MultiLanguageConvertHelper.Transfer_Mappings_PayeeAccount); break; }
+                        rd = DataCheckCenter.CheckPayeeAccount(null, data.PayeeAccount, "", null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayeeAccount : MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayerAccount); break; }
+                        if (aft == AppliableFunctionType.TransferOverBankIn || (aft == AppliableFunctionType.TransferOverBankOut && !string.IsNullOrEmpty(data.PayeeName)))
+                        {
+                            rd = DataCheckCenter.CheckPayeeOrElecTicketPersonName(null, data.PayeeName, "", aft == AppliableFunctionType.TransferOverBankIn ? 70 : 76, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayeeName : MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayerName); break; }
+                        }
+                        if (aft == AppliableFunctionType.TransferOverBankIn || (aft == AppliableFunctionType.TransferOverBankOut && !string.IsNullOrEmpty(data.PayerName)))
+                        {
+                            rd = DataCheckCenter.CheckPayerName(null, data.PayerName, "", aft == AppliableFunctionType.TransferOverBankIn ? 70 : 76, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.DesignMain_PayerName : MultiLanguageConvertHelper.DesignMain_PayeeName); break; }
+                        }
+                        if (aft == AppliableFunctionType.TransferOverBankIn)
+                        {
+                            rd = DataCheckCenter.CheckOpenBankName(null, data.PayeeOpenBank, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayerBankName); break; }
+                            rd = DataCheckCenter.CheckProtecolNo(null, data.PayProtecolNo, "", 60, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayProtecolNo); break; }
+                            rd = DataCheckCenter.CheckBusinessType(data.BusinessType);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_BusinessType); break; }
+                        }
+                        else if (aft == AppliableFunctionType.TransferOverBankOut)
+                        {
+                            rd = DataCheckCenter.CheckClearBankNo(null, data.PayBankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayeeClearBankNo); break; }
+                            //rd = DataCheckCenter.CheckClearBankNo(null, data.PayBankNo, null);
+                            //if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                        }
+                        rd = DataCheckCenter.CheckPayDatetime(null, data.PayDatetime, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.TransferOverBankIn ? MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayDate : MultiLanguageConvertHelper.Transfer_OverBankIn_Mappings_PayDateTime); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.PayAmount, "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_Amount); break; }
+                        if (!string.IsNullOrEmpty(data.PayFeeNo))
+                        {
+                            rd = DataCheckCenter.CheckPayFeeNo(null, data.PayFeeNo, true, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_PayFeeAccount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Addition))
+                        {
+                            rd = DataCheckCenter.CheckAddtion(null, data.Addition, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Transfer_OverBankOut_Mappings_Addtion); break; }
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.AgentExpressIn:
+                case AppliableFunctionType.AgentExpressOut:
+                case AppliableFunctionType.AgentExpressOut4Bar:
+                    #region
+                    List<object> tempAE = list as List<object>;
+                    BatchHeader batchAE = tempAE[0] as BatchHeader;
+                    List<AgentExpress> dataAEList = tempAE[1] as List<AgentExpress>;
+
+                    #region 检验批信息
+                    //ResultData rd = DataCheckCenter.CheckCustomerReferenceNo(batch.ProtecolNo);
+                    //if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //rd = DataCheckCenter.CheckPayerAccount(batch.Payer.Account);
+                    //if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //rd = DataCheckCenter.CheckPayDatetime(batch.TransferDatetime);
+                    //if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //rd = DataCheckCenter.CheckAddtion(batch.Addtion, 80);
+                    //if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //if (AppliableFunctionType.AgentNormalOut :
+                    //{
+                    //    rd = DataCheckCenter.CheckLinkBankNo(batch.BankNo);
+                    //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //}
+                    //case AppliableFunctionType.AgentNormalIn :
+                    //{
+                    //    rd = DataCheckCenter.CheckUseType(batch.UseType);
+                    //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //}
+                    #endregion
+
+                    foreach (var data in dataAEList)
+                    {
+                        rd = DataCheckCenter.CheckPayeeAccount(null, data.AccountNo, "", null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentExpressIn ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeAccount : MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerAccount); break; }
+                        rd = DataCheckCenter.CheckPayeeOrElecTicketPersonName(null, data.AccountName, "", 58, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentExpressIn ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeName : MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerName); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.Amount, "", 14, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentExpressIn ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_Amount : MultiLanguageConvertHelper.AgentExpressIn_Mappings_Amount); break; }
+
+                        if (batchAE.BankType == AgentTransferBankType.Boc)
+                        {
+                            rd = DataCheckCenter.CheckProvince(null, ((int)data.Province).ToString(), null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentExpressIn ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeAccountProvince : MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerAccountProvince); break; }
+                        }
+                        else if (batchAE.BankType == AgentTransferBankType.Other)
+                        {
+                            if (aft == AppliableFunctionType.AgentExpressOut4Bar)
+                            {
+                                if (null != data.BankName && !string.IsNullOrEmpty(data.BankName.Trim()))
+                                {
+                                    rd = DataCheckCenter.CheckClearBankName(null, data.BankName, "", 80, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankName); break; }
+                                }
+                                else { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankName); break; }
+                                if (!string.IsNullOrEmpty(data.BankNo))
+                                {
+                                    rd = DataCheckCenter.CheckCNAPSNo(null, data.BankNo, "", null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankNo); break; }
+                                }
+                            }
+                            else
+                            {
+                                rd = DataCheckCenter.CheckCNAPSNo(null, data.BankNo, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentExpressIn ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeOpenBankNoOrCNAPSNo : MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerOpenBankNoOrCNAPSNo); break; }
+                            }
+                        }
+                        if (data.CertifyPaperType != AgentExpressCertifyPaperType.Empty && string.IsNullOrEmpty(data.CertifyPaperTypeString))
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentExpressIn ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyCardType : MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerCertifyCardType); break; }
+                        if (!string.IsNullOrEmpty(data.CertifyPaperNo))
+                        {
+                            rd = DataCheckCenter.CheckCertifyCardNo(null, data.CertifyPaperNo, MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerCertifyNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentExpressIn ? MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyNo : MultiLanguageConvertHelper.AgentExpressIn_Mappings_PayerCertifyNo); break; }
+                        }
+                        if (aft == AppliableFunctionType.AgentExpressIn)
+                        {
+                            if (!string.IsNullOrEmpty(data.ProtecolNo))
+                            {
+                                rd = DataCheckCenter.CheckProtecolNo(null, data.ProtecolNo, "", 60, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressIn_Mappings_SerialNo); break; }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.Bar_Addition))
+                        {
+                            rd = DataCheckCenter.CheckLength(null, data.Bar_Addition, "", 80, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressOut_Mappings_Bar_Addition); break; }
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.AgentNormalIn:
+                case AppliableFunctionType.AgentNormalOut:
+                    #region
+                    List<object> tempAN = list as List<object>;
+                    BatchHeader batchAN = tempAN[0] as BatchHeader;
+                    List<AgentNormal> dataANList = tempAN[1] as List<AgentNormal>;
+                    bool isIn = aft == AppliableFunctionType.AgentNormalIn;
+
+                    #region 检验批信息
+                    //ResultData rd = DataCheckCenter.CheckCustomerReferenceNo(batch.ProtecolNo);
+                    //if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //rd = DataCheckCenter.CheckPayerAccount(batch.Payer.Account);
+                    //if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //rd = DataCheckCenter.CheckAgentCardType(batch.CardType_Normal);
+                    //if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //rd = DataCheckCenter.CheckAddtion(batch.Addtion, 80);
+                    //if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //rd = DataCheckCenter.CheckPayFeeNo(batch.PayFeeNo, false);
+                    //if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //if (AppliableFunctionType.AgentNormalOut :
+                    //{
+                    //    rd = DataCheckCenter.CheckUseType(batch.UseType, true);
+                    //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //    rd = DataCheckCenter.CheckPayDatetime(batch.TransferDatetime);
+                    //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //}
+                    //case AppliableFunctionType.AgentNormalIn :
+                    //{
+                    //    rd = DataCheckCenter.CheckLinkBankNo(batch.BankNo);
+                    //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //    rd = DataCheckCenter.CheckAgentCardType(batch.CardType_Normal);
+                    //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //    rd = DataCheckCenter.CheckUseType(batch.UseType, false);
+                    //    if (!rd.Result) { return "批信息中数据格式有误"; }
+                    //}
+                    #endregion
+
+                    foreach (var data in dataANList)
+                    {
+                        if (batchAN.CardType == AgentCardType.OtherBankCard)
+                        {
+                            rd = DataCheckCenter.CheckCNAPSNo(null, data.BankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentNormalIn ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeOpenBankNo : MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerOpenBankNo); break; }
+                        }
+                        else
+                        {
+                            rd = DataCheckCenter.CheckLinkBankNo(null, data.BankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentNormalIn ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeOpenBankNo : MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerOpenBankNo); break; }
+                        }
+                        rd = DataCheckCenter.CheckPayerAccount(null, data.AccountNo, 35, null);
+                        if (!rd.Result)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentNormalIn ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeAccount : MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerAccount); break; }
+                        rd = DataCheckCenter.CheckPayeeName(null, data.AccountName, null);
+                        if (!rd.Result)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentNormalIn ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeName : MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerName); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.Amount, "", aft == AppliableFunctionType.AgentNormalIn ? 14 : 15, false, null);
+                        if (!rd.Result)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentNormalIn ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_Amount : MultiLanguageConvertHelper.AgentNormalIn_Mappings_Amount); break; }
+                        if (data.CertifyPaperType != AgentNormalCertifyPaperType.Empty && string.IsNullOrEmpty(data.CertifyPaperTypeString))
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentNormalIn ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeCertifyCardType : MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerCertifyCardType); break; }
+                        if (!string.IsNullOrEmpty(data.CertifyPaperNo))
+                        {
+                            rd = DataCheckCenter.CheckCertifyCardNo(null, data.CertifyPaperNo, MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerCertifyNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft != AppliableFunctionType.AgentNormalIn ? MultiLanguageConvertHelper.AgentNormalOut_Mappings_PayeeCertifyNo : MultiLanguageConvertHelper.AgentNormalIn_Mappings_PayerCertifyNo); break; }
+                        }
+                        if (isIn)
+                        {
+                            rd = DataCheckCenter.CheckAddtion(null, data.UseType_In, 60, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentNormalIn_Mappings_Usege); break; }
+                            if (!string.IsNullOrEmpty(data.ProtecolNo))
+                            {
+                                rd = DataCheckCenter.CheckProtecolNo(null, data.ProtecolNo, "", 60, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentNormalIn_Mappings_SerialNo); break; }
+                            }
+                        }
+                        else if (!isIn)
+                        {
+                            if (data.UseType != AgentNormalFunctionType.Empty)
+                            {
+                                if (string.IsNullOrEmpty(data.UseTypeString)) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentNormalOut_Mappings_Usege); break; }
+                                else if (!string.IsNullOrEmpty(data.UseTypeString))
+                                {
+                                    if (batchAN.UseType.Equals("0") && data.UseType != AgentNormalFunctionType.A10) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentNormalOut_Mappings_Usege); break; }
+                                    else if (batchAN.UseType.Equals("1") && (data.UseType == AgentNormalFunctionType.A10)) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentNormalOut_Mappings_Usege); break; }
+                                }
+                            }
+                            else { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentNormalOut_Mappings_Usege); break; }
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.ElecTicketRemit:
+                    #region
+                    List<ElecTicketRemit> dataERList = list as List<ElecTicketRemit>;
+                    foreach (var data in dataERList)
+                    {
+                        rd = DataCheckCenter.CheckCash(null, data.Amount, "", 18, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_Amount); break; }
+                        if (data.CanChange == CanChangeType.Empty) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_CanChange); break; }
+                        rd = DataCheckCenter.CheckPayDatetime(null, data.RemitDate, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_RemitDate); break; }
+                        rd = DataCheckCenter.CheckEndDatetime(null, data.EndDate, data.RemitDate, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_EndDate, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_EndDate); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.ExchangeAccount, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeAccount); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeName, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeName); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeOpenBankName, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeOpenBankName); break; }
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.ExchangeOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_ExchangeOpenBankNo); break; }
+                        if (!string.IsNullOrEmpty(data.Note))
+                        {
+                            rd = DataCheckCenter.CheckAddtion(null, data.Note, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_Note, 256, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_Note); break; }
+                        }
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.PayeeAccount, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeAccount); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.PayeeName, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeName); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.PayeeOpenBankName, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeOpenBankName); break; }
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.PayeeOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_PayeeOpenBankNo); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.RemitAccount, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_RemitAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_RemitAccount); break; }
+                        if (data.TicketType == ElecTicketType.Empty) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_Remit_Mappings_TicketType); break; }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.ElecTicketBackNote:
+                    #region
+                    List<ElecTicketBackNote> dataEBList = list as List<ElecTicketBackNote>;
+                    foreach (var data in dataEBList)
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.BackNotedAccount, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedAccount); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.BackNotedName, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedName); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.BackNotedOpenBankName, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedOpenBankName); break; }
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.BackNotedOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_BackNotedOpenBankNo); break; }
+                        rd = DataCheckCenter.CheckElecTicketSerialNo(null, data.ElecTicketSerialNo, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_TicketSerialNo, 30, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_TicketSerialNo); break; }
+                        if (!string.IsNullOrEmpty(data.Note))
+                        {
+                            rd = DataCheckCenter.CheckAddtion(null, data.Note, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_Note, 256, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_Note); break; }
+                        }
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.RemitAccount, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_Account, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_BackNoted_Mappings_Account); break; }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.ElecTicketPayMoney:
+                    #region
+                    List<ElecTicketPayMoney> dataEPMList = list as List<ElecTicketPayMoney>;
+                    foreach (var data in dataEPMList)
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.RemitAccount, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Account, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Account); break; }
+                        if (!string.IsNullOrEmpty(data.BillSerialNo))
+                        {
+                            rd = DataCheckCenter.CheckBillSerialNo(null, data.BillSerialNo, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_BillSerialNo, 60, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_BillSerialNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ContractNo))
+                        {
+                            rd = DataCheckCenter.CheckContractNo(null, data.ContractNo, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ContactNo, 60, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ContactNo); break; }
+                        }
+                        rd = DataCheckCenter.CheckElecTicketSerialNo(null, data.ElecTicketSerialNo, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_TicketSerialNo, 30, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_TicketSerialNo); break; }
+                        if (!string.IsNullOrEmpty(data.Note))
+                        {
+                            rd = DataCheckCenter.CheckAddtion(null, data.Note, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Note, 512, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_Note); break; }
+                        }
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.PayMoneyAccount, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyAccount); break; }
+                        if (!string.IsNullOrEmpty(data.PayMoneyOpenBankName))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.PayMoneyOpenBankName, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyOpenBankName, 120, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyOpenBankName); break; }
+                        }
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.PayMoneyOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyOpenBankNo); break; }
+                        rd = DataCheckCenter.CheckPayDatetime(null, data.PayMoneyDate, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayDate, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayDate); break; }
+                        rd = DataCheckCenter.CheckPayMoneyPercent(null, data.PayMoneyPercent.ToString(), MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyPercent, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyPercent); break; }
+                        if (data.ProtocolMoneyType == ProtocolMoneyType.NegotiatedInterestPayment)
+                        {
+                            rd = DataCheckCenter.CheckProtocolPercent(null, data.ProtocolMoneyPercent.ToString(), MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ProtocolMoneyPercent, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_ProtocolMoneyPercent); break; }
+                        }
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.StickOnAccount, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnccount); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.StickOnName, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnName); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.StickOnOpenBankName, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnOpenBankName); break; }
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.StickOnOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnOpenBankNo); break; }
+                        if (data.StickOnOpenBankNo.StartsWith("104") && !data.PayMoneyOpenBankNo.StartsWith("104"))
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_StickOnOpenBankNo + "和" + MultiLanguageConvertHelper.ElecTicket_PayMoney_Mappings_PayMoneyOpenBankNo); break; }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.ElecTicketTipExchange:
+                    #region
+                    List<ElecTicketAutoTipExchange> dataETList = list as List<ElecTicketAutoTipExchange>;
+                    foreach (var data in dataETList)
+                    {
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.RemitAccount, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_Account, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_Account); break; }
+                        if (!string.IsNullOrEmpty(data.BillSerialNo))
+                        {
+                            rd = DataCheckCenter.CheckBillSerialNo(null, data.BillSerialNo, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_BillSerialNo, 630, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_BillSerialNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ContractNo))
+                        {
+                            rd = DataCheckCenter.CheckContractNo(null, data.ContractNo, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ContactNo, 60, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ContactNo); break; }
+                        }
+                        rd = DataCheckCenter.CheckElecTicketSerialNo(null, data.ElecTicketSerialNo, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_TicketSerialNo, 30, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_TicketSerialNo); break; }
+                        if (!string.IsNullOrEmpty(data.ExchangeAccount))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.ExchangeAccount, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeAccount, 32, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeAccount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ExchangeName))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeName, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeName, 120, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ExchangeOpenBankName))
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeOpenBankName, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeOpenBankName, 120, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeOpenBankName); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ExchangeOpenBankNo))
+                        {
+                            rd = DataCheckCenter.CheckCNAPSNo(null, data.ExchangeOpenBankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_ExchangeOpenBankNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Note))
+                        {
+                            rd = DataCheckCenter.CheckAddtion(null, data.Note, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_Note, 512, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicket_AutoTipExchange_Mappings_Note); break; }
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.ElecTicketPool:
+                    #region
+                    List<ElecTicketPool> dataEPList = list as List<ElecTicketPool>;
+                    foreach (var data in dataEPList)
+                    {
+                        if (string.IsNullOrEmpty(data.ElecTicketTypeString))
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ElecTicketType); break; }
+                        if (!string.IsNullOrEmpty(data.CustomerRef))
+                        {
+                            rd = DataCheckCenter.CheckCustomerRefNo(null, data.CustomerRef, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_CustomerRef); break; }
+                        }
+                        rd = DataCheckCenter.CheckElecTicketSerialNo(null, data.ElecTicketSerialNo, MultiLanguageConvertHelper.ElecTicketPool_ElecTicketSerialNo, 30, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ElecTicketSerialNo); break; }
+                        try { DateTime.Parse(data.RemitDate); }
+                        catch { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_RemitDate); break; }
+                        try { DateTime.Parse(data.ExchangeDate); }
+                        catch { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeDate); break; }
+                        if (DateTime.Parse(data.RemitDate).Date > DateTime.Parse(data.ExchangeDate).Date)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeDate); break; }
+                        try { DateTime.Parse(data.EndDate); }
+                        catch { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_EndDate); break; }
+                        if (DateTime.Parse(data.RemitDate).Date > DateTime.Parse(data.EndDate).Date)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_EndDate); break; }
+                        if (DateTime.Parse(data.ExchangeDate).Date >= DateTime.Parse(data.EndDate).Date)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_EndDate); break; }
+                        if (DateTime.Parse(data.EndDate).Date > DateTime.Parse(data.RemitDate).AddMonths(6).Date)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_EndDate); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.Amount, "", 16, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_Amount); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.RemitAccount, MultiLanguageConvertHelper.ElecTicketPool_RemitAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_RemitAccount); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.RemitName, MultiLanguageConvertHelper.ElecTicketPool_RemitName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_RemitName); break; }
+                        if (data.ElecTicketType == ElecTicketType.AC01)
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeName, MultiLanguageConvertHelper.ElecTicketPool_ExchangeBankName, 120, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeBankName); break; }
+                            rd = DataCheckCenter.CheckCNAPSNo(null, data.ExchangeBankNo, MultiLanguageConvertHelper.ElecTicketPool_ExchangeBankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeBankNo); break; }
+                        }
+                        else if (data.ElecTicketType == ElecTicketType.AC02)
+                        {
+                            rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.ExchangeAccount, MultiLanguageConvertHelper.ElecTicketPool_ExchangeAccount, 32, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeAccount); break; }
+                            rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.ExchangeName, MultiLanguageConvertHelper.ElecTicketPool_ExchangeName, 120, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeName); break; }
+                            rd = DataCheckCenter.CheckCNAPSNo(null, data.ExchangeBankNo, MultiLanguageConvertHelper.ElecTicketPool_ExchangeOpenBankNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_ExchangeOpenBankNo); break; }
+                        }
+                        rd = DataCheckCenter.CheckElecTicketPersonAccount(null, data.PayeeAccount, MultiLanguageConvertHelper.ElecTicketPool_PayeeAccount, 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_PayeeAccount); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.PayeeName, MultiLanguageConvertHelper.ElecTicketPool_PayeeName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_PayeeName); break; }
+                        rd = DataCheckCenter.CheckElecTicketPersonNameOrBankName(null, data.PayeeOpenBankName, MultiLanguageConvertHelper.ElecTicketPool_PayeeOpenBankName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_PayeeOpenBankName); break; }
+                        rd = DataCheckCenter.CheckCNAPSNo(null, data.PayeeOpenBankNo, MultiLanguageConvertHelper.ElecTicketPool_PayeeOpenBankNo, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_PayeeOpenBankNo); break; }
+                        rd = DataCheckCenter.CheckPreBackNotedPerson(null, data.PreBackNotedPerson, MultiLanguageConvertHelper.ElecTicketPool_PreBackNotedPerson, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_PreBackNotedPerson); break; }
+                        if (data.BusinessType == ElecTicketPoolBusinessType.Empty || (data.BusinessType != ElecTicketPoolBusinessType.InPool2Struste && data.ElecTicketType == ElecTicketType.AC02))
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.ElecTicketPool_BusinessType); break; }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.TransferOverCountry:
+                case AppliableFunctionType.TransferForeignMoney:
+                case AppliableFunctionType.TransferForeignMoney4Bar:
+                case AppliableFunctionType.TransferOverCountry4Bar:
+                    #region
+                    List<TransferGlobal> dataTGList = list as List<TransferGlobal>;
+                    foreach (var data in dataTGList)
+                    {
+                        if (!string.IsNullOrEmpty(data.PayDate))
+                        {
+                            rd = DataCheckCenter.CheckPayDatetime(null, data.PayDate, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayDate); break; }
+                        }
+                        if (aft == AppliableFunctionType.TransferOverCountry4Bar)
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.RemitAddress + data.RemitName, MultiLanguageConvertHelper.TransferGlobal_RemitName, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitName + "和" + MultiLanguageConvertHelper.TransferGlobal_RemitAddress); break; }
+                        }
+                        //else if (AppliableFunctionType.TransferForeignMoney == aft
+                        //|| AppliableFunctionType.TransferOverBankOut == aft)
+                        //{ result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                        if (string.IsNullOrEmpty(data.PayFeeAccount))
+                        {
+                            if (aft == AppliableFunctionType.TransferForeignMoney || aft == AppliableFunctionType.TransferOverCountry)
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, string.Format("{0}、{1}和{2}必输其一", MultiLanguageConvertHelper.TransferGlobal_SpotAccount, MultiLanguageConvertHelper.TransferGlobal_PurchaseAccount, MultiLanguageConvertHelper.TransferGlobal_OtherAccount)); break; }
+                            else if (aft == AppliableFunctionType.TransferOverCountry4Bar)
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, string.Format("{0}和{1}必输其一", MultiLanguageConvertHelper.TransferGlobal_SpotAccount, MultiLanguageConvertHelper.TransferGlobal_PurchaseAccount)); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CustomerRef))
+                        {
+                            rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerRef, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CutomerRef); break; }
+                        }
+                        rd = DataCheckCenter.CheckCash(null, data.RemitAmount.ToString(), "", 15, data.PaymentCashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitAmount); break; }
+                        if (aft != AppliableFunctionType.TransferForeignMoney4Bar || (aft == AppliableFunctionType.TransferForeignMoney4Bar && !string.IsNullOrEmpty(data.PurchaseAccount)))
+                        {
+                            if (string.IsNullOrEmpty(data.SpotAccount) && string.IsNullOrEmpty(data.PurchaseAccount) && string.IsNullOrEmpty(data.OtherAccount))
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, "账户信息"); break; }
+                            if ((string.IsNullOrEmpty(data.RemitAmount) ? 0 : Convert.ToDouble(data.RemitAmount.ToString())) != (string.IsNullOrEmpty(data.SpotAmount) ? 0 : Convert.ToDouble(data.SpotAmount.ToString())) + (string.IsNullOrEmpty(data.PurchaseAmount) ? 0 : Convert.ToDouble(data.PurchaseAmount.ToString())) + (string.IsNullOrEmpty(data.OtherAmount) ? 0 : Convert.ToDouble(data.OtherAmount.ToString())))
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, "金额信息"); break; }
+                        }
+                        if ((string.IsNullOrEmpty(data.RemitAmount) ? 0 : Convert.ToDouble(data.RemitAmount.ToString())) != (string.IsNullOrEmpty(data.SpotAmount) ? 0 : Convert.ToDouble(data.SpotAmount.ToString())) + (string.IsNullOrEmpty(data.PurchaseAmount) ? 0 : Convert.ToDouble(data.PurchaseAmount.ToString())) + (string.IsNullOrEmpty(data.OtherAmount) ? 0 : Convert.ToDouble(data.OtherAmount.ToString())))
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, "金额信息"); break; }
+                        if (!string.IsNullOrEmpty(data.SpotAccount))
+                        {
+                            rd = DataCheckCenter.CheckPayerAccount(null, data.SpotAccount, MultiLanguageConvertHelper.TransferGlobal_SpotAccount, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_SpotAccount); break; }
+                            rd = DataCheckCenter.CheckCash(null, data.SpotAmount, "", 15, data.PaymentCashType == CashType.JPY, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_SpotAmount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PurchaseAccount))
+                        {
+                            rd = DataCheckCenter.CheckPayerAccount(null, data.PurchaseAccount, MultiLanguageConvertHelper.TransferGlobal_PurchaseAccount, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PurchaseAccount); break; }
+                            rd = DataCheckCenter.CheckCash(null, data.PurchaseAmount.ToString(), "", 15, data.PaymentCashType == CashType.JPY, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PurchaseAmount); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.OtherAccount))
+                        {
+                            rd = DataCheckCenter.CheckPayerAccount(null, data.OtherAccount, MultiLanguageConvertHelper.TransferGlobal_OtherAccount, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_OtherAccount); break; }
+                            rd = DataCheckCenter.CheckCash(null, data.OtherAmount.ToString(), "", 15, data.PaymentCashType == CashType.JPY, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_OtherAmount); break; }
+                        }
+                        if (aft != AppliableFunctionType.TransferForeignMoney4Bar || (aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.OtherBankAccount))
+                        {
+                            rd = DataCheckCenter.CheckOrgCode(null, data.OrgCode, MultiLanguageConvertHelper.TransferGlobal_OrgCode, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_OrgCode); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.PayeeOpenBankSwiftCode))
+                        {
+                            if (aft == AppliableFunctionType.TransferForeignMoney4Bar)
+                                rd = DataCheckCenter.CheckSwiftCodeFMBar(null, data.PayeeOpenBankSwiftCode, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankSwiftCode, null);
+                            else
+                                rd = DataCheckCenter.CheckSwiftCode(null, data.PayeeOpenBankSwiftCode, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankSwiftCode, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankSwiftCode); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CorrespondentBankSwiftCode))
+                        {
+                            rd = DataCheckCenter.CheckSwiftCode(null, data.CorrespondentBankSwiftCode, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankSwiftCode, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankSwiftCode); break; }
+                        }
+                        if (aft == AppliableFunctionType.TransferOverCountry || aft == AppliableFunctionType.TransferOverCountry4Bar)
+                        {
+                            #region
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.RemitName, MultiLanguageConvertHelper.TransferGlobal_RemitName, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitName); break; }
+                            if (!string.IsNullOrEmpty(data.RemitAddress))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.RemitAddress, MultiLanguageConvertHelper.TransferGlobal_RemitAddress, 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitAddress); break; }
+                            }
+                            rd = DataCheckCenter.CheckPayeeAccountGJ(null, data.PayeeAccount, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount, 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount); break; }
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeName, MultiLanguageConvertHelper.TransferGlobal_PayeeName, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeName); break; }
+                            if (!string.IsNullOrEmpty(data.PayeeAddress))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeAddress, 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAddress); break; }
+                            }
+                            rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.PayeeName, data.PayeeAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeName, MultiLanguageConvertHelper.TransferGlobal_PayeeAddress, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeName + "和" + MultiLanguageConvertHelper.TransferGlobal_PayeeAddress); break; }
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeOpenBankName, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName); break; }
+                            if (!string.IsNullOrEmpty(data.PayeeOpenBankSwiftCode))
+                            {
+                                rd = DataCheckCenter.CheckSwiftCode(null, data.PayeeOpenBankSwiftCode, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.PayeeOpenBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeOpenBankAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress, 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress); break; }
+                            }
+                            rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.PayeeOpenBankName, data.PayeeOpenBankAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress, 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankName + "和" + MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress); break; }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankName))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.CorrespondentBankName, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName, 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.CorrespondentBankAddress, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress, 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankName + data.CorrespondentBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.CorrespondentBankName, data.CorrespondentBankAddress, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress, 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName + "和" + MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.PayeeAccountInCorrespondentBank))
+                            {
+                                rd = DataCheckCenter.CheckPayeeAccountInCorrespondentBankGJ(null, data.PayeeAccountInCorrespondentBank, MultiLanguageConvertHelper.TransferGlobal_PayeeAccountInCorrespondentBank, 34, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAccountInCorrespondentBank); break; }
+                            }
+                            #endregion
+                        }
+                        else if (aft == AppliableFunctionType.TransferForeignMoney || aft == AppliableFunctionType.TransferForeignMoney4Bar)
+                        {
+                            #region
+                            if (aft == AppliableFunctionType.TransferForeignMoney)
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.RemitName, MultiLanguageConvertHelper.TransferGlobal_RemitName, 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitName); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.RemitAddress))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.RemitAddress, MultiLanguageConvertHelper.TransferGlobal_RemitAddress, aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.OtherBankAccount ? 64 : 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitAddress); break; }
+                            }
+                            if (data.PayeeOpenBankType == AccountBankType.Empty)
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankType); break; }
+                            if (data.PayeeOpenBankType == AccountBankType.BocAccount)
+                            {
+                                rd = DataCheckCenter.CheckPayeeAccountGJEx(null, data.PayeeAccount, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount, 20, true, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount); break; }
+                            }
+                            else if (data.PayeeOpenBankType == AccountBankType.OtherBankAccount)
+                            {
+                                rd = DataCheckCenter.CheckPayeeAccountGJEx(null, data.PayeeAccount, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount, 35, false, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAccount); break; }
+                            }
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeName, MultiLanguageConvertHelper.TransferGlobal_PayeeName, aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.OtherBankAccount ? 64 : 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeName); break; }
+                            if (!string.IsNullOrEmpty(data.PayeeAddress))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeAddress, aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.OtherBankAccount ? 64 : 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAddress); break; }
+                            }
+                            if ((SystemSettings.CurrentVersion & VersionType.t43) == VersionType.t43 && aft == AppliableFunctionType.TransferForeignMoney)
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress, 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress); break; }
+                            }
+                            else if (!string.IsNullOrEmpty(data.PayeeOpenBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankAddress, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress, 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeOpenBankAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankName))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.CorrespondentBankName, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName, 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankName); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.CorrespondentBankAddress, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress, 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_CorrespondentBankAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.PayeeAccountInCorrespondentBank))
+                            {
+                                rd = DataCheckCenter.CheckPayeeAccountInCorrespondentBankGJ(null, data.PayeeAccountInCorrespondentBank, MultiLanguageConvertHelper.TransferGlobal_PayeeAccountInCorrespondentBank, 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeAccountInCorrespondentBank); break; }
+                            }
+                            #endregion
+                        }
+                        if (aft != AppliableFunctionType.TransferForeignMoney4Bar || (aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.OtherBankAccount))
+                        {
+                            if (string.IsNullOrEmpty(data.PayeeNameofCountry) || string.IsNullOrEmpty(data.PayeeCodeofCountry))
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, "收款人常驻国家信息"); break; }
+                            rd = DataCheckCenter.CheckCountryName(null, data.PayeeCodeofCountry, MultiLanguageConvertHelper.TransferGlobal_PayeeNameofCountry, 30, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeNameofCountry); break; }
+                            if ((SystemSettings.CurrentVersion & VersionType.v403bar) == VersionType.v403bar)
+                                rd = DataCheckCenter.CheckCountryCodeBar(null, data.PayeeCodeofCountry, "", 3, null);
+                            else
+                                rd = DataCheckCenter.CheckCountryCode(null, data.PayeeCodeofCountry, "", 3, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayeeCodeofCountry); break; }
+                        }
+                        else if (aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.BocAccount)
+                        {
+                            if (data.AgentFunctionType_Express == AgentExpressFunctionType.Empty)
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressOut_Mappings_Usage); break; }
+                            if (data.CertifyPaperType != AgentExpressCertifyPaperType.Empty)
+                            {
+                                if (data.CertifyPaperType == AgentExpressCertifyPaperType.IDCard)
+                                    rd = DataCheckCenter.CheckCertifyCardNo(null, data.CertifyPaperNo, "", true, null);
+                                else
+                                    rd = DataCheckCenter.CheckCertifyCardNo(null, data.CertifyPaperNo, "", null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressOut_Mappings_PayeeCertifyNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.Bar_Addition))
+                            {
+                                rd = DataCheckCenter.CheckLength(null, data.Bar_Addition, "", 80, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.AgentExpressOut_Mappings_Bar_Addition); break; }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.RemitNote))
+                        {
+                            if (aft == AppliableFunctionType.TransferOverCountry
+                               || aft == AppliableFunctionType.TransferOverCountry4Bar)
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.RemitNote, MultiLanguageConvertHelper.TransferGlobal_RemitNote, 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitNote); break; }
+                            }
+                            else if (aft == AppliableFunctionType.TransferForeignMoney
+                                || aft == AppliableFunctionType.TransferForeignMoney4Bar)
+                            {
+                                if (aft != AppliableFunctionType.TransferForeignMoney4Bar || (aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.OtherBankAccount))
+                                {
+                                    rd = DataCheckCenter.CheckAddtion(null, data.RemitNote, MultiLanguageConvertHelper.TransferGlobal_RemitNote, aft == AppliableFunctionType.TransferForeignMoney4Bar ? 140 : 50, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_RemitNote); break; }
+                                }
+                            }
+                        }
+                        if (aft != AppliableFunctionType.TransferForeignMoney4Bar || (aft == AppliableFunctionType.TransferForeignMoney4Bar && data.PayeeOpenBankType == AccountBankType.OtherBankAccount))
+                        {
+                            #region
+                            if (string.IsNullOrEmpty(data.AssumeFeeTypeString))
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_AssumeFeeType); break; }
+                            if (aft != AppliableFunctionType.TransferForeignMoney4Bar || (aft == AppliableFunctionType.TransferForeignMoney4Bar && !string.IsNullOrEmpty(data.PayFeeAccount)))
+                            {
+                                if (string.IsNullOrEmpty(data.PayFeeAccount))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PayFeeAccount); break; }
+                            }
+                            if (aft == AppliableFunctionType.TransferForeignMoney)
+                            {
+                                if (string.IsNullOrEmpty(data.PaymentPropertyTypeString))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_PaymentPropertyType); break; }
+                            }
+                            if (aft == AppliableFunctionType.TransferForeignMoney)
+                            {
+                                if (string.IsNullOrEmpty(data.DealSerialNoF) && string.IsNullOrEmpty(data.DealSerialNoS))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, "交易编码信息"); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.DealSerialNoF))
+                            {
+                                rd = DataCheckCenter.CheckDealSerialNo(null, data.DealSerialNoF, MultiLanguageConvertHelper.TransferGlobal_DealSerialNoF, 6, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_DealSerialNoF); break; }
+                                rd = DataCheckCenter.CheckCash(null, data.AmountF.ToString(), "", 15, data.PaymentCashType == CashType.JPY, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_AmountF); break; }
+                                if (aft == AppliableFunctionType.TransferOverCountry || aft == AppliableFunctionType.TransferOverCountry4Bar)
+                                {
+                                    rd = DataCheckCenter.CheckAddtionExIAOrUPOrBR(null, data.DealNoteF, MultiLanguageConvertHelper.TransferGlobal_DealNoteF, aft == AppliableFunctionType.TransferOverCountry ? 100 : 50, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_DealNoteF); break; }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(data.DealSerialNoS))
+                            {
+                                rd = DataCheckCenter.CheckDealSerialNo(null, data.DealSerialNoS, MultiLanguageConvertHelper.TransferGlobal_DealSerialNoS, 6, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_DealSerialNoS); break; }
+                                rd = DataCheckCenter.CheckCash(null, data.AmountS.ToString(), "", 15, data.PaymentCashType == CashType.JPY, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_AmountS); break; }
+                                if (aft == AppliableFunctionType.TransferOverCountry || aft == AppliableFunctionType.TransferOverCountry4Bar)
+                                {
+                                    rd = DataCheckCenter.CheckAddtionExIAOrUPOrBR(null, data.DealNoteS, MultiLanguageConvertHelper.TransferGlobal_DealNoteS, aft == AppliableFunctionType.TransferOverCountry ? 100 : 50, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_DealNoteS); break; }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(data.ContactNo))
+                            {
+                                rd = DataCheckCenter.CheckSerialNoEx(null, data.ContactNo, MultiLanguageConvertHelper.TransferGlobal_ContactNo, 20, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_ContactNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.BillSerialNo))
+                            {
+                                rd = DataCheckCenter.CheckSerialNoEx(null, data.BillSerialNo, MultiLanguageConvertHelper.TransferGlobal_BillSerialNo, aft == AppliableFunctionType.TransferForeignMoney ? 20 : aft == AppliableFunctionType.TransferOverCountry ? 50 : 35, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_BillSerialNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.BatchNoOrTNoOrSerialNo))
+                            {
+                                rd = DataCheckCenter.CheckSerialNoEx(null, data.BatchNoOrTNoOrSerialNo, MultiLanguageConvertHelper.TransferGlobal_BatchNoOrTNoOrSerialNo, 20, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_BatchNoOrTNoOrSerialNo); break; }
+                            }
+                            rd = DataCheckCenter.CheckProposerName(null, data.ProposerName, MultiLanguageConvertHelper.TransferGlobal_ProposerName, 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_ProposerName); break; }
+                            rd = DataCheckCenter.CheckTelePhone(null, data.Telephone, MultiLanguageConvertHelper.TransferGlobal_Telephone, 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.TransferGlobal_Telephone); break; }
+                            #endregion
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.InitiativeAllot:
+                    #region
+                    List<object> temp = list as List<object>;
+                    BatchHeader batch = temp[0] as BatchHeader;
+                    List<InitiativeAllot> dataList = temp[1] as List<InitiativeAllot>;
+
+                    foreach (var data in dataList)
+                    {
+                        rd = DataCheckCenter.CheckAccountExIA(null, data.AccountOut.Trim(), MultiLanguageConvertHelper.InitiativeAllot_AccountOut, 22, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_AccountOut); break; }
+                        if (!string.IsNullOrEmpty(data.NameOut))
+                        {
+                            rd = DataCheckCenter.CheckNameExIA(null, data.NameOut.Trim(), MultiLanguageConvertHelper.InitiativeAllot_NameOut, 76, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_NameOut); break; }
+                        }
+                        rd = DataCheckCenter.CheckAccountExIA(null, data.AccountIn.Trim(), MultiLanguageConvertHelper.InitiativeAllot_AccountIn, 22, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_AccountIn); break; }
+                        if (!string.IsNullOrEmpty(data.NameIn))
+                        {
+                            rd = DataCheckCenter.CheckNameExIA(null, data.NameIn.Trim(), MultiLanguageConvertHelper.InitiativeAllot_NameIn, 76, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_NameIn); break; }
+                        }
+                        rd = DataCheckCenter.CheckCash(null, data.Amount.ToString().Trim(), MultiLanguageConvertHelper.InitiativeAllot_Amount, 14, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_Amount); break; }
+                        if (!string.IsNullOrEmpty(data.Addition))
+                        {
+                            rd = DataCheckCenter.CheckAddtionExIAOrUPOrBR(null, data.Addition.Trim(), MultiLanguageConvertHelper.InitiativeAllot_Addition, 200, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.InitiativeAllot_Addition); break; }
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.ApplyofFranchiserFinancing:
+                    #region
+                    List<SpplyFinancingApply> dataSFList = list as List<SpplyFinancingApply>;
+                    foreach (var data in dataSFList)
+                    {
+                        rd = DataCheckCenter.CheckContractOrOrderNo(null, data.ContractOrOrderNo, MultiLanguageConvertHelper.SpplyFinancingApply_ContractOrOrderNo, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_ContractOrOrderNo); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.ContractOrOrderAmount, "", 15, data.ContractOrOrderCashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_OrderAmount); break; }
+                        if (!string.IsNullOrEmpty(data.TaxInvoiceNo))
+                        {
+                            rd = DataCheckCenter.CheckTaxBillSerialNo(null, data.TaxInvoiceNo, MultiLanguageConvertHelper.SpplyFinancingApply_TaxInvoiceNo, 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_TaxInvoiceNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ReceiptNo))
+                        {
+                            rd = DataCheckCenter.CheckReceiptNo(null, data.ReceiptNo, MultiLanguageConvertHelper.SpplyFinancingApply_ReceiptNo, 40, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_ReceiptNo); break; }
+                        }
+                        rd = DataCheckCenter.CheckRiskTakingLetterNo(null, data.RiskTakingLetterNo, MultiLanguageConvertHelper.SpplyFinancingApply_RiskTakingLetterNo, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_RiskTakingLetterNo); break; }
+                        if (!string.IsNullOrEmpty(data.GoodsDesc))
+                        {
+                            rd = DataCheckCenter.CheckGoodsDesc(null, data.GoodsDesc, MultiLanguageConvertHelper.SpplyFinancingApply_GoodsDesc, 600, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_GoodsDesc); break; }
+                        }
+                        rd = DataCheckCenter.CheckCash(null, data.ApplyAmount, "", 15, data.ContractOrOrderCashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_ApplyAmount); break; }
+                        rd = DataCheckCenter.CheckApplyDays(null, data.ApplyDays.ToString(), MultiLanguageConvertHelper.SpplyFinancingApply_ApplyDays, 4, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_ApplyDays); break; }
+                        if (!string.IsNullOrEmpty(data.AgreementNo))
+                        {
+                            rd = DataCheckCenter.CheckAgrementNo(null, data.AgreementNo, MultiLanguageConvertHelper.SpplyFinancingApply_AgrementNo, 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_AgrementNo); break; }
+                        }
+                        if (data.InterestFloatType == InterestFloatType.Empty)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_InterestFloatType); break; }
+                        if (data.InterestFloatType != InterestFloatType.No)
+                        {
+                            rd = DataCheckCenter.CheckInterestFloatingPercent(null, data.InterestFloatingPercent, MultiLanguageConvertHelper.SpplyFinancingApply_InterestFloatingPercent, 12, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_InterestFloatingPercent); break; }
+                        }
+                        else if (data.InterestFloatType == InterestFloatType.No && data.InterestFloatingPercent != "0")
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingApply_InterestFloatingPercent); break; }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.PurchaserOrder:
+                case AppliableFunctionType.SellerOrder:
+                    #region
+                    List<SpplyFinancingOrder> dataSFOList = list as List<SpplyFinancingOrder>;
+                    foreach (var data in dataSFOList)
+                    {
+                        rd = DataCheckCenter.CheckOrderNo(null, data.OrderNo, MultiLanguageConvertHelper.SpplyFinancingOrder_OrderNo, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_OrderNo); break; }
+                        if (data.CashType == CashType.Empty)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_CashType); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.Amount.ToString(), "", 15, data.CashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_Amount); break; }
+                        if (aft == AppliableFunctionType.PurchaserOrder)
+                        {
+                            if (string.IsNullOrEmpty(data.ERPCode) && string.IsNullOrEmpty(data.CustomerApplyNo))
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_ERPCode_Seller + "和" + MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerNo_Seller); break; }
+                            if (!string.IsNullOrEmpty(data.ERPCode))
+                            {
+                                rd = DataCheckCenter.CheckERPCode(null, data.ERPCode, MultiLanguageConvertHelper.SpplyFinancingOrder_ERPCode_Seller, 40, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_ERPCode_Seller); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CustomerApplyNo))
+                            {
+                                rd = DataCheckCenter.CheckBankCustomerNo(null, data.CustomerApplyNo, MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerNo_Seller, 40, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerNo_Seller); break; }
+                            }
+                        }
+                        else if (aft == AppliableFunctionType.SellerOrder)
+                        {
+                            rd = DataCheckCenter.CheckCustomerNamePurchase(null, data.CustomerName, MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerName_Purchase, 80, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_CustomerName_Purchase); break; }
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.PurchaserOrderMgr:
+                case AppliableFunctionType.SellerOrderMgr:
+                    #region
+                    List<SpplyFinancingOrder> dataSFOMList = list as List<SpplyFinancingOrder>;
+                    foreach (var data in dataSFOMList)
+                    {
+                        rd = DataCheckCenter.CheckOrderNo(null, data.OrderNo, MultiLanguageConvertHelper.SpplyFinancingOrder_OrderNo, 70, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_OrderNo); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.Amount, "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingOrder_Amount); break; }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.BillofDebtReceivablePurchaser:
+                case AppliableFunctionType.BillofDebtReceivableSeller:
+                    #region
+                    List<SpplyFinancingBill> dataSFBList = list as List<SpplyFinancingBill>;
+                    foreach (var data in dataSFBList)
+                    {
+                        if (!string.IsNullOrEmpty(data.BillSerialNo))
+                        {
+                            rd = DataCheckCenter.CheckBillSerialNoSF(null, data.BillSerialNo.Trim(), MultiLanguageConvertHelper.SpplyFinancingBill_BillSerialNo, 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingBill_BillSerialNo); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.ContractNo))
+                        {
+                            rd = DataCheckCenter.CheckContractNoEx(null, data.ContractNo.Trim(), MultiLanguageConvertHelper.SpplyFinancingBill_ContractNo, 40, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingBill_ContractNo); break; }
+                        }
+                        rd = DataCheckCenter.CheckBankCustomerNo(null, data.CustomerNo.Trim(), aft == AppliableFunctionType.BillofDebtReceivableSeller ? MultiLanguageConvertHelper.SpplyFinancingBill_CustomerNo_Purchase : MultiLanguageConvertHelper.SpplyFinancingBill_CustomerNo_Seller, 16, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.BillofDebtReceivableSeller ? MultiLanguageConvertHelper.SpplyFinancingBill_CustomerNo_Purchase : MultiLanguageConvertHelper.SpplyFinancingBill_CustomerNo_Seller); break; }
+                        rd = DataCheckCenter.CheckCustomerName(null, data.CustomerName.Trim(), aft == AppliableFunctionType.BillofDebtReceivableSeller ? MultiLanguageConvertHelper.SpplyFinancingBill_CustomerName_Purchase : MultiLanguageConvertHelper.SpplyFinancingBill_CustomerName_Seller, 80, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, aft == AppliableFunctionType.BillofDebtReceivableSeller ? MultiLanguageConvertHelper.SpplyFinancingBill_CustomerName_Purchase : MultiLanguageConvertHelper.SpplyFinancingBill_CustomerName_Seller); break; }
+                        if (data.CashType == CashType.Empty)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingBill_CashType); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.Amount, "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingBill_Amount); break; }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.PaymentOrReceiptofDebtReceivablePurchaser:
+                    #region
+                    List<SpplyFinancingPayOrReceipt> dataSFPRList = list as List<SpplyFinancingPayOrReceipt>;
+                    foreach (var data in dataSFPRList)
+                    {
+                        if (!string.IsNullOrEmpty(data.BillSerialNo))
+                        {
+                            rd = DataCheckCenter.CheckBillSerialNoSF(null, data.BillSerialNo.Trim(), MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_BillSerialNo, 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_BillSerialNo); break; }
+                        }
+                        rd = DataCheckCenter.CheckBankCustomerNo(null, data.CustomerNo, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CustomerNo, 16, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CustomerNo); break; }
+                        rd = DataCheckCenter.CheckCustomerName(null, data.CustomerName.Trim(), MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CustomerName, 80, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CustomerName); break; }
+                        if (data.CashType == CashType.Empty) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_CashType); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.PayAmountForThisTime.ToString(), "", 17, data.CashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.SpplyFinancingPayOrReceipt_AmountThisTime); break; }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.UnitivePaymentRMB:
+                    #region
+                    List<UnitivePaymentRMB> dataUPRMBList = list as List<UnitivePaymentRMB>;
+                    foreach (var data in dataUPRMBList)
+                    {
+
+                        rd = DataCheckCenter.CheckPayerAccountUP(null, data.PayerAccount, "", 12, 18, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayerAccount); break; }
+                        if (!string.IsNullOrEmpty(data.PayerName))
+                        {
+                            rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.PayerName, "", 200, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayerName); break; }
+                        }
+                        rd = DataCheckCenter.CheckPayeeAccountUP(null, data.PayeeAccount, "", 32, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeAccount); break; }
+                        rd = DataCheckCenter.CheckPayeeNameAgentInOrUP(null, data.PayeeName, "", 76, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeName); break; }
+                        if (data.BankType == AccountBankType.OtherBankAccount)
+                        {
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeOpenBankName); break; }
+                            if (!string.IsNullOrEmpty(data.PayeeCNAPS))
+                            {
+                                rd = DataCheckCenter.CheckCNAPSNo(null, data.PayeeCNAPS, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_PayeeCNAPS); break; }
+                            }
+                        }
+                        rd = DataCheckCenter.CheckAccountUP(null, data.NominalPayerAccount, "", 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_NominalPayerAccount); break; }
+                        rd = DataCheckCenter.CheckPayeeNameAgentInOrUP(null, data.NominalPayerName, "", 76, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_NominalPayerName); break; }
+                        //rd = DataCheckCenter.CheckLinkBankNo(null, data.NominalPayerBankLinkNo, "", null);
+                        //if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                        //rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.NominalPayerOpenBankName, "", 160, null);
+                        //if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.Amount.ToString(), "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_Amount); break; }
+                        if (!string.IsNullOrEmpty(data.Purpose))
+                        {
+                            rd = DataCheckCenter.CheckAddtionExIAOrUPOrBR(null, data.Purpose, "", 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_Purpose); break; }
+                        }
+                        if (data.UnitivePaymentType == UnitivePaymentType.Empty)
+                        { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_UnitivePaymentType); break; }
+                        if (!string.IsNullOrEmpty(data.CustomerBusinissNo))
+                        {
+                            rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerBusinissNo, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_CustomerBusinissNo); break; }
+                        }
+                        if (data.IsTipPayee || (!data.IsTipPayee && !string.IsNullOrEmpty(data.TipPayeePhone)))
+                        {
+                            rd = DataCheckCenter.CheckPayeePhone(null, data.TipPayeePhone, 11, 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentRMB_TipPayeePhone); break; }
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.UnitivePaymentFC:
+                    #region
+                    List<UnitivePaymentForeignMoney> dataUPFCList = list as List<UnitivePaymentForeignMoney>;
+                    foreach (var data in dataUPFCList)
+                    {
+                        if (data.PayeeAccountType == OverCountryPayeeAccountType.BocAccount)
+                        {
+                            #region
+                            rd = DataCheckCenter.CheckPayerAccountUP(null, data.PayerAccount, "", 12, 18, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerAccount); break; }
+                            if (!string.IsNullOrEmpty(data.PayerName))
+                            {
+                                rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.PayerName, "", 200, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerName); break; }
+                            }
+                            rd = DataCheckCenter.CheckElecTicketPersonAccountFC(null, data.NominalPayerAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerAccount); break; }
+                            rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.NominalPayerName, "", 200, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerName); break; }
+                            rd = DataCheckCenter.CheckElecTicketPersonAccountFC(null, data.PayeeAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccount); break; }
+                            rd = DataCheckCenter.CheckPayeeNameAgentInOrUP(null, data.PayeeName, "", 240, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeName); break; }
+                            if (string.IsNullOrEmpty(data.CodeofCountry))
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CodeofCountry); break; }
+                            if (!string.IsNullOrEmpty(data.CustomerBusinissNo))
+                            {
+                                rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerBusinissNo, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CustomerBusinissNo); break; }
+                            }
+                            rd = DataCheckCenter.CheckCash(null, Convert.ToDouble(data.Amount), 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Amount); break; }
+                            if (!string.IsNullOrEmpty(data.Addtion))
+                            {
+                                rd = DataCheckCenter.CheckPayeeAddtion(null, data.Addtion, "", 120, true, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Addtion); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.Purpose))
+                            {
+                                rd = DataCheckCenter.CheckAddtionFCForeign(null, data.Purpose, "", 20, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Purpose); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionCode1))
+                            {
+                                rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode1, "", 6, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode1); break; }
+                                if (string.IsNullOrEmpty(data.IPPSMoneyTypeAmount1))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1); break; }
+                                else
+                                {
+                                    rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount1, "", 15, data.CashType == CashType.JPY, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1); break; }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionCode2))
+                            {
+                                rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode2, "", 6, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode2); break; }
+                                if (string.IsNullOrEmpty(data.IPPSMoneyTypeAmount2))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2); break; }
+                                else
+                                {
+                                    rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount2, "", 15, data.CashType == CashType.JPY, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2); break; }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(data.ContractNo))
+                            {
+                                rd = DataCheckCenter.CheckLength(null, data.ContractNo, "", 20, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ContractNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.BatchNoOrTNoOrSerialNo))
+                            {
+                                rd = DataCheckCenter.CheckLength(null, data.BatchNoOrTNoOrSerialNo, "", 20, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_BatchNoOrTNoOrSerialNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.InvoiceNo))
+                            {
+                                rd = DataCheckCenter.CheckBillSerialNoSF(null, data.InvoiceNo, "", 50, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_InvoiceNo); break; }
+                            }
+                            rd = DataCheckCenter.CheckProposerName(null, data.ApplicantName, "", 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ApplicantName); break; }
+                            rd = DataCheckCenter.CheckTelePhone(null, data.Contactnumber, "", 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Contactnumber); break; }
+                            #endregion
+                        }
+                        else if (data.PayeeAccountType == OverCountryPayeeAccountType.OtherAccount)
+                        {
+                            #region
+                            rd = DataCheckCenter.CheckPayerAccountUP(null, data.PayerAccount, "", 12, 18, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerAccount); break; }
+                            if (!string.IsNullOrEmpty(data.PayerName))
+                            {
+                                rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.PayerName, "", 200, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerName); break; }
+                            }
+                            rd = DataCheckCenter.CheckElecTicketPersonAccountFC(null, data.NominalPayerAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerAccount); break; }
+                            rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.NominalPayerName, "", 200, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerName); break; }
+                            rd = DataCheckCenter.CheckElecTicketPersonAccountFC(null, data.PayeeAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccount); break; }
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeName, "", 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeName); break; }
+                            if (!string.IsNullOrEmpty(data.Address))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.Address, "", 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Address); break; }
+                            }
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankName); break; }
+                            if (!string.IsNullOrEmpty(data.PayeeOpenBankSwiftCode))
+                            {
+                                rd = DataCheckCenter.CheckSwiftCode(null, data.PayeeOpenBankSwiftCode, "", null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankSwiftCode); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.OpenBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.OpenBankAddress, "", 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_OpenBankAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankName))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.CorrespondentBankName, "", 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankName); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankSwiftCode))
+                            {
+                                rd = DataCheckCenter.CheckSwiftCode(null, data.CorrespondentBankSwiftCode, "", null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankSwiftCode); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckCountryName(null, data.CorrespondentBankAddress, "", 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.PayeeAccountInCorrespondentBank))
+                            {
+                                rd = DataCheckCenter.CheckPayeeAccountInCorrespondentBankGJ(null, data.PayeeAccountInCorrespondentBank, "", 35, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccountInCorrespondentBank); break; }
+                            }
+                            rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.PayeeName, data.Address, "", "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeName + "和" + MultiLanguageConvertHelper.UnitivePaymentFC_Address); break; }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankName) || !string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.CorrespondentBankName, data.CorrespondentBankAddress, "", "", 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankName + "和" + MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankAddress); break; }
+                            }
+                            if (string.IsNullOrEmpty(data.CodeofCountry))
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CodeofCountry); break; }
+                            rd = DataCheckCenter.CheckCash(null, Convert.ToDouble(data.Amount), 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CashType); break; }
+                            rd = DataCheckCenter.CheckOrgCode(null, data.OrgCode, "", null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_OrgCode); break; }
+                            if (!string.IsNullOrEmpty(data.CustomerBusinissNo))
+                            {
+                                rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerBusinissNo, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CustomerBusinissNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.realPayAddress))
+                            {
+                                rd = DataCheckCenter.ChecktbRemittorAddress(null, data.realPayAddress, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_realPayAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.Addtion))
+                            {
+                                rd = DataCheckCenter.CheckPayeeAddtion(null, data.Addtion, "", 120, false, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Addtion); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionCode1))
+                            {
+                                rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode1, "", 6, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode1); break; }
+                                if (string.IsNullOrEmpty(data.IPPSMoneyTypeAmount1))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1); break; }
+                                else
+                                {
+                                    rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount1, "", 15, data.CashType == CashType.JPY, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1); break; }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionCode2))
+                            {
+                                rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode2, "", 6, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode2); break; }
+                                if (string.IsNullOrEmpty(data.IPPSMoneyTypeAmount2))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2); break; }
+                                else
+                                {
+                                    rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount2, "", 15, data.CashType == CashType.JPY, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2); break; }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(data.ContractNo))
+                            {
+                                rd = DataCheckCenter.CheckLength(null, data.ContractNo, "", 20, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ContractNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.BatchNoOrTNoOrSerialNo))
+                            {
+                                rd = DataCheckCenter.CheckLength(null, data.BatchNoOrTNoOrSerialNo, "", 40, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_BatchNoOrTNoOrSerialNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.InvoiceNo))
+                            {
+                                rd = DataCheckCenter.CheckLength(null, data.InvoiceNo, "", 35, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_InvoiceNo); break; }
+                            }
+                            rd = DataCheckCenter.CheckProposerName(null, data.ApplicantName, "", 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ApplicantName); break; }
+                            rd = DataCheckCenter.CheckTelePhone(null, data.Contactnumber, "", 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Contactnumber); break; }
+                            #endregion
+                        }
+                        else if (data.PayeeAccountType == OverCountryPayeeAccountType.ForeignAccount)
+                        {
+                            #region
+                            rd = DataCheckCenter.CheckPayerAccountUP(null, data.PayerAccount, "", 12, 18, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerAccount); break; }
+                            if (!string.IsNullOrEmpty(data.PayerName))
+                            {
+                                rd = DataCheckCenter.CheckPayerNameOrBankNameUP(null, data.PayerName, "", 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayerName); break; }
+                            }
+                            rd = DataCheckCenter.CheckAccountUP(null, data.NominalPayerAccount, "", 35, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerAccount); break; }
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.NominalPayerName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerName); break; }
+                            if (data.PaymentCountryOrArea == Transfer2CountryType.Empty)
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PaymentCountryOrArea); break; }
+                            if (data.FCPayeeAccountType == UnitiveFCPayeeAccountType.Empty)
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, "收款人账户类型"); break; }
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeAccount, "", 34, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccount); break; }
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.PayeeName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeName); break; }
+                            if (!string.IsNullOrEmpty(data.Address))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.Address, "", 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Address); break; }
+                            }
+                            rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.PayeeOpenBankName, "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankName); break; }
+                            if (!string.IsNullOrEmpty(data.PayeeOpenBankSwiftCode))
+                            {
+                                rd = DataCheckCenter.CheckSwiftCode(null, data.PayeeOpenBankSwiftCode, "", null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeOpenBankSwiftCode); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.OpenBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.OpenBankAddress, "", 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_OpenBankAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankName))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJ(null, data.CorrespondentBankName, "", 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankName); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankSwiftCode))
+                            {
+                                rd = DataCheckCenter.CheckSwiftCode(null, data.CorrespondentBankSwiftCode, "", null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankSwiftCode); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckCountryName(null, data.CorrespondentBankAddress, "", 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.PayeeAccountInCorrespondentBank))
+                            {
+                                rd = DataCheckCenter.CheckPayeeAccountInCorrespondentBankGJ(null, data.PayeeAccountInCorrespondentBank, "", 35, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeAccountInCorrespondentBank); break; }
+                            }
+                            rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.PayeeName, data.Address, "", "", 140, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_PayeeName + " 和" + MultiLanguageConvertHelper.UnitivePaymentFC_Address); break; }
+                            if (!string.IsNullOrEmpty(data.CorrespondentBankName) || !string.IsNullOrEmpty(data.CorrespondentBankAddress))
+                            {
+                                rd = DataCheckCenter.CheckNameAndAddressLengthGJ(null, data.CorrespondentBankName, data.CorrespondentBankAddress, "", "", 140, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankName + "和" + MultiLanguageConvertHelper.UnitivePaymentFC_CorrespondentBankAddress); break; }
+                            }
+                            if (string.IsNullOrEmpty(data.CodeofCountry))
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CodeofCountry); break; }
+                            rd = DataCheckCenter.CheckCash(null, Convert.ToDouble(data.Amount), 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Amount); break; }
+                            rd = DataCheckCenter.CheckOrgCode(null, data.OrgCode, "", null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_OrgCode); break; }
+                            if (!string.IsNullOrEmpty(data.CustomerBusinissNo))
+                            {
+                                rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerBusinissNo, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_CustomerBusinissNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.realPayAddress))
+                            {
+                                rd = DataCheckCenter.ChecktbRemittorAddress(null, data.realPayAddress, null, data.PayeeAccountType);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_realPayAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.NominalPayerAddress))
+                            {
+                                rd = DataCheckCenter.CheckNominalAddressFC(null, data.NominalPayerAddress, "", 280, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_NominalPayerAddress); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.Addtion))
+                            {
+                                rd = DataCheckCenter.CheckAddtionFCForeign(null, data.Addtion, "", 120, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Addtion); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionCode1))
+                            {
+                                rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode1, "", 6, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode1); break; }
+                                if (string.IsNullOrEmpty(data.IPPSMoneyTypeAmount1))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1); break; }
+                                else
+                                {
+                                    rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount1, "", 15, data.CashType == CashType.JPY, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount1); break; }
+                                }
+                                if (string.IsNullOrEmpty(data.TransactionAddtion1))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion1); break; }
+                                else
+                                {
+                                    rd = DataCheckCenter.CheckAddtionFCForeign(null, data.TransactionAddtion1, "", 50, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion1); break; }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(data.TransactionCode2))
+                            {
+                                rd = DataCheckCenter.CheckDealSerialNo(null, data.TransactionCode2, "", 6, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionCode2); break; }
+                                if (string.IsNullOrEmpty(data.IPPSMoneyTypeAmount2))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2); break; }
+                                else
+                                {
+                                    rd = DataCheckCenter.CheckCash(null, data.IPPSMoneyTypeAmount2, "", 15, data.CashType == CashType.JPY, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_IPPSMoneyTypeAmount2); break; }
+                                }
+                                if (string.IsNullOrEmpty(data.TransactionAddtion2))
+                                { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion2); break; }
+                                else
+                                {
+                                    rd = DataCheckCenter.CheckAddtionFCForeign(null, data.TransactionAddtion2, "", 50, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_TransactionAddtion2); break; }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(data.ContractNo))
+                            {
+                                rd = DataCheckCenter.CheckLength(null, data.ContractNo, "", 20, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ContractNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.BatchNoOrTNoOrSerialNo))
+                            {
+                                rd = DataCheckCenter.CheckLength(null, data.BatchNoOrTNoOrSerialNo, "", 20, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_BatchNoOrTNoOrSerialNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.InvoiceNo))
+                            {
+                                rd = DataCheckCenter.CheckPayeeNameOrAddressGJEx(null, data.InvoiceNo, "", 50, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_InvoiceNo); break; }
+                            }
+                            rd = DataCheckCenter.CheckProposerName(null, data.ApplicantName, "", 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_ApplicantName); break; }
+                            rd = DataCheckCenter.CheckTelePhone(null, data.Contactnumber, "", 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.UnitivePaymentFC_Contactnumber); break; }
+                            #endregion
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.VirtualAccountTransfer:
+                    #region
+                    List<VirtualAccount> dataListV = list as List<VirtualAccount>;
+                    foreach (var data in dataListV)
+                    {
+                        rd = DataCheckCenter.CheckAccountUP(null, data.AccountOut.Trim(), MultiLanguageConvertHelper.Virtual_AccountOut, 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_AccountOut); break; }
+
+                        rd = DataCheckCenter.CheckVirtualAccountName(null, data.NameOut.Trim(), MultiLanguageConvertHelper.Virtual_NameOut, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_NameOut); break; }
+
+                        rd = DataCheckCenter.CheckAccountUP(null, data.AccountIn.Trim(), MultiLanguageConvertHelper.Virtual_AccountIn, 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_AccountIn); break; }
+
+                        rd = DataCheckCenter.CheckVirtualAccountName(null, data.NameIn.Trim(), MultiLanguageConvertHelper.Virtual_NameIn, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_NameIn); break; }
+
+                        rd = DataCheckCenter.CheckCash(null, data.Amount.ToString().Trim(), MultiLanguageConvertHelper.Virtual_Amount, 14, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_Amount); break; }
+                        if (!string.IsNullOrEmpty(data.Purpose))
+                        {
+                            rd = DataCheckCenter.CheckPayeeAddtion(null, data.Purpose.Trim(), MultiLanguageConvertHelper.Virtual_Pursion, 200, false, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_Pursion); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.CustomerBusinissNo))
+                        {
+                            rd = DataCheckCenter.CheckCustomerRefNoGJOrUPEx(null, data.CustomerBusinissNo.Trim(), null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Virtual_CustomerBusinissNo); break; }
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.PreproccessTransfer:
+                    #region
+                    List<PreproccessTransfer> dataListP = list as List<PreproccessTransfer>;
+                    foreach (var data in dataListP)
+                    {
+                        rd = DataCheckCenter.CheckVirtualAccountName(null, data.PreproccessName, MultiLanguageConvertHelper.Preproccess_PreproccessName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_PreproccessName); break; }
+                        rd = DataCheckCenter.CheckAccountUP(null, data.PreproccessAccount, MultiLanguageConvertHelper.Preproccess_PreproccessAccount, 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_PreproccessAccount); break; }
+                        if (string.IsNullOrEmpty(data.CashTypeString)) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_PreproccessAccount); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.PreproccessAmount.Replace("-", ""), MultiLanguageConvertHelper.Preproccess_PreproccessAmount, 16, data.CashType == CashType.JPY, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_PreproccessAmount); break; }
+                        rd = DataCheckCenter.CheckAccountUP(null, data.MainAccount, MultiLanguageConvertHelper.Preproccess_MainAccount, 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_MainAccount); break; }
+                        rd = DataCheckCenter.CheckPayerAccountUP(null, data.TradeSerialNo, MultiLanguageConvertHelper.Preproccess_TradeSerialNo, 1, 12, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_TradeSerialNo); break; }
+                        rd = DataCheckCenter.CheckPayerAccountUP(null, data.BatchTradeSerialNo, MultiLanguageConvertHelper.Preproccess_BatchTradeSerialNo, 1, 20, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_BatchTradeSerialNo); break; }
+                        rd = DataCheckCenter.CheckVirtualAccountName(null, data.InvolvedName, MultiLanguageConvertHelper.Preproccess_InvolvedName, 120, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_InvolvedName); break; }
+                        rd = DataCheckCenter.CheckAccountUP(null, data.InvolvedAccount, MultiLanguageConvertHelper.Preproccess_InvolvedAccount, 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_InvolvedAccount); break; }
+                        try { DateTime.Parse(DataConvertHelper.FormatDateTimeFromInt(data.TradeDate)); }
+                        catch { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_TradeDate); break; }
+                        rd = DataCheckCenter.CheckAccountUP(null, data.VirtualAccount, MultiLanguageConvertHelper.Preproccess_VirtualAccount, 35, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_VirtualAccount); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.Amount.Replace("-", ""), MultiLanguageConvertHelper.Preproccess_TradeAmount, 16, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Preproccess_TradeAmount); break; }
+                    }
+                    #endregion
+                    break;
+                case AppliableFunctionType.BatchReimbursement:
+                    #region
+                    List<BatchReimbursement> dataListBR = list as List<BatchReimbursement>;
+                    foreach (var data in dataListBR)
+                    {
+                        rd = DataCheckCenter.CheckCardNo(null, data.CardNo, "", 16, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_CardNo); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.PayAmount, "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_PayAmount); break; }
+                        try
+                        {
+                            DateTime dt = DateTime.Parse(data.PayDateTime);
+                            if (dt.Date > DateTime.Today.Date || dt.Date < DateTime.Today.AddYears(-1).Date)
+                            { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_PayAmount); break; }
+                        }
+                        catch { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_PayDateTime); break; }
+                        rd = DataCheckCenter.CheckPayPassword(null, data.PayPassword, "", 13, 16, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_PayPassword); break; }
+                        rd = DataCheckCenter.CheckCash(null, data.ReimburseAmount, "", 15, false, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_ReimburseAmount); break; }
+                        rd = DataCheckCenter.CheckAddtionExIAOrUPOrBR(null, data.Usage, "", 50, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.BatchReimbursement_Usage); break; }
+                    }
+                    #endregion
+                    break;
+            }
+            return result;
+        }
+
+        public static string CheckDataAvilidHigh(object list, FunctionInSettingType fst)
+        {
+            int count = 1;
+            string result = string.Empty;
+            switch (fst)
+            {
+                case FunctionInSettingType.PayeeMg:
+                    #region
+                    List<PayeeInfo> dataList = list as List<PayeeInfo>;
+                    foreach (var data in dataList)
+                    {
+                        ResultData rd;
+                        if (!string.IsNullOrEmpty(data.SerialNo))
+                        {
+                            rd = DataCheckCenter.CheckSerialNoGJ(null, data.SerialNo, "", 10, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_SerialNo); break; }
+                        }
+                        rd = DataCheckCenter.CheckPayeeAccount(null, data.Account, "", null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Account); break; }
+                        rd = DataCheckCenter.CheckPayeeOrElecTicketPersonName(null, data.Name, "", 76, null);
+                        if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Name); break; }
+                        //if (data.CertifyPaperType == AgentExpressCertifyPaperType.Empty)
+                        //{ result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count); break; }
+                        if (data.BankType == AccountBankType.OtherBankAccount)
+                        {
+                            if (!string.IsNullOrEmpty(data.OpenBankName))
+                            {
+                                rd = DataCheckCenter.CheckOpenBankName(null, data.OpenBankName, "", null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_OpenBankName); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CNAPSNo))
+                            {
+                                rd = DataCheckCenter.CheckCNAPSNo(null, data.CNAPSNo, "", null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_OpenBankNo); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.ClearBankName))
+                            {
+                                rd = DataCheckCenter.CheckClearBankName(null, data.ClearBankName, "", 70, null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_ClearBankName); break; }
+                            }
+                            if (!string.IsNullOrEmpty(data.CNAPSNoR))
+                            {
+                                rd = DataCheckCenter.CheckCNAPSNo(null, data.CNAPSNoR, "", null);
+                                if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_ClearBankNo); break; }
+                            }
+                        }
+                        if (data.BankType == AccountBankType.BocAccount)
+                        {
+                            if (data.CertifyPaperType != PayeeCertifyPaperType.Empty)
+                            {
+                                if (!string.IsNullOrEmpty(data.CertifyPaperNo))
+                                {
+                                    rd = DataCheckCenter.CheckCertifyCardNo(null, data.CertifyPaperNo, "", true, null);
+                                    if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_CertifyCardNo); break; }
+                                }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(data.Email))
+                        {
+                            rd = DataCheckCenter.CheckEmail(null, data.Email, 30, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Email); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Address))
+                        {
+                            rd = DataCheckCenter.CheckPayeeAddress(null, data.Address, 70, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Address); break; }
+                        }
+                        if (!string.IsNullOrEmpty(data.Fax))
+                        {
+                            rd = DataCheckCenter.CheckPayeeFax(null, data.Fax, "", 20, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Fax); break; }
+                        } if (!string.IsNullOrEmpty(data.Telephone))
+                        {
+                            rd = DataCheckCenter.CheckPayeePhone(null, data.Telephone, 11, 15, null);
+                            if (!rd.Result) { result = string.Format(MultiLanguageConvertHelper.Information_Field_InvalidData_InRow, count, MultiLanguageConvertHelper.Settings_PayeeMsg_Payee_Telephone); break; }
+                        }
+                        count++;
+                    }
+                    #endregion
+                    break;
+            }
+            return result;
+        }
+        #endregion
+    }
+}

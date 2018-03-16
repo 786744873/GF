@@ -1,0 +1,2 @@
+C:\代码\企业\BOC_BATCH_TOOL\bin\x86\net4\BOC_BATCH_TOOL.exe.config
+C:\代码\企业\BOC_BATCH_TOOL\obj\x86\net4\BOC_BATCH_TOOL.csproj.ResolveComReference.cache

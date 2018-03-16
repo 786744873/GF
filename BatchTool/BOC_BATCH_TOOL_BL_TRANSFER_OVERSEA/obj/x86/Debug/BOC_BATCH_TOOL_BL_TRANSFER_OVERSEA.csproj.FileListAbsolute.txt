@@ -1,0 +1,16 @@
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.dll
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.pdb
+C:\代码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.MainView.resources
+C:\代码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.Properties.Resources.resources
+C:\代码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.csproj.GenerateResource.Cache
+C:\代码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.dll
+C:\代码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.pdb
+C:\代码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.pdb
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.MainView.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.Properties.Resources.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.csproj.GenerateResource.Cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\obj\x86\Debug\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.pdb

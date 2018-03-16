@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/boccop/!svn/ver/66838/branches/p501BatchTool/CommonClient/TemplateHelper
+END
+TemplateContentHelper.cs
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/boccop/!svn/ver/68090/branches/p501BatchTool/CommonClient/TemplateHelper/TemplateContentHelper.cs
+END
+TemplateHeaderAndFooterHelper.cs
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/boccop/!svn/ver/68090/branches/p501BatchTool/CommonClient/TemplateHelper/TemplateHeaderAndFooterHelper.cs
+END
+BatchConsignDataTemplateHelper.cs
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/boccop/!svn/ver/68090/branches/p501BatchTool/CommonClient/TemplateHelper/BatchConsignDataTemplateHelper.cs
+END
