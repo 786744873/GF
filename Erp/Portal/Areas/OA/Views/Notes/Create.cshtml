@@ -1,0 +1,49 @@
+﻿@model CommonService.Model.OA.O_Notes
+@{
+    Layout = null;
+}
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+    <h4 class="modal-title">便签管理</h4>
+</div>
+<div class="modal-body">
+    @using (Html.BeginForm("Save", "Notes", FormMethod.Post, new { id = "formNotes", @class = "form-horizontal", role = "form" }))
+    {
+        <div class="form-body">
+            <div class="alert alert-danger display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+            </div>
+            <div class="alert alert-success display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据验证通过，数据处理中..."></span>
+            </div>
+            @Html.Hidden("O_Notes_id", Model.O_Notes_id)
+            @Html.Hidden("O_Notes_code", Model.O_Notes_code)
+            @Html.Hidden("O_Notes_creator", Model.O_Notes_creator)
+            @Html.Hidden("O_Notes_createTime", Model.O_Notes_createTime)
+            @Html.Hidden("O_Notes_person", Model.O_Notes_person)
+            <div class="form-group">
+                <label class="control-label col-md-3">便签内容<span class="required">*</span></label>
+                <div class="col-md-9">
+                    <div class="input-icon right">
+                        <i class="fa"></i>
+                        @Html.TextArea("O_Notes_content", Model.O_Notes_content, new { @class = "ckeditor form-control", rows = "6", validateType = "{required:true}", validateMessage = "{required:'便签内容不能为空'}" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn blue" onclick="saveForm('formNotes')">保存</button>
+    <a class="btn ajaxify" href="/oa/notes/List">
+        返回
+    </a>
+</div>
+<!-- BEGIN MAIN JS -->
+<script>
+    CKEDITOR.replace('O_Notes_content');//文本编辑器初始化
+    FormValidation.init('formNotes', formDialogAjaxDone);//用表单Id和表单回调函数，初始化表单
+</script>
+<!-- END MAIN JS -->

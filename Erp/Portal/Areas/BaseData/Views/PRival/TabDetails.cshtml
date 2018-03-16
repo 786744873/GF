@@ -1,0 +1,15 @@
+﻿@using CommonService.Common;
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "个人详细";
+}
+<div class="itab">
+    <ul>
+        <li><a href="/basedata/PRival/CustDetails?prival_code=@ViewBag.PRival_code" tabpanelwidth="100%" tabpanelheight="500" class="selected">基本信息</a></li>
+       
+        <li><a href="/CaseManager/case/ListLink?customerCode=@ViewBag.PRival_code&type=4" tabpanelwidth="100%" tabpanelheight="850">关联案件</a></li>
+        <li><a href="/BusinessChanceManager/BusinessChance/ListLink?customerCode=@ViewBag.PRival_code&type=4" tabpanelwidth="100%" tabpanelheight="850">关联商机</a></li>
+    </ul>
+</div>

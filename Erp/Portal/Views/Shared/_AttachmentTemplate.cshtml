@@ -1,0 +1,77 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>@ViewBag.Title</title>
+    <link href="/uploadify/css/uploadify.css" rel="stylesheet" type="text/css" />
+    <link href="/theme/css/style.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="/theme/js/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="/theme/js/alertMsg.js"></script>
+    <script type="text/javascript" src="/theme/js/basecommonlist.js"></script>
+    <script type="text/javascript" src="/theme/js/tablelist.js"></script>
+    <script type="text/javascript" src="/uploadify/scripts/jquery.uploadify.min.js"></script>
+    <script type="text/javascript" src="/theme/js/ajaxdone.js"></script>
+    @RenderSection("HeadCss", false)
+    @RenderSection("HeadScript", false)
+    <style type="text/css" media="screen">
+        .my-uploadify-button {
+            background: none;
+            border: none;
+            text-shadow: none;
+            border-radius: 0;
+        }
+
+        .uploadify:hover .my-uploadify-button {
+            background: none;
+            border: none;
+        }
+
+        .attachment {
+        }
+
+        .attachment_bottom {
+            text-align: right;
+        }
+
+        .attachment_body {
+            height: 300px;
+        }
+
+        .fileQueue {
+            height: 100px;
+            overflow: auto;
+            border: 1px solid #E5E5E5;
+            margin-bottom: 10px;
+        }
+
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("input[type=file]").each(function () {
+                $thisFile = $(this);
+                var options = $thisFile.attr('uploaderoption');
+                if (!options) {
+                    return true;//继续执行，相当于 continue
+                }
+                options = eval("(" + options + ")");//把json格式字符串，转化json对象
+                $thisFile.uploadify(options);      //初始化多文件上传控件
+            });
+        });
+        //全部附件上传成功后，回调函数
+        function uploadifyAllComplete() {
+            //重新加载编辑页面
+            //alertMsg.info("附件上传成功！");
+            setTimeout(function () {
+                window.location.reload();
+            }, 1000);
+
+        }
+    </script>
+
+</head>
+<body>
+    <div class="rightinfo">
+        @RenderBody()
+    </div>
+</body>
+</html>

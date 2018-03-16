@@ -1,0 +1,111 @@
+﻿@{
+    Layout = "~/Views/Shared/_KMSLayout.cshtml";//KMS母版页
+}
+@model CommonService.Model.CaseManager.B_Case_Typicalcase
+@using CommonService.Common;
+@{
+    CommonService.Model.CaseManager.B_Case caseModel = ViewBag.caseModel;
+    string num = "";
+    string caseName = "";
+    string projectname = "";
+    if (caseModel != null)
+    {
+        num = caseModel.B_Case_number;
+        caseName = caseModel.B_Case_name;
+        projectname = caseModel.C_Project_name;
+    }
+    CommonService.Model.FlowManager.P_Business_flow flowModel = ViewBag.flowModel;
+    string flow = "";
+    if (flowModel != null)
+    {
+        flow = flowModel.P_Business_flow_name;
+    }
+    CommonService.Model.FlowManager.P_Business_flow_form flowformModel = ViewBag.flowformModel;
+    string flowform = "";
+    if (flowformModel != null)
+    {
+        flowform = flowformModel.F_Form_chineseName;
+    }
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <!-- BEGIN EXAMPLE TABLE PORTLET-->
+        <div class="portlet box grey-cascade">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>案例详细
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="form-body" style=" margin-top:30px;">
+                    <div class="row col-md-12">
+                        <div class="col-md-4">
+                            <div class="portlet blue-hoki box">
+                                <div class="portlet-body">
+                                    <div class="row static-info">
+                                        <div class="col-md-4 name">
+                                            原告/被告:
+                                        </div>
+                                        <div class="col-md-8 value">
+                                            @caseName
+                                        </div>
+                                    </div>
+                                    <div class="row static-info">
+                                        <div class="col-md-4 name">
+                                            案件编码:
+                                        </div>
+                                        <div class="col-md-8 value">
+                                            @num
+                                        </div>
+                                    </div>
+                                    <div class="row static-info">
+                                        <div class="col-md-4 name">
+                                            流程名称:
+                                        </div>
+                                        <div class="col-md-8 value">
+                                            @flow
+                                        </div>
+                                    </div>
+                                    <div class="row static-info">
+                                        <div class="col-md-4 name">
+                                            任务名称:
+                                        </div>
+                                        <div class="col-md-8 value">
+                                            @flowform
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group col-md-12">
+                                <label class="control-label col-md-2">典型主题: </label>
+                                <div class="col-md-10">
+                                    <div class="input-icon right">
+                                        <i class="fa"></i>
+                                        @Model.B_Case_Typicalcase_title
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="control-label col-md-2">案例分析:</label>
+                                <div class="col-md-10">
+                                    <div class="input-icon right">
+                                        <i class="fa"></i>
+                                        @Html.Raw(Model.B_Case_Typicalcase_description)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                @*<a href="/attachmentupload/attachment_defaultlayout?relationCode=@Model.B_Case_Typicalcase_code&targetDirectory=typicalCase&fileBelongType=982" class="btn btn-default btn-sm" data-target="#baseLargeModal" data-toggle="modal">附件信息</a>*@
+                <a href="/casemanager/caseexecute/defaultlayout?fkCode=@caseModel.B_Case_code&fkType=@Convert.ToInt32(FlowTypeEnum.案件)" class="btn btn-default btn-sm" target="_blank">案件执行</a>
+                <a href="/casemanager/case/tabdetails?caseCode=@caseModel.B_Case_code" class="btn btn-default btn-sm" target="_blank">案件详细</a>
+            </div>
+        </div>
+        <!-- END EXAMPLE TABLE PORTLET-->
+    </div>
+</div>

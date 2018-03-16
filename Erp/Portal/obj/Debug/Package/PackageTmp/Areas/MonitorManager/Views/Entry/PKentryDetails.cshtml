@@ -1,0 +1,25 @@
+﻿@model CommonService.Model.MonitorManager.M_Entry
+
+@{
+    ViewBag.Title = "条目详细";
+}
+@{
+    //List<CommonService.Model.C_Parameters> isThrough = ViewBag.Change_isThrough;
+    //List<CommonService.Model.C_Parameters> warningTypes = ViewBag.warningType;
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th width="30%">条目名称</th>
+            <th width="35%">起点表单</th>
+            <th width="35%">结点表单</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model.M_Entry_name</td>
+            <td>@Model.M_Entry_sname</td>
+            <td>@Model.M_Entry_ename</td>
+        </tr>
+    </tbody>
+</table>    

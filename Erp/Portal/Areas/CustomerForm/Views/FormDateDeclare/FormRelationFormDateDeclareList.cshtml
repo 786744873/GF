@@ -1,0 +1,32 @@
+﻿@using CommonService.Model.CustomerForm;
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormDateDeclare>
+
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "表单关联时间列表";
+}
+<table class="tablelist">
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string type = ViewBag.type;
+            string callbackStr = "";
+            string codes = ViewBag.codes;
+            string names = ViewBag.names;
+            switch (type)
+            {
+                case "1":
+                    callbackStr = "{'lookupgroup':'sTimelookup','Code':'" + codes +","+ @item.F_FormDateDeclare_code + "','Name':'" + names+"-"+ @item.F_FormDateDeclare_name + "'}";
+                    break;
+                case "2":
+                    callbackStr = "{'lookupgroup':'eTimelookup','Code':'" + codes +","+ @item.F_FormDateDeclare_code + "','Name':'" + names+"-"+ @item.F_FormDateDeclare_name + "'}";
+                    break;
+            }
+            <tr target="sid_Iterm" rel="@item.F_FormDateDeclare_code" callbackjson="@callbackStr">
+                <td>@item.F_FormDateDeclare_name</td>
+            </tr>
+        }
+    </tbody>
+</table>

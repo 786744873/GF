@@ -1,0 +1,30 @@
+﻿@using CommonService.Common;
+@model IEnumerable<CommonService.Model.FlowManager.P_Business_flow_applyRecord>
+<div class="applyhistory_btn_wrap">
+    <a href="javascript:void(0);" onclick="viewHistoryBusinessApply()">查看历史记录>></a>
+</div>
+<table id="applyhistory_record_wrap" class="nooperate_tablelist hide">
+    <thead>
+        <tr>
+            <th>申请人</th>
+            <th>申请时间</th>
+            <th>申请详情</th>
+            <th>审查人</th>
+            <th>审查时间</th>
+            <th>审查详情</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.P_Business_flow_applyRecord_applyUser_name</td>
+                <td>@item.P_Business_flow_applyRecord_applyTime.Value.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>@item.P_Business_flow_applyRecord_applyDetail</td>
+                <td>@item.P_Business_flow_applyRecord_auditUser_name</td>
+                <td>@(item.P_Business_flow_applyRecord_auditTime == null ? "" : item.P_Business_flow_applyRecord_auditTime.Value.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                <td>@item.P_Business_flow_applyRecord_auditDetail</td>
+            </tr>
+        }
+    </tbody>
+</table>

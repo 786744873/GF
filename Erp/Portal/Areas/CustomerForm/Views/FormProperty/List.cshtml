@@ -1,0 +1,76 @@
+﻿@using CommonService.Model.CustomerForm;
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormProperty>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "表单属性列表";
+}
+
+@{
+    F_FormProperty FormPropertyConditon = ViewBag.FormPropertyConditon;//条件模型
+}
+<div class="tools">
+    <ul class="toolbar">
+        <li><a target="popdialog" title="表单属性" dialogwidth="1240" dialogheight="600" href="/customerform/formproperty/create?formCode=@FormPropertyConditon.F_FormProperty_form"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+        <li><a target="popdialog" title="表单属性" dialogwidth="1240" dialogheight="600" edit="edit" href="/customerform/formproperty/edit?formPropertyCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+        <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/customerform/formproperty/delete?formPropertyCode={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+        <li><a target="popdialog" title="子属性" dialogwidth="1300" dialogheight="700" edit="edit" href="/customerform/formproperty/childrenlist?formCode=@FormPropertyConditon.F_FormProperty_form&parentPropertyCode={sid_Iterm}"><span><img src="/theme/images/new_add.png" /></span>设置子属性</a></li>
+        <li><a target="popdialog" title="参数库" dialogwidth="1200" dialogheight="560" edit="edit" href="/basedata/parameters/singlefirstlevelrefList?relationCode={sid_Iterm}"><span></span>选择参数</a></li>
+        <li><a target="popdialog" title="资料库" dialogwidth="1200" dialogheight="500" edit="edit" href="/basedata/entity/singlereflist?relationCode={sid_Iterm}"><span></span>选择资料库</a></li>        
+        <li><a target="ajaxtodo" title="确认要上移选中属性吗?" singleoperate="singleoperate" href="/customerform/formproperty/moveforward?formCode=@FormPropertyConditon.F_FormProperty_form&formPropertyCode={sid_Iterm}"><span></span>上移</a></li>
+        <li><a target="ajaxtodo" title="确认要下移选中属性吗?" singleoperate="singleoperate" href="/customerform/formproperty/movebackward?formCode=@FormPropertyConditon.F_FormProperty_form&formPropertyCode={sid_Iterm}"><span></span>下移</a></li>
+        @*<li><a target="ajaxtodo" title="确认要分配表单吗?" singleoperate="singleoperate" href="/customerform/formpropertyvalue/initializationformpropertyvalue?formCode=@FormPropertyConditon.F_FormProperty_form&flowCode=@FormPropertyConditon.F_FormProperty_form"><span></span>测试分配表单(已作废)</a></li>*@
+        @*<li><a target="popdialog" title="查看生成表单" dialogwidth="1240" dialogheight="500" edit="edit" href="/customerform/formpropertyvalue/generatesingleeidt?formCode=@FormPropertyConditon.F_FormProperty_form&flowCode=@FormPropertyConditon.F_FormProperty_form"><span><img src="/theme/images/new_edit.png" /></span>查看生成表单(已作废)</a></li>*@
+    </ul>
+    @using (Html.BeginForm("List", "FormProperty", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+    {
+        <ul class="seachform">
+            <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+            <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+            @Html.Hidden("F_FormProperty_form", FormPropertyConditon.F_FormProperty_form)
+            <li><label>显示名称</label>@Html.TextBox("F_FormProperty_showName", FormPropertyConditon.F_FormProperty_showName, new { @class = "scinput" })</li>
+            <li><label>&nbsp;</label><input type="submit" class="scbtn" value="查询" /></li>
+        </ul>
+    }
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>显示名称</th>
+            <th>字段名称</th>
+            <th>字段长度</th>
+            <th>控件类型</th>
+            <th>父亲属性</th>
+            <th>是否必填</th>
+            <th>是否显示</th>
+            <th>是否只读</th>
+            @*<th>是否合计求和</th>*@
+            <th>验证信息</th>           
+            <th>数据源</th>
+            @*<th>创建人</th>*@
+            <th>创建时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.F_FormProperty_code" relname="@item.F_FormProperty_showName">
+                <td>@item.F_FormProperty_showName</td>
+                <td>@item.F_FormProperty_fieldName</td>
+                <td>@item.F_FormProperty_fieldLength</td>
+                <td>@item.F_FormProperty_uiTypeName</td>
+                <td>@item.F_FormProperty_parent_name</td>
+                <td>@Html.CheckBox("F_FormProperty_isRequire", item.F_FormProperty_isRequire, new { disabled = "disabled" })</td>
+                <td>@Html.CheckBox("F_FormProperty_isShow", item.F_FormProperty_isShow, new { disabled = "disabled" })</td>
+                <td>@Html.CheckBox("F_FormProperty_isOnlyRead", item.F_FormProperty_isOnlyRead, new { disabled = "disabled" })</td>
+                @*<td>@Html.CheckBox("F_FormProperty_isSum", item.F_FormProperty_isSum, new { disabled = "disabled" })</td>*@
+                <td>@item.F_FormProperty_validationMessage</td>
+                <td>@item.F_FormProperty_dataSource</td>
+                @*<td>@item.F_FormProperty_creator</td>*@
+                <td>@(item.F_FormProperty_createTime == null ? "" : item.F_FormProperty_createTime.Value.ToString("yyyy-MM-dd hh:mm:ss"))</td>
+            </tr>
+        }
+    </tbody>
+</table>    

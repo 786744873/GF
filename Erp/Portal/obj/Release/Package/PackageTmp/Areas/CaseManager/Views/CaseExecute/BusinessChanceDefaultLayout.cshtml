@@ -1,0 +1,786 @@
+﻿@using CommonService.Model.FlowManager;
+@using CommonService.Model.SysManager;
+@using CommonService.Common;
+@using Context;
+@model IEnumerable<CommonService.Model.FlowManager.P_Business_flow>
+@{
+    Layout = null;
+}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>商机执行</title>
+    <link href="/theme/css/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <link href="/theme/css/style.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="/theme/js/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="/theme/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="/theme/js/jquery.dialogextend.1_0_1.js"></script>
+    <script type="text/javascript" src="/theme/js/basedialog.js"></script>
+    <script type="text/javascript" src="/theme/js/alertMsg.js"></script>
+    <script type="text/javascript" src="/theme/js/alertDialog.js"></script>
+    <script type="text/javascript" src="/theme/js/ajaxdone.js"></script>
+    <style type="text/css">
+        .leftcontent {
+            width: 30%;
+            border: dotted 1px #c7c7c7;
+            min-height: 745px;
+        }
+
+        .rightcontent {
+            width: 69%;
+        }
+
+        .case_info_table tr {
+            border-bottom: dotted 1px #c7c7c7;
+        }
+        .case_info_table tr.thick {
+            border-bottom: solid 2px #c7c7c7;
+        }
+            .case_info_table tr.nobottomborder {
+                border-bottom: 0px;
+            }
+
+        .case_info_table td {
+            line-height: 38px;
+            text-indent: 12px;
+        }
+
+        .right_top {
+        }
+        .plan_dv{
+            width:100%;
+            height:100px;
+        }
+        .flow_operate {
+            margin-left: 10px;
+        }
+        .flow_operate_item {          
+            line-height: 33px;
+            height: 33px;           
+            float: left;                
+            cursor: pointer;
+        }
+        .flow_operate_item a {
+            padding-right: 10px;
+            height: 33px;
+            line-height: 33px;
+            display: inline-block;
+            color:#fff;            
+            font-size:14px;
+            padding-left:10px;
+            padding-right:10px;           
+            font-weight:bold;
+        }
+        .flow_operate_item a.green {
+            background: #22b14c;
+        }
+        .flow_operate_item a.greygreen{
+            background:#76d17f;
+        }
+        .flow_operate_item a.orange{
+            background:#ff7f27;
+        }
+        .flow_nav {
+            margin-left: 10px;
+            clear:both;
+        }
+
+            .flow_nav span {
+                height: 36px;
+                line-height: 36px;
+                font-size: 14px;
+            }
+
+                .flow_nav span.start {
+                    width: 20px;
+                    display: inline-block;
+                }
+
+                .flow_nav span.middle {
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    display: inline-block;
+                    color: #fff;
+                }
+
+                .flow_nav span.end {
+                    width: 20px;
+                    display: inline-block;
+                }
+        /*未开始*/
+        .grey_start {
+            background: url(../../theme/images/flow/grey_start.png) no-repeat;
+        }
+
+        .grey_body {
+            background: url(../../theme/images/flow/grey_body.png) repeat-x;
+        }
+
+        .grey_end {
+            background: url(../../theme/images/flow/grey_end.png) no-repeat;
+        }
+
+        .grey_end_grey_start {
+            background: url(../../theme/images/flow/grey_end_grey_start.png) no-repeat;
+        }
+
+        .grey_end_yellow_start {
+            background: url(../../theme/images/flow/grey_end_yellow_start.png) no-repeat;
+        }
+
+        .grey_end_blue_start {
+            background: url(../../theme/images/flow/grey_end_blue_start.png) no-repeat;
+        }
+
+        /*进行中*/
+        .yellow_start {
+            background: url(../../theme/images/flow/yellow_start.png) no-repeat;
+        }
+
+        .yellow_body {
+            background: url(../../theme/images/flow/yellow_body.png) repeat-x;
+        }
+
+        .yellow_end {
+            background: url(../../theme/images/flow/yellow_end.png) no-repeat;
+        }
+
+        .yellow_end_grey_start {
+            background: url(../../theme/images/flow/yellow_end_grey_start.png) no-repeat;
+        }
+
+        .yellow_end_yellow_start {
+            background: url(../../theme/images/flow/yellow_end_yellow_start.png) no-repeat;
+        }
+
+        .yellow_end_blue_start {
+            background: url(../../theme/images/flow/yellow_end_blue_start.png) no-repeat;
+        }
+
+        /*已完成*/
+        .blue_start {
+            background: url(../../theme/images/flow/blue_start.png) no-repeat;
+        }
+
+        .blue_body {
+            background: url(../../theme/images/flow/blue_body.png) repeat-x;
+        }
+
+        .blue_end {
+            background: url(../../theme/images/flow/blue_end.png) no-repeat;
+        }
+
+        .blue_end_grey_start {
+            background: url(../../theme/images/flow/blue_end_grey_start.png) no-repeat;
+        }
+
+        .blue_end_yellow_start {
+            background: url(../../theme/images/flow/blue_end_yellow_start.png) no-repeat;
+        }
+
+        .blue_end_blue_start {
+            background: url(../../theme/images/flow/blue_end_blue_start.png) no-repeat;
+        }
+
+        .flowNodeSpace {
+            margin-bottom: 6px;
+        }
+
+        .right_bottom {
+            height: 680px;
+        }
+
+        a {
+            color: blue;
+        }
+    </style>
+    <script type="text/javascript">
+        var commonEditFormData = { isClickedSaveBtn: false };//是否已经点击了表单"保存"按钮，主要是为了控制双击鼠标后，出现数据重复保存的现象,这里为了复用，免去js错误，hety，2015-10-26
+        $(function () {
+            //切换子业务流程
+            $flow_nav = $('.flow_nav');
+            $("span.cursor", $flow_nav).each(function () {
+                $(this).click(function (event) {
+                    var $this = $(this);
+                    var $childrenBusinessFlow = $('#iframe_childreBusinessFlow');
+                    var baseurl = $childrenBusinessFlow.attr('baseurl');
+                    //替换url参数
+                    var switchUrl = baseurl.replace("{sid_Iterm}", $this.attr('businessflowcode'));
+                    $childrenBusinessFlow.attr('src', switchUrl);
+                });
+            });
+
+            $("a[target=popdialog_owndefine]").each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    //替换url参数
+                    var switchUrl = $this.attr("href");
+                    var scrolling = $this.attr("scrolling");//是否有滚动属性
+                    if (scrolling) {
+                        _openScrollingTypeDialog($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"), scrolling);
+                    } else {
+                        _openDialog($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"));
+                    }                   
+                });
+            });
+
+            //流程
+            var $flow_operate_item = $(".right_top>.flow_operate>.flow_operate_item");
+            $("a[target=popdialog_Custom]", $flow_operate_item).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    //替换url参数
+                    var switchUrl = $this.attr("href").replace("{sid_Iterm}", '');
+                    var title = $(this).attr("title");
+                    var dialogwidth = $(this).attr("dialogwidth");
+                    var dialogheight = $(this).attr("dialogheight");
+
+                    if ($this.attr('checkissetbusinesschanceplantime')) {//检查是否已经设置了商机计划时间,如果没有设置，则不允许打开      
+                        var fkCode = $this.attr('businesschancecode');
+                       
+                        $.ajax({
+                            type: "POST",
+                            async: true,
+                            url: "/BusinessChanceManager/BusinessChance/CheckIsSetPlanTime",
+                            data: { businessChanceCode: fkCode },
+                            dataType: "json",
+                            success: function (result) {                                 
+                                if (result[0] == '0') {                                  
+                                    alertMsg.info('请您先设置计划开始时间！');
+                                    return;
+                                }
+                                if (result[1] == '0') {                                   
+                                    alertMsg.info('请您先设置计划结束时间！');
+                                    return;
+                                }
+                                _openDialog(title, switchUrl, dialogwidth, dialogheight);//已设置过计划时间，可以打开
+                            }
+                        })
+                    } else {
+                        _openDialog(title, switchUrl, dialogwidth, dialogheight);
+                    }                    
+                });
+            });
+
+            //提示确认操作(单个操作)(包括启动商机)
+            $("a[target=ajaxtodo]", $flow_operate_item).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+
+                    //点击了操作按钮
+                    var singleoperate = $this.attr("singleoperate");
+                    if (!singleoperate) {
+                        return;
+                    }
+                    //替换url参数
+                    var switchUrl = $this.attr("href");
+
+                    alertMsg.confirm($this.attr('title'), {
+                        okCall: function () {
+                            $.ajax({
+                                type: 'POST',
+                                url: switchUrl,
+                                data: null,
+                                dataType: "json",
+                                cache: false,
+                                success: dialogAjaxDone,
+                                error: function () {
+                                    alert('网络错误，请稍后再试!');
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+
+        });
+        //打开自定义表单
+        function openOwnDefineForm(businessFlowCode, pkCode, fkType, isAllowOpenCustomerForm, isAllowUserOpenFormsPower) {
+            if (isAllowOpenCustomerForm == '0') {
+                alertMsg.info('只有进行中或已结束的业务流程</br>才可以打开表单！');
+                return;
+            }
+            if (isAllowUserOpenFormsPower == '0') {
+                alertMsg.info('您没有打开表单的权限！');
+                return;
+            }
+            //替换url参数
+            var switchUrl = "/customerform/formpropertyvalue/layoutroottabs?businessFlowCode=" + businessFlowCode + "&pkCode=" + pkCode + "&fkType=" + fkType;
+            _openDialog('业务流程表单', switchUrl, 1300, 780);
+        }
+        //修改业务流程
+        function modyBusinessFlow(businessFlowCode, fkCode, operatetype, type) {
+            var switchUrl = "/flowmanager/businessflow/layouttreelist?businessFlowCode=" + businessFlowCode + "&fkCode=" + fkCode + "&operatetype=" + operatetype + "&type=" + type;
+            _openDialog('流程任务', switchUrl, 1100, 700);
+        }
+        //删除业务流程
+        function deleteBusinessFlow(businessFlowCode) {
+            var switchUrl = "/flowmanager/businessflow/delete?businessFlowCode=" + businessFlowCode;
+            alertMsg.confirm('确定要删除吗？', {
+                okCall: function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: switchUrl,
+                        data: null,
+                        dataType: "json",
+                        cache: false,
+                        success: dialogAjaxDone,
+                        error: function () {
+                            alert('网络错误，请稍后再试!');
+                        }
+                    });
+                }
+            });
+        }
+        //同意业务流程
+        function agreeBusinessFlow(fkType, fkCode, businessFlowCode) {
+            var switchUrl = "/flowmanager/businessflow/AgreeBusinessFlow?fkType=" + fkType + "&fkCode=" + fkCode + "&businessFlowCode=" + businessFlowCode;
+            alertMsg.confirm('确定要同意此申请配置吗？', {
+                okCall: function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: switchUrl,
+                        data: null,
+                        dataType: "json",
+                        cache: false,
+                        success: dialogAjaxDone,
+                        error: function () {
+                            alert('网络错误，请稍后再试!');
+                        }
+                    });
+                }
+            });
+        }
+        //不同意业务流程
+        function unAgreeBusinessFlow(fkType, fkCode, businessFlowCode) {
+            var switchUrl = "/flowmanager/businessflow/UnAgreeBusinessFlow?fkType=" + fkType + "&fkCode=" + fkCode + "&businessFlowCode=" + businessFlowCode;
+            alertMsg.confirm('确定要拒绝此申请配置吗？', {
+                okCall: function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: switchUrl,
+                        data: null,
+                        dataType: "json",
+                        cache: false,
+                        success: dialogAjaxDone,
+                        error: function () {
+                            alert('网络错误，请稍后再试!');
+                        }
+                    });
+                }
+            });
+        }
+        //申请开启业务流程
+        function applyOpenBusinessFlow(fkType, fkCode, businessFlowCode) {
+            var switchUrl = "/flowmanager/businessflow/applyOpenBusinessFlow?fkType=" + fkType + "&fkCode=" + fkCode + "&businessFlowCode=" + businessFlowCode;
+            alertMsg.confirm('确定要申请开启此业务流程吗？', {
+                okCall: function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: switchUrl,
+                        data: null,
+                        dataType: "json",
+                        cache: false,
+                        success: dialogAjaxDone,
+                        error: function () {
+                            alert('网络错误，请稍后再试!');
+                        }
+                    });
+                }
+            });
+        }
+        //开启已申请业务流程
+        function startAppliedBusinessFlow(fkType, fkCode, businessFlowCode) {
+            var switchUrl = "/flowmanager/businessflow/startAppliedBusinessFlow?fkType=" + fkType + "&fkCode=" + fkCode + "&businessFlowCode=" + businessFlowCode;
+            alertMsg.confirm('确定要开启此业务流程吗？', {
+                okCall: function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: switchUrl,
+                        data: null,
+                        dataType: "json",
+                        cache: false,
+                        success: dialogAjaxDone,
+                        error: function () {
+                            alert('网络错误，请稍后再试!');
+                        }
+                    });
+                }
+            });
+        }
+        //驳回已申请开启的业务流程
+        function rejectAppliedBusinessFlow(fkType, fkCode, businessFlowCode) {
+            var switchUrl = "/flowmanager/businessflow/rejectAppliedBusinessFlow?fkType=" + fkType + "&fkCode=" + fkCode + "&businessFlowCode=" + businessFlowCode;
+            alertMsg.confirm('确定要驳回此业务流程申请吗？', {
+                okCall: function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: switchUrl,
+                        data: null,
+                        dataType: "json",
+                        cache: false,
+                        success: dialogAjaxDone,
+                        error: function () {
+                            alert('网络错误，请稍后再试!');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    @{
+        CommonService.Model.BusinessChanceManager.B_BusinessChance_check latestChanceCheck = ViewBag.LatestChanceCheck;//最近一次审查的数据模型
+        CommonService.Model.BusinessChanceManager.B_BusinessChance businessChance = ViewBag.BusinessChance;
+        List<C_Role_Role_Power> roleRolePowers = ViewBag.RoleRolePowers;//角色数据权限
+        bool isBusiChangeConsultant = ViewBag.IsBusiChangeConsultant;//是否为此商机专业顾问
+        bool isShowStartBtn = ViewBag.IsShowStartBtn;//是否显示"商机启动"按钮
+        string fkCode = ViewBag.FkCode;
+        int fkType = ViewBag.FkType;
+    }
+    <div class="rightinfo">
+        <div>
+            <div class="fl leftcontent">
+                <table class="case_info_table" width="100%">
+                    <tr>
+                        <td width="25%" align="right">商机名称：</td>
+                        <td width="75%">
+
+                            <a target="popdialog_owndefine" title="商机信息" dialogwidth="1400" dialogheight="700" href="/BusinessChanceManager/BusinessChance/TabDetails?businessChanceCode=@businessChance.B_BusinessChance_code">@businessChance.B_BusinessChance_name</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="25%" align="right">客户名称：</td>
+                        @{
+                            string[] customerNames = businessChance.B_BusinessChance_Customer_name.Split(',');
+                            string[] customerCodes = businessChance.B_BusinessChance_Customer_code.Split(',');
+                            int customer = 0;
+                        }
+                        <td width="75%">
+                            @foreach (var clientName in customerNames)
+                            {
+                                string Comma = ",";
+                                if (customer == customerCodes.Length - 1)
+                                {
+                                    Comma = "";
+                                }
+                                <a target="popdialog_owndefine" title="客户信息" dialogwidth="1240" dialogheight="700" href="/basedata/customer/tabdetails?customerCode=@customerCodes[customer]">@clientName</a>@Comma
+                                customer++;
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right">竞争对手：</td>
+                        @{
+                            string competitorName = businessChance.B_BusinessChance_Competitor_name;
+                            string competitorCode = businessChance.B_BusinessChance_Competitor.ToString();
+                        }
+                        <td>
+                            @competitorName
+                            @*<a target="popdialog_owndefine" title="竞争对手详细" dialogwidth="1080" dialogheight="580" href="/basedata/PRival/TabDetails?prival_code=@competitorCode">@competitorName</a>*@
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right">商机编码：</td>
+                        <td><a target="popdialog_owndefine" title="商机信息" dialogwidth="1300" dialogheight="780" href="/BusinessChanceManager/BusinessChance/tabdetails?businessChanceCode=@businessChance.B_BusinessChance_code">@businessChance.B_BusinessChance_number</a></td>
+                    </tr>
+                    <tr>
+                        <td align="right">商机类型：</td>
+                        <td>@businessChance.B_BusinessChance_type_name</td>
+                    </tr>
+                    <tr>
+                        <td align="right">移交标的：</td>
+                        <td>@businessChance.B_BusinessChance_transferTargetMoney</td>
+                    </tr>
+                    <tr>
+                        <td align="right">执行标的：</td>
+                        <td>@businessChance.B_BusinessChance_execMoney</td>
+                    </tr>
+                    <tr>
+                        <td align="right">工程名称：</td>
+                        @{
+                            string[] projectNames = businessChance.B_BusinessChance_Project_name.Split(',');
+                            string[] projectCodes = businessChance.B_BusinessChance_Project_code.Split(',');
+                            int i = 0;
+                        }
+                        <td>
+                            @foreach (var projectName in projectNames)
+                            {
+                                string Comma = ",";
+                                if (i == projectCodes.Length - 1)
+                                {
+                                    Comma = "";
+                                }
+                                <a target="popdialog_owndefine" title="工程信息" dialogwidth="1240" dialogheight="550" href="/basedata/Involved_project/tabdetails?Involved_project_code=@projectCodes[i]">@projectName</a>@Comma
+                                i++;
+                            }
+                        </td>
+
+                    </tr>
+                    <tr class="thick">
+                        <td align="right">预收案时间：</td>
+                        <td>@(businessChance.B_BusinessChance_registerTime == null ? "" : businessChance.B_BusinessChance_registerTime.Value.ToString("yyyy-MM-dd"))</td>
+                    </tr>
+                    <tr>
+                        <td align="right">最近一次纪要</td>
+                        <td align="right"><a target="popdialog_owndefine" title="纪要信息" scrolling="auto" dialogwidth="1240" dialogheight="650" href="/BusinessChanceManager/ChanceCrossForm/HistoryCheck?fkCode=@fkCode">查看全部</a>&nbsp;&nbsp;</td>
+                    </tr>
+                    @if (latestChanceCheck != null)
+                    {
+                      <tr>
+                        <td align="right">审核类型：</td>
+                        <td>@latestChanceCheck.B_BusinessChance_check_checkType_name</td>
+                      </tr>
+                      if (latestChanceCheck.B_BusinessChance_check_checkType == Convert.ToInt32(BusinessChanceCheckOpinionTypeEnum.通过))
+                      {
+                        <tr>
+                          <td align="right">案件性质：</td>
+                          <td>@latestChanceCheck.B_BusinessChance_check_Nature_name</td>
+                        </tr>
+                          if (latestChanceCheck.B_BusinessChance_check_Nature == Convert.ToInt32(CaseNatureEnum.类型案件) && latestChanceCheck.B_BusinessChance_checkPersonType == Convert.ToInt32(BusinessChanceCheckPersonTypeEnum.首席))
+                          {
+                             <tr>
+                              <td align="right">案件分类：</td>
+                              <td>@(latestChanceCheck.B_BusinessChance_check_category == Convert.ToInt32(CaseCategoryEnum.指挥级) ? "指挥级" : "策划级")</td>
+                             </tr>
+                          }   
+                        <tr>
+                         <td align="right">计划开始时间：</td>
+                         <td>@(latestChanceCheck.B_BusinessChance_check_planStartTime == null ? "" : latestChanceCheck.B_BusinessChance_check_planStartTime.Value.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                        </tr>
+                        <tr>
+                          <td align="right">计划结束时间：</td>
+                          <td>@(latestChanceCheck.B_BusinessChance_check_planEndTime == null ? "" : latestChanceCheck.B_BusinessChance_check_planEndTime.Value.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                        </tr>
+                          if (latestChanceCheck.B_BusinessChance_checkPersonType == Convert.ToInt32(BusinessChanceCheckPersonTypeEnum.首席))
+                          {
+                             <tr>
+                              <td align="right">确认部长：</td>
+                              <td>@latestChanceCheck.B_BusinessChance_check_confirmPerson_name</td>
+                             </tr>
+                          }
+                      }
+                      <tr>
+                        <td align="right">审核意见：</td>
+                        <td>@latestChanceCheck.B_BusinessChance_check_checkOpinion</td>
+                      </tr>
+                      <tr>
+                        <td align="right">审查人员：</td>
+                        <td>@latestChanceCheck.B_BusinessChance_check_checkPerson_name</td>
+                      </tr>
+                      <tr class="nobottomborder">
+                        <td align="right">审查时间：</td>
+                        <td>@latestChanceCheck.B_BusinessChance_check_checkTime.Value.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                      </tr>
+                    }
+                </table>
+            </div>
+            <div class="fl rightcontent">
+                <div class="right_top">
+                    <div class="plan_dv"><iframe name="iframe_businessChancePlan" id="iframe_businessChancePlan" width="100%" height="100%" frameborder="0" src="/BusinessChanceManager/ChancePlan/ShowSetChangePlan?fkType=@fkType&pkCode=@fkCode" scrolling="auto"></iframe></div>
+                    <div class="flow_operate fr">
+                        <div class="flow_operate_item">
+                            @if (isShowStartBtn)
+                            {
+                                <a class="margin_right6 orange" target="ajaxtodo" title="确认要启动商机任务吗?" singleoperate="singleoperate" href="/BusinessChanceManager/BusinessChance/StartBusinessChance?businessChanceCode=@fkCode">启动商机</a>
+                            }
+                            @if (UIContext.Current.IsPreSetManager || roleRolePowers.Where(p => p.C_Role_Power_id == 13).Count() != 0 || isBusiChangeConsultant)
+                            {//此商机专业顾问，内置系统管理员，数据角色权限为"13"的用户，有"添加"商机的权限     
+                                <a class="margin_right6 green" target="popdialog_Custom" checkissetbusinesschanceplantime="checkplantime" businesschancecode="@ViewBag.FkCode" title="流程任务" dialogwidth="1100" dialogheight="700" href="/flowmanager/businessflow/layouttreelist?businessFlowCode={sid_Iterm}&fkCode=@fkCode&operatetype=add&type=2">添加流程</a>                                 
+                            }  
+                            @if (UIContext.Current.IsPreSetManager || roleRolePowers.Where(p => p.C_Role_Power_id == 9).Count() != 0 || isBusiChangeConsultant)
+                            {//此商机专业顾问，内置系统管理员，数据角色权限为"9"的用户，有"计划任务"的权限 
+                                <a class="greygreen" target="popdialog_Custom" title="配置表单" dialogwidth="1200" dialogheight="760" href="/flowmanager/businessflow/businesschancedefaultlayout_brief?fkCode=@fkCode">配置表单</a>
+                            }  
+                        </div>
+                    </div>                  
+                    <div class="flow_nav">
+                        @if (Model.Count() == 1)
+                        {//只有一个业务流程的情况
+                            <div class="fl flowNodeSpace">
+                                @if (Model.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.未开始))
+                                {
+                                    <span class="fl grey_start start"></span><span class="fl grey_body cursor middle" businessflowcode="@Model.FirstOrDefault().P_Business_flow_code">@Model.FirstOrDefault().P_Business_flow_name</span><span class="fl grey_end end"></span>
+                                }
+                                else if (Model.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                                {
+                                    <span class="fl yellow_start start"></span><span class="fl yellow_body cursor middle" businessflowcode="@Model.FirstOrDefault().P_Business_flow_code">@Model.FirstOrDefault().P_Business_flow_name</span><span class="fl yellow_end end"></span>
+                                }
+                                else if (Model.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.已结束))
+                                {
+                                    <span class="fl blue_start start"></span><span class="fl blue_body cursor middle" businessflowcode="@Model.FirstOrDefault().P_Business_flow_code">@Model.FirstOrDefault().P_Business_flow_name</span><span class="fl blue_end end"></span>
+                                }
+                            </div>
+                        }
+                        else if (Model.Count() > 1)
+                        {
+                            int businessFlowNo = 0;
+                            foreach (var item in Model)
+                            {
+                                businessFlowNo++;
+                                <div class="fl flowNodeSpace">
+                                    @if (businessFlowNo == 1)
+                                    {//第一个业务流程节点
+                                        if (item.P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.未开始))
+                                        {
+                                            <span class="fl grey_start start"></span><span class="fl grey_body cursor middle" businessflowcode="@item.P_Business_flow_code">@item.P_Business_flow_name</span>
+                                            //业务流程节点结束(也是下一个流程节点开始)
+                                            var NextBusinessFlows = from allList in Model
+                                                                    where allList.P_Business_order > item.P_Business_order
+                                                                    orderby allList.P_Business_order ascending
+                                                                    select allList;
+                                            if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.未开始))
+                                            {
+                                                <span class="fl grey_end_grey_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                                            {
+                                                <span class="fl grey_end_yellow_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.已结束))
+                                            {
+                                                <span class="fl grey_end_blue_start end"></span>
+                                            }
+                                        }
+                                        else if (item.P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                                        {
+                                            <span class="fl yellow_start start"></span><span class="fl yellow_body cursor middle" businessflowcode="@item.P_Business_flow_code">@item.P_Business_flow_name</span>
+                                            //业务流程节点结束(也是下一个流程节点开始)
+                                            var NextBusinessFlows = from allList in Model
+                                                                    where allList.P_Business_order > item.P_Business_order
+                                                                    orderby allList.P_Business_order ascending
+                                                                    select allList;
+                                            if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.未开始))
+                                            {
+                                                <span class="fl yellow_end_grey_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                                            {
+                                                <span class="fl yellow_end_yellow_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.已结束))
+                                            {
+                                                <span class="fl yellow_end_blue_start end"></span>
+                                            }
+                                        }
+                                        else if (item.P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.已结束))
+                                        {
+                                            <span class="fl blue_start start"></span><span class="fl blue_body cursor middle" businessflowcode="@item.P_Business_flow_code">@item.P_Business_flow_name</span>
+                                            //业务流程节点结束(也是下一个流程节点开始)
+                                            var NextBusinessFlows = from allList in Model
+                                                                    where allList.P_Business_order > item.P_Business_order
+                                                                    orderby allList.P_Business_order ascending
+                                                                    select allList;
+                                            if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.未开始))
+                                            {
+                                                <span class="fl blue_end_grey_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                                            {
+                                                <span class="fl blue_end_yellow_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.已结束))
+                                            {
+                                                <span class="fl blue_end_blue_start end"></span>
+                                            }
+                                        }
+                                    }
+                                    else if (businessFlowNo == Model.Count())
+                                    {//最后一个业务流程节点
+                                        if (item.P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.未开始))
+                                        {
+                                            <span class="fl grey_body cursor middle" businessflowcode="@item.P_Business_flow_code">@item.P_Business_flow_name</span><span class="fl grey_end end"></span>
+                                        }
+                                        else if (item.P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                                        {
+                                            <span class="fl yellow_body cursor middle" businessflowcode="@item.P_Business_flow_code">@item.P_Business_flow_name</span><span class="fl yellow_end end"></span>
+                                        }
+                                        else if (item.P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.已结束))
+                                        {
+                                            <span class="fl blue_body cursor middle" businessflowcode="@item.P_Business_flow_code">@item.P_Business_flow_name</span><span class="fl blue_end end"></span>
+                                        }
+                                    }
+                                    else
+                                    {//中间流程节点
+                                        if (item.P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.未开始))
+                                        {
+                                            <span class="fl grey_body cursor middle" businessflowcode="@item.P_Business_flow_code">@item.P_Business_flow_name</span>
+                                            //业务流程节点结束(也是下一个流程节点开始)
+                                            var NextBusinessFlows = from allList in Model
+                                                                    where allList.P_Business_order > item.P_Business_order
+                                                                    orderby allList.P_Business_order ascending
+                                                                    select allList;
+                                            if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.未开始))
+                                            {
+                                                <span class="fl grey_end_grey_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                                            {
+                                                <span class="fl grey_end_yellow_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.已结束))
+                                            {
+                                                <span class="fl grey_end_blue_start end"></span>
+                                            }
+
+                                        }
+                                        else if (item.P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                                        {
+                                            <span class="fl yellow_body cursor middle" businessflowcode="@item.P_Business_flow_code">@item.P_Business_flow_name</span>
+                                            //业务流程节点结束(也是下一个流程节点开始)
+                                            var NextBusinessFlows = from allList in Model
+                                                                    where allList.P_Business_order > item.P_Business_order
+                                                                    orderby allList.P_Business_order ascending
+                                                                    select allList;
+                                            if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.未开始))
+                                            {
+                                                <span class="fl yellow_end_grey_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                                            {
+                                                <span class="fl yellow_end_yellow_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.已结束))
+                                            {
+                                                <span class="fl yellow_end_blue_start end"></span>
+                                            }
+                                        }
+                                        else if (item.P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.已结束))
+                                        {
+                                            <span class="fl blue_body cursor middle" businessflowcode="@item.P_Business_flow_code">@item.P_Business_flow_name</span>
+                                            //业务流程节点结束(也是下一个流程节点开始)
+                                            var NextBusinessFlows = from allList in Model
+                                                                    where allList.P_Business_order > item.P_Business_order
+                                                                    orderby allList.P_Business_order ascending
+                                                                    select allList;
+                                            if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.未开始))
+                                            {
+                                                <span class="fl blue_end_grey_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                                            {
+                                                <span class="fl blue_end_yellow_start end"></span>
+                                            }
+                                            else if (NextBusinessFlows.FirstOrDefault().P_Business_state.Value == Convert.ToInt32(BusinessFlowStatus.已结束))
+                                            {
+                                                <span class="fl blue_end_blue_start end"></span>
+                                            }
+                                        }
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="right_bottom"><iframe name="iframe_childreBusinessFlow" id="iframe_childreBusinessFlow" width="100%" height="100%" frameborder="0" baseurl="/flowmanager/businessflow/pkrelationbusinessflowlist?pkCode=@fkCode&businessFlowCode={sid_Iterm}&fkType=@fkType&fstate=@ViewBag.Fstate" src="/flowmanager/businessflow/pkrelationbusinessflowlist?pkCode=@fkCode&businessFlowCode=&fkType=@fkType&fstate=@ViewBag.Fstate" scrolling="auto"></iframe></div>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+</body>
+</html>

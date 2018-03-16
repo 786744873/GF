@@ -1,0 +1,91 @@
+﻿@using CommonService.Model.SysManager;
+@using Context;
+@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Involved_project>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "涉案项目列表";
+}
+
+@{
+    C_Involved_project projectConditon = ViewBag.ProjectConditon;//案件条件模型
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+}
+<div class="tools">
+    <ul class="toolbar" style="margin-bottom:8px">
+        @if (UIContext.Current.IsPreSetManager)
+        {
+            <li><a target="popdialog" title="涉案项目信息" dialogwidth="600" dialogheight="400" href="/basedata/Involved_project/create"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+            <li><a target="popdialog" title="涉案项目信息" dialogwidth="600" dialogheight="400" edit="edit" href="/basedata/Involved_project/edit?Involved_project_code={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+            <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/Involved_project/delete?Involved_project_code={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+            <li><a target="popdialog" title="涉案项目详细" dialogwidth="1240" dialogheight="550" edit="edit" href="/basedata/Involved_project/CutTabDetails?Involved_project_code={sid_Iterm}"><span><img src="/theme/images/new_view.png" /></span>详细</a></li>
+            <li><a target="popdialog" title="建设单位" dialogwidth="1400" dialogheight="720" edit="edit" href="/basedata/Involved_project_CU/list?Involved_project_code={sid_Iterm}"><span></span>建设单位</a></li>
+            <li><a target="popdialog" title="项目关联单位" dialogwidth="1600" dialogheight="720" edit="edit" href="/basedata/Involved_projectUnit/list?Involved_project_code={sid_Iterm}"><span></span>项目关联单位</a></li>
+        }
+        else
+        {
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 12).Count() != 0)
+            {
+                <li><a target="popdialog" title="涉案项目信息" dialogwidth="800" dialogheight="550" href="/basedata/Involved_project/create"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 13).Count() != 0)
+            {
+                <li><a target="popdialog" title="涉案项目信息" dialogwidth="800" dialogheight="550" edit="edit" href="/basedata/Involved_project/edit?Involved_project_code={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 14).Count() != 0)
+            {
+                <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/Involved_project/delete?Involved_project_code={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 15).Count() != 0)
+            {
+                <li><a target="popdialog" title="涉案项目详细" dialogwidth="1240" dialogheight="550" edit="edit" href="/basedata/Involved_project/CutTabDetails?Involved_project_code={sid_Iterm}"><span></span>详细</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 16).Count() != 0)
+            {
+                <li><a target="popdialog" title="建设单位" dialogwidth="1400" dialogheight="720" edit="edit" href="/basedata/Involved_project_CU/list?Involved_project_code={sid_Iterm}"><span></span>建设单位</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 17).Count() != 0)
+            {
+                <li><a target="popdialog" title="项目关联单位" dialogwidth="1600" dialogheight="720" edit="edit" href="/basedata/Involved_projectUnit/list?Involved_project_code={sid_Iterm}"><span></span>项目关联单位</a></li>
+            }
+        }
+    </ul>
+    @using (Html.BeginForm("List", "Involved_project", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+    {
+        <ul class="seachform">
+            <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+            <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+            <li><label>工程地点</label>@Html.TextBox("C_Involved_project_address", projectConditon.C_Involved_project_address, new { @class = "scinput" })</li>
+            
+            <li><label>涉案项目名称</label>@Html.TextBox("C_Involved_project_name", projectConditon.C_Involved_project_name, new { @class = "scinput" })</li>
+            <li><label>工程类别</label>@Html.TextBox("C_Involved_project_type", projectConditon.C_Involved_project_type, new { @class = "scinput" })</li>
+             <li><label>&nbsp;</label><input type="submit" class="scbtn" style="color:blue;" value="查询" /></li>
+        </ul>
+    }
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th width="25%">工程名称</th>
+            <th width="30%">工程地点</th>
+            <th width="10%">工程类别</th>
+            <th width="10%">工程建设规模</th>
+            <th width="*%">工程建设投资</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Involved_project_code" relname="@item.C_Involved_project_name" ondblclick="openDetailsView('15','项目详细','1240','550','/basedata/Involved_project/tabdetails?Involved_project_code=@item.C_Involved_project_code','@(UIContext.Current.IsPreSetManager==true ?  "1" : "0")','@ViewBag.RoleButtonIds')">
+                <td>@item.C_Involved_project_name</td>
+                <td>@item.C_Involved_project_address</td>
+                <td>@item.C_Involved_project_type</td>
+                <td>@item.C_Involved_project_scale</td>
+                <td>@item.C_Involved_project_Investment</td>
+            </tr>
+        }
+    </tbody>
+</table>    

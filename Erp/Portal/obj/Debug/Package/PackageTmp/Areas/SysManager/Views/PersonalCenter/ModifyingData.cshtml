@@ -1,0 +1,51 @@
+﻿@model CommonService.Model.SysManager.C_Userinfo
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "用户";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("SaveData", "PersonalCenter", FormMethod.Post, new { id = "formUserinfo", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_Userinfo_id", Model.C_Userinfo_id)
+            @Html.Hidden("C_Userinfo_code", Model.C_Userinfo_code)
+            @Html.Hidden("C_Userinfo_parent", Model.C_Userinfo_parent)
+            @Html.Hidden("C_Userinfo_roleID", Model.C_Userinfo_roleID)
+            @Html.Hidden("C_Userinfo_state", Model.C_Userinfo_state)
+            @Html.Hidden("C_Userinfo_Organization", Model.C_Userinfo_Organization)
+            @Html.Hidden("C_Userinfo_post", Model.C_Userinfo_post)
+            @Html.Hidden("C_Userinfo_isDelete", Model.C_Userinfo_isDelete)
+            @Html.Hidden("C_Userinfo_creator", Model.C_Userinfo_creator)
+            @Html.Hidden("C_Userinfo_createTime", Model.C_Userinfo_createTime)
+            @Html.Hidden("C_Userinfo_Integral", Model.C_Userinfo_Integral)
+            @Html.Hidden("C_Userinfo_pictureAddress", Model.C_Userinfo_pictureAddress)
+            @Html.Hidden("C_Userinfo_password", Model.C_Userinfo_password)
+
+            <li><label>用户名称</label>@Html.TextBox("C_Userinfo_name", Model.C_Userinfo_name, new { @class = "dfinput", requiredInput = "请输入用户名称", maxlength = "200" })<i></i></li>
+            <li><label>登录名称</label>@Html.TextBox("C_Userinfo_loginID", Model.C_Userinfo_loginID, new { @class = "dfinput", maxlength = "20" })<i></i></li>
+            <li><label>手机号</label>@Html.TextBox("C_Userinfo_cellPhoneNumber", Model.C_Userinfo_cellPhoneNumber, new { @class = "dfinput", maxlength = "20", positiveinteger = "请输入有效数字" })<i></i></li>
+            <li><label>邮箱</label>@Html.TextBox("C_Userinfo_mailbox", Model.C_Userinfo_mailbox, new { @class = "dfinput", maxlength = "20" })<i></i></li>
+            <li><label>描述</label>@Html.TextArea("C_Userinfo_description", Model.C_Userinfo_description, new { @class = "textinput", maxlength = "500" })<i></i></li>
+            <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i></li>
+        }
+    </ul>
+</div>

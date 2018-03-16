@@ -1,0 +1,174 @@
+﻿@using System.Data;
+@using CommonService.Common;
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormPropertyValue>
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "费用报销单";
+}
+@section HeadCss{
+    <style type="text/css">
+        .formbody tr {
+            border-bottom: 1px solid black;
+        }
+        .td1 {
+            border-right: 1px solid black;
+            font-size: 14px;
+            width: 80px;
+        }
+        .td2 {
+            border-right: 1px solid black;
+            font-size: 14px;
+            width: 150px;
+        }
+        span .dfradio{
+            line-height:30px;
+        }
+        #region {
+            float: right;
+            margin-top: -30px;
+            margin-right: 10px;
+        }
+    </style>    
+}
+@section HeadScript{
+    <script type="text/javascript">
+        function onSubmit(form) {
+            //onlySaveForm(form);
+            $.ajax({
+                //cache: true,
+                type: "POST",
+                url: "/FinanceManager/FeeReimbursement/Save",
+                data: $('#formFeeReimbursement').serialize(),// 你的formid
+                async: false,
+                error: function (request) {
+                    alert("网络错误，请稍后再试!");
+                },
+                success: function (data) {
+                    if (data == '0')
+                    {
+                        alertMsg.warn('生成凭证信息失败！');
+                    } else
+                    {
+                        alertMsg.warn('生成凭证信息成功！');
+                        $("#number").html("单号：" + data);
+                    }
+                }
+            });
+            $("#btnSave").attr("value","打印");
+            $("#btnSave").attr("onclick", "onPrint()");
+            //setTimeout(st, 1000);
+        }
+
+        //function st()
+        //{
+        //    $.ajax({
+        //        type: 'POST',
+        //        url: "/FinanceManager/Voucher/GetNewestModel",
+        //        contentType: "application/json; charset=utf-8",
+        //        dataType: "json",
+        //        success: function (number) {
+        //            $("#number").html("单号：" + number);
+        //        },
+        //        error: function () {
+        //            alert('网络错误，请稍后再试!');
+        //        }
+        //    });
+
+           
+        //}
+        function onPrint() {
+            $("#btnSave").css("display", "none");
+            window.print();
+            parent.alertDialog.close();
+        }
+    </script>
+}
+@{
+    DataSet DynamicItemFormPropertyValue = ViewBag.DynamicItemFormPropertyValue;
+    List<CommonService.Model.SysManager.C_Organization> organizations = ViewBag.organizations;
+    CommonService.Model.SysManager.C_Userinfo userinfo = ViewBag.userinfo;
+    List<string> caseArrayList = ViewBag.caseArrayList;
+    Decimal TotalAmount = ViewBag.TotalAmount;
+    DateTime? applyTime = ViewBag.applyTime;
+    string manager = ViewBag.Manager;
+    string regionCode = ViewBag.regionCode;
+    string regionName = ViewBag.regionName;
+    DataTable dt=DynamicItemFormPropertyValue.Tables[0];
+    string formPropertyValueGroup = ViewBag.formPropertyValueGroup;
+}
+<div class="formbody" style="text-align:center;">
+    @using (Html.BeginForm("Save", "FeeReimbursement", FormMethod.Post, new { id = "formFeeReimbursement", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+    {
+        @Html.Hidden("formPropertyValueGroup", formPropertyValueGroup)
+        @Html.Hidden("regionCode", regionCode)
+        @Html.Hidden("applyTime", applyTime)
+        <div style=" width:700px;"><span id="number" style="float: right; font-size: 14px; "></span></div>
+        <table style="border:1px solid black;min-height:500px;width:700px;text-align:center;">
+            <tr>
+                <td colspan="6" style="font-size:30px;font-weight:bold;">费用报销单</td>
+            </tr>
+            <tr>
+                <td colspan="6" style="height:40px;font-size:14px;">@DateTime.Now.ToString("yyyy年MM月dd日")<span id="region">区域：@regionName</span></td>
+            </tr>
+            <tr>
+                <td class="td1">申请人</td>
+                <td class="td2">
+                    @if (userinfo != null)
+                    {
+                        @userinfo.C_Userinfo_name
+                        @Html.Hidden("O_Form_applyPerson", userinfo.C_Userinfo_code)
+                    }
+                </td>
+                <td class="td1">所属部门</td>
+                <td style="border-right: 1px solid black; font-size: 14px;width:120px;">
+                   @ViewBag.organizationName
+                    @if(userinfo!=null)
+                    { 
+                        @Html.Hidden("organizationCode", userinfo.C_Userinfo_Organization)
+                    }
+                </td>
+                <td class="td1">付款方式</td>
+                <td style="font-size: 14px;width:150px;">
+                    @Html.RadioButton("paymentMethod", 517, true) 现金
+                    @Html.RadioButton("paymentMethod", 518) 支票
+                    @Html.RadioButton("paymentMethod", 519) 汇款
+                </td>
+            </tr>
+            <tr style="height:auto;">
+                <td class="td1">摘要</td>
+                <td colspan="5" style="font-size: 14px;text-align:left;">
+                @foreach (string caseArray in caseArrayList)
+                {
+                    <span style="font-size:14px;">@caseArray<br /></span>
+                }
+                </td>
+            </tr>
+            <tr>
+                <td class="td1">金额(大写)</td>
+                <td colspan="2" style="border-right: 1px solid black; font-size: 14px;width:230px;">@ViewBag.TotalAmountToUppercaseAmount</td>
+                <td class="td1">小写</td>
+                <td colspan="2" style="font-size:14px;width:230px;">@TotalAmount 元</td>@Html.Hidden("TotalAmount", TotalAmount)
+            </tr>
+            <tr>
+                <td class="td1">部门经理</td>
+                <td class="td2">@manager</td>
+                <td class="td1">财务审核</td>
+                <td class="td2"></td>
+                <td class="td1">集团财务审核</td>
+                <td style="font-size:14px;"></td>
+            </tr>
+            <tr>
+                <td class="td1">公司总经理</td>
+                <td class="td2"></td>
+                <td class="td1">集团总裁</td>
+                <td class="td2"></td>
+                <td class="td1">领款人签字</td>
+                <td style="font-size: 14px;"></td>
+            </tr>
+        </table>
+        <br />
+        <input style="margin-left:290px;" name="" type="button" id="btnSave" onclick="onSubmit(this)" class="btn btnmr fl" value="确认生成" />
+    }
+</div>

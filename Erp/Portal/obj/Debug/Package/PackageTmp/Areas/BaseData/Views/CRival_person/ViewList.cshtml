@@ -1,0 +1,39 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_CRival_person>
+@{
+    Layout = "~/Views/Shared/_ListSearchTemplate.cshtml";//普通列表页面固定模板
+}
+@{
+    ViewBag.Title = "企业负责人列表";
+}
+@{
+    C_CRival_person crConditon = ViewBag.CrConditon;//企业负责人条件模型
+}
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>出生年月</th>
+            <th>任职时间</th>
+            <th>联系方式</th>
+            <th>职务</th>
+            <th>其他负责人</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_CRival_person_id">
+                <td>@item.C_CRival_person_name</td>
+                <td>@(item.C_CRival_person_sex == 1 ? "男" : "女")</td>
+                <td>@item.C_CRival_person_birthday</td>
+                <td>@(item.C_CRival_person_ptime==null ? "" : item.C_CRival_person_ptime.Value.ToString("yyyy-MM-dd"))</td>
+                <td>@item.C_CRival_person_contact</td>
+                <td>@item.C_CRival_person_post</td>
+                <td>@item.C_CRival_person_other_person</td>
+            </tr>
+        }
+    </tbody>
+</table>    

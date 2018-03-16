@@ -1,0 +1,17 @@
+﻿@using CommonService.Common;
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "委托详细";
+}
+<div class="itab">
+    <ul>
+        <li><a href="/basedata/principal/details?principalCode=@ViewBag.principalCode" tabpanelwidth="100%" tabpanelheight="450" class="selected">基本信息</a></li>
+        <li><a href="/basedata/company/viewlist?customerCode=@ViewBag.principalCode" tabpanelwidth="100%" tabpanelheight="450">公司信息</a></li>
+        <li><a href="/basedata/contacts/viewlist?relationCode=@ViewBag.principalCode&contactType=2" tabpanelwidth="100%" tabpanelheight="450">联系人信息</a></li>
+        <li><a href="/basedata/bank/viewlist?customerCode=@ViewBag.principalCode" tabpanelwidth="100%" tabpanelheight="450">银行信息</a></li>
+        <li><a href="/basedata/address/viewlist?customerCode=@ViewBag.principalCode" tabpanelwidth="100%" tabpanelheight="450">客户地址信息</a></li>
+        <li><a href="/attachmentupload/attachmentlist?relationCode=@ViewBag.principalCode&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.委托人)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.委托人)" tabpanelwidth="100%" tabpanelheight="600">附件信息</a></li>
+    </ul>
+</div>

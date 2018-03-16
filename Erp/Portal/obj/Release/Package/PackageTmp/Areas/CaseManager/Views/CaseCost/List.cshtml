@@ -1,0 +1,39 @@
+﻿@using CommonService.Model.CaseManager;
+@model IEnumerable<CommonService.Model.CaseManager.B_CaseCost>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "成本信息列表";
+}
+
+@{
+    B_CaseCost Conditon = ViewBag.Conditon;//条件模型
+}
+<div class="tools">
+    <ul class="toolbar">
+        <li><a target="popdialog" title="成本信息" dialogwidth="800" dialogheight="500" edit="edit" href="/CaseManager/casecost/edit?caseCode=@Conditon.B_Case_code&B_CaseCost_type={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+    </ul>
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>成本类型</th>
+            <th>金额</th>
+            <th>时间</th>
+            <th>备注</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.B_CaseCost_type_id" relname="@item.B_CaseCost_type_name">
+                <td>@item.B_CaseCost_type_name</td>
+                <td>@item.B_CaseCost_amount</td>
+                <td>@item.B_CaseCost_Time</td>
+                <td>@item.B_CaseCost_remarks</td>
+            </tr>
+        }
+    </tbody>
+</table>    

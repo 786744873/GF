@@ -1,0 +1,49 @@
+﻿@using CommonService.Model.SysManager;
+@using Context;
+
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "客户详细";
+}
+@{
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+}
+
+<div class="itab">
+    <ul>
+        @if (UIContext.Current.IsPreSetManager)
+        {
+            <li><a href="/basedata/customer/edit?customerCode=@ViewBag.CustomerCode" tabpanelwidth="100%" tabpanelheight="450" class="selected">基本信息</a></li>
+            <li><a href="/basedata/company/list?customerCode=@ViewBag.CustomerCode" tabpanelwidth="100%" tabpanelheight="450">公司信息</a></li>
+            <li><a href="/basedata/contacts/list?relationCode=@ViewBag.CustomerCode&contactType=2" tabpanelwidth="100%" tabpanelheight="450">联系人信息</a></li>
+            <li><a href="/basedata/bank/list?customerCode=@ViewBag.CustomerCode" tabpanelwidth="100%" tabpanelheight="450">银行信息</a></li>
+            <li><a href="/basedata/address/list?customerCode=@ViewBag.CustomerCode" tabpanelwidth="100%" tabpanelheight="450">客户地址信息</a></li>
+        }
+        else
+        {
+            //if (RoleButtons.Where(r => r.C_Menu_buttons_id == 27).Count() != 0)
+            //{
+                <li><a href="/basedata/customer/edit?customerCode=@ViewBag.CustomerCode" tabpanelwidth="100%" tabpanelheight="450" class="selected">基本信息</a></li>
+            //}
+            //if (RoleButtons.Where(r => r.C_Menu_buttons_id == 33).Count() != 0)
+            //{
+                <li><a href="/basedata/company/list?customerCode=@ViewBag.CustomerCode" tabpanelwidth="100%" tabpanelheight="450">公司信息</a></li>
+            //}
+            //if (RoleButtons.Where(r => r.C_Menu_buttons_id == 32).Count() != 0)
+            //{
+                <li><a href="/basedata/contacts/list?relationCode=@ViewBag.CustomerCode&contactType=2" tabpanelwidth="100%" tabpanelheight="450">联系人信息</a></li>
+            //}
+            //if (RoleButtons.Where(r => r.C_Menu_buttons_id == 35).Count() != 0)
+            //{
+                <li><a href="/basedata/bank/list?customerCode=@ViewBag.CustomerCode" tabpanelwidth="100%" tabpanelheight="450">银行信息</a></li>
+            //}
+            //if (RoleButtons.Where(r => r.C_Menu_buttons_id == 34).Count() != 0)
+            //{
+                <li><a href="/basedata/address/list?customerCode=@ViewBag.CustomerCode" tabpanelwidth="100%" tabpanelheight="450">客户地址信息</a></li>
+            //}
+
+        }
+    </ul>
+</div>

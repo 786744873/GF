@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="CommonService.KMS.K_Resources_zambia" %>

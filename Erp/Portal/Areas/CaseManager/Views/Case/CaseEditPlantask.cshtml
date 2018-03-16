@@ -1,0 +1,119 @@
+﻿@model CommonService.Model.CaseManager.B_Case
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "案件";
+}
+@{
+    List<CommonService.Model.SysManager.C_Userinfo> users = ViewBag.users;
+    List<CommonService.Model.SysManager.C_Userinfo> firstUsers = ViewBag.firstUsers;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+        $(function () {
+            var nameb = $('#B_Case_firstClassResponsiblePerson').val();//一级负责人
+            var loginUser = '@ViewBag.loginUser';//登录人
+            if (loginUser != nameb && loginUser != "3e11c570-4a11-483a-8367-602fba3aa1de")//如果不为一级负责人并且不是管理员，不可以修改首席和部长
+            {
+                $('#B_Case_firstClassResponsiblePerson').attr('disabled', 'true');
+                $('#B_Case_person').attr('disabled', 'true');
+            }
+        })
+    </script>
+}
+<div class="formbody">
+    <ul class="forminfo">
+        @using (Html.BeginForm("SaveCase", "Case", FormMethod.Post, new { id = "formCaseplan", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("B_Case_id", Model.B_Case_id)
+            @Html.Hidden("B_Case_code", Model.B_Case_code)
+            @Html.Hidden("B_Case_name", Model.B_Case_name)
+            @Html.Hidden("B_Case_number", Model.B_Case_number)
+            @Html.Hidden("B_Case_contractNo", Model.B_Case_contractNo)
+            @Html.Hidden("C_Customer_code", Model.C_Customer_code)
+            @Html.Hidden("C_Client_code", Model.C_Client_code)
+            @Html.Hidden("C_Person_code", Model.C_Person_code)
+            @Html.Hidden("C_Executer_code", Model.C_Executer_code)
+            @Html.Hidden("C_Region_code", Model.C_Region_code)
+            @Html.Hidden("C_Project_code", Model.C_Project_code)
+            @Html.Hidden("B_Case_type", Model.B_Case_type)
+            @Html.Hidden("B_Case_nature", Model.B_Case_nature)
+            @Html.Hidden("B_Case_customerType", Model.B_Case_customerType)
+            @Html.Hidden("B_Case_registerTime", Model.B_Case_registerTime)
+            @Html.Hidden("B_Case_state", Model.B_Case_state)
+            @Html.Hidden("B_Case_transferTargetMoney", Model.B_Case_transferTargetMoney)
+            @Html.Hidden("B_Case_transferTargetOther", Model.B_Case_transferTargetOther)
+            @Html.Hidden("B_Case_expectedGrant", Model.B_Case_expectedGrant)
+            @Html.Hidden("B_Case_execMoney", Model.B_Case_execMoney)
+            @Html.Hidden("B_Case_execOther", Model.B_Case_execOther)
+            @Html.Hidden("B_Case_courtFirst", Model.B_Case_courtFirst)
+            @Html.Hidden("B_Case_courtSecond", Model.B_Case_courtSecond)
+            @Html.Hidden("B_Case_courtExec", Model.B_Case_courtExec)
+            @Html.Hidden("B_Case_Trial", Model.B_Case_Trial)
+            @Html.Hidden("B_Case_remark", Model.B_Case_remark)
+            @Html.Hidden("B_Case_Requirement", Model.B_Case_Requirement)
+            @Html.Hidden("B_Case_Remarks", Model.B_Case_Remarks)
+            @Html.Hidden("B_Case_creator", Model.B_Case_creator)
+            @Html.Hidden("B_Case_createTime", Model.B_Case_createTime)
+            @Html.Hidden("B_Case_isDelete", Model.B_Case_isDelete)
+            @Html.Hidden("B_Case_Requirement", Model.B_Case_Requirement)
+            @Html.Hidden("B_Case_Remarks", Model.B_Case_Remarks)
+            @Html.Hidden("B_Case_levelType", Model.B_Case_levelType)
+            @Html.Hidden("B_Case_businessChance_Code", Model.B_Case_businessChance_Code)
+            @Html.Hidden("B_Case_isSure", Model.B_Case_isSure)
+            @Html.Hidden("B_Case_sureDate", Model.B_Case_sureDate)
+            <li>
+                <label>首席专家</label>
+                @{
+            IList<SelectListItem> firstClassResponsiblePerson = new List<SelectListItem>();
+            SelectListItem selectItemone = new SelectListItem();
+            selectItemone.Value = null;
+            selectItemone.Text = "请选择";
+            firstClassResponsiblePerson.Add(selectItemone);
+            foreach (var user in firstUsers)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = user.C_Userinfo_code.ToString();
+                selectItem.Text = user.C_Userinfo_name;
+
+                firstClassResponsiblePerson.Add(selectItem);
+            }
+                }
+
+                @Html.DropDownList("B_Case_firstClassResponsiblePerson", firstClassResponsiblePerson, new { @class = "dfselect", requiredInput = "请选择负责人" })<i></i>
+            </li>
+            <li>
+                <label>部长</label>
+                @{
+            IList<SelectListItem> userItems = new List<SelectListItem>();
+            userItems.Add(selectItemone);
+            foreach (var user in users)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = user.C_Userinfo_code.ToString();
+                selectItem.Text = user.C_Userinfo_Organization_name +"->"+ user.C_Userinfo_name;
+
+                userItems.Add(selectItem);
+            }
+                }
+                @Html.DropDownList("B_Case_person", userItems, new { @class = "dfselect", requiredInput = "请选择负责人" })<i></i>
+            </li>
+
+            <li><label>计划开始时间</label>@Html.TextBox("B_Case_planStartTime", Model.B_Case_planStartTime == null ? "" : Model.B_Case_planStartTime.Value.ToString("yyyy-MM-dd HH:mm:ss"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss", @class = "dfinput", requiredinput = "请选择日期" })<i></i></li>
+            <li><label>计划结束时间</label>@Html.TextBox("B_Case_planEndTime", Model.B_Case_planEndTime == null ? "" : Model.B_Case_planEndTime.Value.ToString("yyyy-MM-dd HH:mm:ss"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss", @class = "dfinput", requiredinput = "请选择日期" })<i></i></li>
+            <li><label>&nbsp;</label><input id="btnSave" name="" type="button" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i></li>
+        }
+    </ul>
+</div>

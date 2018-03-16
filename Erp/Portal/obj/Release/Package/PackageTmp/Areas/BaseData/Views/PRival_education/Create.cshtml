@@ -1,0 +1,41 @@
+﻿@model CommonService.Model.C_PRival_education
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "教育背景";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "PRival_education", FormMethod.Post, new { id = "formPRival_education", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_PRival_education_id", Model.C_PRival_education_id)
+            @Html.Hidden("C_PRival_code", Model.C_PRival_code)
+            @Html.Hidden("C_PRival_education_number", Model.C_PRival_education_number)
+            @Html.Hidden("C_PRival_education_creator", Model.C_PRival_education_creator)
+            @Html.Hidden("C_PRival_education_createTime", Model.C_PRival_education_createTime)
+            @Html.Hidden("C_PRival_education_isDelete", Model.C_PRival_education_isDelete)
+            <li><label>教育程度</label>@Html.TextBox("C_PRival_education_degree", Model.C_PRival_education_degree, new { @class = "dfinput", requiredInput = "请输入教育程度", maxlength = "50" })<i></i></li>
+            <li><label>毕业时间</label>@Html.TextBox("C_PRival_education_graduation_date", Model.C_PRival_education_graduation_date == null ? "" : Model.C_PRival_education_graduation_date.Value.ToString("yyyy-MM-dd"), new { date = "date", maxlength = "20", @readonly = "readonly", @class = "dfinput", dateformat = "yyyy-MM-dd" })<i></i></li>
+            <li><label>毕业学院</label>@Html.TextBox("C_PRival_education_school", Model.C_PRival_education_school, new { @class = "dfinput", requiredInput = "请输入毕业学院", maxlength = "100" })<i></i></li>
+            <li><label>毕业专业</label>@Html.TextBox("C_PRival_education_science", Model.C_PRival_education_science, new { @class = "dfinput", requiredInput = "请输入毕业专业", maxlength = "100" })<i></i></li>
+             <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></li>
+        }
+    </ul>
+</div>

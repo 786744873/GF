@@ -1,0 +1,44 @@
+﻿@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "案件级别";
+}
+@{
+    CommonService.Model.BusinessChanceManager.B_BusinessChance businessChance = ViewBag.businessChance;
+}
+@section HeadCss{
+    <style type="text/css">
+        .textinput{
+            height:60px;
+            width:200px;
+        }
+    </style>    
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("SaveBusinessChanceConvertCase", "BusinessChance", FormMethod.Post, new { id = "formGroup", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("businessChanceCode", businessChance.B_BusinessChance_code)
+            <li>
+                <label>案件级别</label>@Html.RadioButton("levelType", 1, true, new { @class = "dfradio" })<span>指挥级</span>
+                @Html.RadioButton("levelType", 2, new { @class = "dfradio" })<span>策划级</span><i></i>
+            </li>
+            <li><label>审查意见</label>@Html.TextArea("B_BusinessChance_Competitor", businessChance.B_BusinessChance_consultant_name, new { @class = "textinput" })<i></i></li>
+            <li><label>补充说明</label>@Html.TextArea("B_BusinessChance_Competitor_name", businessChance.B_BusinessChance_Competitor_name, new { @class = "textinput" })<i></i></li>
+            <li><label>审查人员</label><i></i></li>
+            <li><label>审查时间</label><i></i></li>
+        <li style="color: #7B7B7B; ">备注：</li>
+        <li style="color: #7B7B7B;">指挥级案件：不需要参与具体表单的审核与验收</li>
+        <li style="color: #7B7B7B;">策划级案件：需要参与具体表单的审核与验收</li>
+        <li class="buttonWrap clear">
+            <input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="审查通过" />
+            <input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="判为时效商机" />
+            <input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="保持现状" /><i></i>
+        </li>
+        }
+
+    </ul>
+
+</div>

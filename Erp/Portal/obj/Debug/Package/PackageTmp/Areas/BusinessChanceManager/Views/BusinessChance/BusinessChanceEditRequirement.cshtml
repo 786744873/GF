@@ -1,0 +1,66 @@
+﻿@model CommonService.Model.BusinessChanceManager.B_BusinessChance
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "商机";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        function EnterPress(e) { //传入 event
+            var e = e || window.event;
+            if (e.keyCode == 13) {
+                $('#formSubmit').click();
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <ul class="forminfo">
+        @using (Html.BeginForm("SaveCase", "BusinessChance", FormMethod.Post, new { id = "formCase", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("B_BusinessChance_id", Model.B_BusinessChance_id)
+            @Html.Hidden("B_BusinessChance_code", Model.B_BusinessChance_code)
+            @Html.Hidden("B_BusinessChance_state", Model.B_BusinessChance_state)
+            @Html.Hidden("B_BusinessChance_checkStatus", Model.B_BusinessChance_checkStatus)
+            @Html.Hidden("B_BusinessChance_creator", Model.B_BusinessChance_creator)
+            @Html.Hidden("B_BusinessChance_createTime", Model.B_BusinessChance_createTime)
+            @Html.Hidden("B_BusinessChance_isDelete", Model.B_BusinessChance_isDelete)
+            @Html.Hidden("B_BusinessChance_name", Model.B_BusinessChance_name)
+            @Html.Hidden("B_BusinessChance_number", Model.B_BusinessChance_number)
+            @Html.Hidden("B_BusinessChance_type", Model.B_BusinessChance_type)
+            @Html.Hidden("B_BusinessChance_customerType", Model.B_BusinessChance_customerType)
+            @Html.Hidden("B_BusinessChance_Customer_code", Model.B_BusinessChance_Customer_code)
+            @Html.Hidden("B_BusinessChance_Competitor", Model.B_BusinessChance_Competitor)
+            @Html.Hidden("B_BusinessChance_registerTime", Model.B_BusinessChance_registerTime)
+            @Html.Hidden("B_BusinessChance_Project_code", Model.B_BusinessChance_Project_code)
+            @Html.Hidden("B_BusinessChance_expectedTarget", Model.B_BusinessChance_expectedTarget)
+            @Html.Hidden("B_BusinessChance_Region_code", Model.B_BusinessChance_Region_code)
+            @Html.Hidden("B_BusinessChance_successProbability", Model.B_BusinessChance_successProbability)
+            @Html.Hidden("B_BusinessChance_obtainTime", Model.B_BusinessChance_obtainTime)
+            @Html.Hidden("B_BusinessChance_Client_code", Model.B_BusinessChance_Client_code)
+            @Html.Hidden("B_BusinessChance_Case_nature", Model.B_BusinessChance_Case_nature)
+            @Html.Hidden("B_BusinessChance_courtFirst", Model.B_BusinessChance_courtFirst)
+            @Html.Hidden("B_BusinessChance_courtSecond", Model.B_BusinessChance_courtSecond)
+            @Html.Hidden("B_BusinessChance_courtExec", Model.B_BusinessChance_courtExec)
+            @Html.Hidden("B_BusinessChance_transferTargetMoney", Model.B_BusinessChance_transferTargetMoney)
+            @Html.Hidden("B_BusinessChance_transferTargetOther", Model.B_BusinessChance_transferTargetOther)
+            @Html.Hidden("B_BusinessChance_expectedGrant", Model.B_BusinessChance_expectedGrant)
+            @Html.Hidden("B_BusinessChance_execMoney", Model.B_BusinessChance_execMoney)
+            @Html.Hidden("B_BusinessChance_execOther", Model.B_BusinessChance_execOther)
+            @Html.Hidden("B_BusinessChance_Person_code", Model.B_BusinessChance_Person_code)
+            @Html.Hidden("B_BusinessChance_Outline", Model.B_BusinessChance_Outline)
+            @Html.Hidden("B_BusinessChance_remark", Model.B_BusinessChance_remark)
+            @Html.Hidden("B_BusinessChance_person", Model.B_BusinessChance_person)
+            @Html.Hidden("B_BusinessChance_firstClassResponsiblePerson", Model.B_BusinessChance_firstClassResponsiblePerson)
+            @Html.Hidden("B_BusinessChance_planStartTime", Model.B_BusinessChance_planStartTime)
+            @Html.Hidden("B_BusinessChance_planEndTime", Model.B_BusinessChance_planEndTime)
+            @Html.Hidden("B_BusinessChance_factStartTime", Model.B_BusinessChance_factStartTime)
+            @Html.Hidden("B_BusinessChance_factEndTime", Model.B_BusinessChance_factEndTime)
+
+            <li><label>要求</label>@Html.TextArea("B_BusinessChance_Requirement", Model.B_BusinessChance_Requirement, new { @class = "textinput", requiredInput = "请输入要求", maxlength = "3000" })<i></i></li>
+            <li><label>备注</label>@Html.TextArea("B_BusinessChance_remarks", Model.B_BusinessChance_remarks, new { @class = "textinput1", requiredInput = "请输入备注", maxlength = "200" })<i></i></li>
+            <li><label>&nbsp;</label><input id="formSubmit" name="" type="button" onclick="javascript: $(this).parents('form').submit();" class="btn" value="确认保存" /><i></i></li>
+        }
+    </ul>
+</div>

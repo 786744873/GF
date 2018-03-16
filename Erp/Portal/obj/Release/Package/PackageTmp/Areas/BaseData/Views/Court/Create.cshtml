@@ -1,0 +1,66 @@
+﻿@model CommonService.Model.C_Court
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "法院";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>    
+}
+@{
+    List<CommonService.Model.C_Region> regionList = ViewBag.regionList;
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "Court", FormMethod.Post, new { id = "formOrganization", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_Court_id", Model.C_Court_id)
+            @Html.Hidden("C_Court_code", Model.C_Court_code)
+            @Html.Hidden("C_Court_number", Model.C_Court_number)
+            @Html.Hidden("C_Court_isAllocate", Model.C_Court_isAllocate)
+            @Html.Hidden("C_Court_isdelete", Model.C_Court_isdelete)
+            @Html.Hidden("C_Court_cdate", Model.C_Court_cdate)
+            <li><label>法院名称</label>@Html.TextBox("C_Court_name", Model.C_Court_name, new { @class = "dfinput", requiredInput = "请输入法院名称", maxlength = "100" })<i></i></li>
+            @*<li>
+                <label>法院区域</label>@Html.Hidden("regionlookup.Code", Model.C_Court_area, new { lookupgroup = "regionlookup" })@Html.TextBox("regionlookup.Name", Model.C_Court_area_name, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择区域", requiredInput = "请选择区域名称", switchurl = "/basedata/region/SingleCallbackRefTree?sourceType=2", dialogwidth = "340", dialogheight = "500", lookupgroup = "regionlookup" })<i></i>
+            </li>*@
+            <li>
+                <label>法院区域</label>
+                @{
+                    IList<SelectListItem> crivalftypeItems = new List<SelectListItem>();
+                    SelectListItem selectItemDemo = new SelectListItem();
+                    selectItemDemo.Value = null;
+                    selectItemDemo.Text = "请选择";
+                    crivalftypeItems.Add(selectItemDemo);
+                    foreach (var crivalftype in regionList)
+                    {
+                        SelectListItem selectItem = new SelectListItem();
+                        selectItem.Value = crivalftype.C_Region_code.ToString();
+                        selectItem.Text = crivalftype.C_Region_name;
+
+                        crivalftypeItems.Add(selectItem);
+                    }
+                }
+                @Html.DropDownList("C_Court_area", crivalftypeItems, new { @class = "dfinput", requiredInput = "请选择区域" })<i></i>
+            </li>
+            <li><label>法院网址</label>@Html.TextBox("C_Court_url", Model.C_Court_url, new { @class = "dfinput", maxlength = "200" })<i></i></li>
+            <li><label>法院地址</label>@Html.TextBox("C_Court_address", Model.C_Court_address, new { @class = "dfinput", maxlength = "200" })<i></i></li>
+            <li><label>备注</label>@Html.TextArea("C_Court_remark", Model.C_Court_remark, new { @class = "textinput",  maxlength = "500" })<i></i></li>
+            <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></li>
+        }
+    </ul>
+</div>

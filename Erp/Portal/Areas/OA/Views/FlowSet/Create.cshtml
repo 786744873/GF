@@ -1,0 +1,114 @@
+﻿@model CommonService.Model.OA.O_FlowSet
+@{
+    Layout = null;
+}
+@{
+    List<CommonService.Model.C_Parameters> list = ViewBag.lists;
+}
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+    <h4 class="modal-title">添加预设</h4>
+</div>
+<div class="modal-body">
+    @using (Html.BeginForm("Save", "flowset", FormMethod.Post, new { id = "formFlowSet", @class = "form-horizontal", role = "form" }))
+    {
+        <div class="form-body">
+            <div class="alert alert-danger display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+            </div>
+            <div class="alert alert-success display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据验证通过，数据处理中..."></span>
+            </div>
+            @Html.Hidden("hd_receivers", Model.O_Flowset_personNames_Lists)
+            @Html.Hidden("O_FlowSet_id", Model.O_FlowSet_id)
+            @Html.Hidden("O_FlowSet_flow", Model.O_FlowSet_flow)
+            @Html.Hidden("O_FlowSet_code", Model.O_FlowSet_code)
+            @Html.Hidden("O_FlowSet_creator", Model.O_FlowSet_creator)
+            @Html.Hidden("O_FlowSet_createTime", Model.O_FlowSet_createTime)
+            @Html.Hidden("O_FlowSet_isDelete", Model.O_FlowSet_isDelete)
+            <div class="form-group">
+                <label class="control-label col-md-3">审批人 <span class="required">*</span></label>
+                <div class="col-md-9">
+                    <select id="select_receivers" name="select_receivers" data-live-search="true" class="form-control bs-select" multiple>
+                        @Html.Raw(ViewBag.userhtml);
+                    </select>
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3">规则</label>
+                <div class="col-md-9">
+                    <div class="input-icon right">
+                        <i class="fa"></i>
+                        @Html.TextBox("O_FlowSet_rule", Model.O_FlowSet_rule, new { @class = "form-control", placeholder = "规则", maxlength = "200"})
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3">顺序 <span class="required">*</span></label>
+                <div class="col-md-9">
+                    <div class="input-icon right">
+                        <i class="fa"></i>
+                        @Html.TextBox("O_FlowSet_order", Model.O_FlowSet_order, new { @class = "form-control", placeholder = "顺序", maxlength = "200", validateType = "{required:true,digits:true}", validateMessage = "{required:'顺序不能为空',digits:'请输入有效顺序'}" })
+                    </div>
+                </div>
+            </div>
+            @{
+        IList<SelectListItem> Items = new List<SelectListItem>();
+        foreach (var item in list)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = item.C_Parameters_id.ToString();
+            selectItem.Text = item.C_Parameters_name;
+
+            Items.Add(selectItem);
+        }
+            }
+            <div class="form-group">
+                <label class="control-label col-md-3">审核类型</label>
+                <div class="col-md-9">
+                    @Html.DropDownList("O_FlowSet_auditType", Items, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn blue" onclick="saveFlowSet('formFlowSet')">保存</button>
+    <a class="btn ajaxify" href="/oa/flowset/List?flowCode=@ViewBag.flowCode">
+        返回
+    </a>
+</div>
+<!-- BEGIN MAIN JS -->
+@Html.Partial("_OAHidePartial")@*引入页面中用到的一些关联触发*@
+<script>
+    //初始化select2控件
+    var $selectReceivers = $('#select_receivers').select2({
+        placeholder: "搜索审批人",
+        allowClear: true,
+        formatNoMatches: "没有匹配的审批人"
+    });
+    //设置select2 默认选中值
+    var defaultReceivers = $('#formFlowSet').find("input[type=hidden][name='hd_receivers']").val();
+    var defaultReceiversGroup = defaultReceivers.split(',');
+    var select_defaultReceivers = '';
+    if (defaultReceivers != '') {
+        for (var i = 0; i < defaultReceiversGroup.length ; i++) {
+            select_defaultReceivers += '"' + defaultReceiversGroup[i] + '",';
+        }
+    }
+    if (select_defaultReceivers != '') {
+        select_defaultReceivers = select_defaultReceivers.substr(0, select_defaultReceivers.length - 1);
+        select_defaultReceivers = "[" + select_defaultReceivers + "]";
+        $selectReceivers.val(eval("(" + select_defaultReceivers + ")")).trigger("change");
+    }
+    FormValidation.init('formFlowSet', formNavAjaxDone);//用表单Id和表单回调函数，初始化表单
+    function saveFlowSet(formId) {
+        var receiverGuids = $selectReceivers.select2("val");//审批人选中值
+        $('#' + formId).find("input[type=hidden][name='hd_receivers']").val(receiverGuids);//重新赋值审批人Guid
+        saveForm(formId);
+    }
+</script>
+<!-- END MAIN JS -->

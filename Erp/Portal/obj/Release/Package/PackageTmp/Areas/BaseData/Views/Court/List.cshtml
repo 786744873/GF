@@ -1,0 +1,150 @@
+﻿@using CommonService.Model;
+@using CommonService.Common;
+@using CommonService.Model.SysManager;
+@using Context;
+@model IEnumerable<CommonService.Model.C_Court>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "法院列表";
+}
+
+@{
+    C_Court couConditon = ViewBag.CouConditon;//法院条件模型
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+    List<CommonService.Model.C_Region> RegionLists = ViewBag.RegionList;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        $(function () {
+            var $tablelist = $(".tablelist");
+            $("a[target=_Blank]", $tablelist).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+
+                    var href=$this.attr("href");
+                    //window.location.href = 'http://'+href+'';
+                    window.open('http://' + href + '');
+                })
+            })
+        })
+    </script>
+}
+<script>
+    function osb(val) {
+        document.getElementById("@ViewBag.SearchFormID").action = val;
+        document.getElementById("@ViewBag.SearchFormID").submit();
+    }
+</script>
+<div class="tools">
+    <ul class="toolbar">
+       @if (UIContext.Current.IsPreSetManager)
+        {
+        <li><a target="popdialog" title="法院信息" dialogwidth="750" dialogheight="550" href="/BaseData/court/create"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+        <li><a target="popdialog" title="法院信息" dialogwidth="750" dialogheight="550" edit="edit" href="/basedata/court/edit?courtCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+        <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/court/delete?courtCode={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+        <li><a target="popdialog" title="法院附件" dialogwidth="1240" dialogheight="550" edit="edit" href="/attachmentupload/attachment_defaultlayout?relationCode={sid_Iterm}&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.法院)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.法院)"><span><img src="/theme/images/new_document.png" /></span>附件</a></li>
+        <li><a target="popdialog" title="详细信息" dialogwidth="1300" dialogheight="700" edit="edit" href="/basedata/court/CutTabDetails?courtCode={sid_Iterm}"><span><img src="/theme/images/new_view.png" /></span>详细</a></li>
+        <li><a target="popdialog" title="人员组成" dialogwidth="1300" dialogheight="800" edit="edit" href="/basedata/court/personcomponent?courtCode={sid_Iterm}"><span><img src="/theme/images/new_person.png" /></span>人员组成</a></li>
+        <li><a target="popdialog" title="关联律师信息" dialogwidth="1010" dialogheight="550" edit="edit" href="/basedata/Court_Lawyer/CourtRelationLawyer?courtCode={sid_Iterm}"><span><img src="/theme/images/new_view.png" /></span>关联律师</a></li>
+         <li><a target="_self" title="导出" dialogwidth="1400" dialogheight="830" href="#" onclick="osb('/baseData/court/Export')"><span><img src="/theme/images/new_export.png" /></span>导出</a></li>
+       }
+       else
+       {
+           if (RoleButtons.Where(r => r.C_Menu_buttons_id == 3).Count() != 0)
+           {
+               <li><a target="popdialog" title="法院信息" dialogwidth="800" dialogheight="550" href="/BaseData/court/create"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+           }
+           if (RoleButtons.Where(r => r.C_Menu_buttons_id == 4).Count() != 0)
+           {
+               <li><a target="popdialog" title="法院信息" dialogwidth="1240" dialogheight="680" edit="edit" href="/basedata/court/edit?courtCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+           }
+           if (RoleButtons.Where(r => r.C_Menu_buttons_id == 5).Count() != 0)
+           {
+               <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/court/delete?courtCode={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+           }
+           if (RoleButtons.Where(r => r.C_Menu_buttons_id == 7).Count() != 0)
+           {
+               <li><a target="popdialog" title="法院附件" dialogwidth="1240" dialogheight="550" edit="edit" href="/attachmentupload/attachment_defaultlayout?relationCode={sid_Iterm}&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.法院)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.法院)"><span><img src="/theme/images/new_document.png" /></span>附件</a></li>
+           }
+           if (RoleButtons.Where(r => r.C_Menu_buttons_id == 6).Count() != 0)
+           {
+               <li><a target="popdialog" title="详细信息" dialogwidth="1300" dialogheight="700" edit="edit" href="/basedata/court/CutTabDetails?courtCode={sid_Iterm}"><span><img src="/theme/images/new_view.png" /></span>详细</a></li>
+           }
+           if (RoleButtons.Where(r => r.C_Menu_buttons_id == 8).Count() != 0)
+           {
+               <li><a target="popdialog" title="人员组成" dialogwidth="1300" dialogheight="800" edit="edit" href="/basedata/court/personcomponent?courtCode={sid_Iterm}"><span><img src="/theme/images/new_person.png" /></span>人员组成</a></li>
+           }
+           if (RoleButtons.Where(r => r.C_Menu_buttons_id == 1138).Count() != 0)
+           { 
+               <li><a target="popdialog" title="关联律师信息" dialogwidth="1010" dialogheight="550" edit="edit" href="/basedata/Court_Lawyer/CourtRelationLawyer?courtCode={sid_Iterm}"><span><img src="/theme/images/new_view.png" /></span>关联律师</a></li>
+           }
+           if (RoleButtons.Where(r => r.C_Menu_buttons_id == 1131).Count() != 0)
+           {
+               <li><a target="_self" title="导出" dialogwidth="1400" dialogheight="830" href="#" onclick="osb('/baseData/court/Export')"><span><img src="/theme/images/new_export.png" /></span>导出</a></li>
+           }
+           
+       }
+    </ul>
+    @using (Html.BeginForm("List", "Court", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+    {
+        <ul class="seachform">
+            <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+            <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+            <li><label>法院名称</label>@Html.TextBox("C_Court_name", couConditon.C_Court_name, new { @class = "scinput" })</li>
+            <li>
+                <label>法院区域</label>@{
+                    
+                    IList<SelectListItem> regionItems = new List<SelectListItem>();
+                    SelectListItem selectItemone = new SelectListItem();
+                    regionItems.Add(selectItemone);
+                    foreach (var item in RegionLists)
+                    {
+                        SelectListItem selectItem = new SelectListItem();
+                        selectItem.Value = item.C_Region_code.ToString();
+                        selectItem.Text = item.C_Region_name;
+                        if (couConditon.C_Court_area != null)
+                        {
+                            if (couConditon.C_Court_area.ToString() == item.C_Region_code.ToString())
+                            {
+                                selectItem.Selected = true;
+                            }
+                        }
+
+                        regionItems.Add(selectItem);
+                    }
+                }
+                @Html.DropDownList("C_Region_code", regionItems, new { @class = "sfselect" })
+                <i></i>
+            </li>
+
+            <li><label>&nbsp;</label><input type="submit" class="scbtn" style="color:blue;" onclick="osb('/BaseData/court/list')" value="查询" /></li>
+        </ul>
+    }
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th width="20%">法院名称</th>
+            <th width="8%">法院区域</th>
+            <th width="15%">法院网址</th>
+            <th width="20%">法院地址</th>
+            <th width="*%">备注</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr style="cursor:pointer; " target="sid_Iterm" rel="@item.C_Court_code" relname="@item.C_Court_name" ondblclick="openDetailsView('6','法院详细','1300','700','/basedata/court/TabDetails?courtCode=@item.C_Court_code','@(UIContext.Current.IsPreSetManager==true ?  "1" : "0")','@ViewBag.RoleButtonIds')">
+                <td>@item.C_Court_name</td>
+                <td>@item.C_Court_area_name</td>
+                <td><a style="color:blue;" target="_Blank" href="@item.C_Court_url">@item.C_Court_url</a></td>
+                <td>@item.C_Court_address</td>
+                <td>@item.C_Court_remark</td>
+            </tr>
+        }
+    </tbody>
+</table>    

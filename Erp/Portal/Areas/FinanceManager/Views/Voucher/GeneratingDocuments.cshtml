@@ -1,0 +1,140 @@
+﻿@using System.Data;
+@using CommonService.Common;
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormPropertyValue>
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "打印";
+}
+@section HeadCss{
+    <style type="text/css">
+    .formbody tr {
+        border-bottom: 1px solid black;
+    }
+
+    .td1 {
+        border-right: 1px solid black;
+        font-size: 14px;
+        width: 80px;
+    }
+
+    .td2 {
+        border-right: 1px solid black;
+        font-size: 14px;
+        width: 150px;
+    }
+
+    span .dfradio {
+        line-height: 30px;
+    }
+
+    #region {
+        float: right;
+        margin-top: -30px;
+        margin-right: 10px;
+    }
+</style>
+}
+@section HeadScript{
+    <script type="text/javascript">
+        function onPrint() {
+            $("#btnSave").css("display", "none");
+            window.print();
+            parent.alertDialog.close();
+        }
+    </script>
+}
+@{
+    DataSet DynamicItemFormPropertyValue = ViewBag.DynamicItemFormPropertyValue;
+    //List<CommonService.Model.SysManager.C_Organization> organizations = ViewBag.organizations;
+    CommonService.Model.SysManager.C_Userinfo userinfo = ViewBag.userinfo;
+    List<string> caseArrayList = ViewBag.caseArrayList;
+    Decimal TotalAmount = ViewBag.TotalAmount;
+    DateTime? applyTime = ViewBag.applyTime;
+    string manager = ViewBag.Manager;
+    string regionName = ViewBag.regionName;
+    CommonService.Model.FinanceManager.C_Voucher voucher = ViewBag.voucher;
+    DataTable dt = DynamicItemFormPropertyValue.Tables[0];
+}
+<div class="formbody" style="text-align: center; width: 700px;">
+    @using (Html.BeginForm("Save", "FeeReimbursement", FormMethod.Post, new { id = "formOrganization", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+    {
+        @Html.Hidden("applyTime", applyTime)
+        <div style=" width:700px;"><span style="float: right; font-size: 14px; ">单号：@voucher.C_Voucher_number</span></div>
+        <table style="border:1px solid black;height:500px;width:700px;text-align:center;">
+            <tr>
+                @if (voucher.C_Voucher_documentType == Convert.ToInt32(DocumentTypeEnum.报销))
+                {
+                    <td colspan="6" style="font-size:30px;font-weight:bold;">费用报销单</td>
+                }
+                else
+                {
+                    <td colspan="6" style="font-size:30px;font-weight:bold;">费用借款单</td>
+                }
+            </tr>
+            <tr>
+                <td colspan="6" style="height:40px;font-size:14px;">@DateTime.Now.ToString("yyyy年MM月dd日")<span id="region">区域：@regionName</span></td>
+            </tr>
+            <tr>
+                <td class="td1">申请人</td>
+                <td class="td2">
+                    @if (userinfo != null)
+                    {
+                        @userinfo.C_Userinfo_name
+                        @Html.Hidden("O_Form_applyPerson", userinfo.C_Userinfo_code)
+                    }
+                </td>
+                <td class="td1">所属部门</td>
+                <td style="border-right: 1px solid black; font-size: 14px;width:120px;">
+                    @*@ViewBag.organizationName
+                    @if (userinfo != null)
+                    {
+                        @Html.Hidden("organizationCode", userinfo.C_Userinfo_Organization)
+                    }*@
+                    @voucher.C_Voucher_departmentName
+                    @Html.Hidden("organizationCode", voucher.C_Voucher_department)
+                </td>
+                <td class="td1">付款方式</td>
+                <td style="font-size: 14px;width:150px;">
+                    @Html.RadioButton("paymentMethod", 517, voucher.C_Voucher_paymentMethod == 517 ? true : false) 现金
+                    @Html.RadioButton("paymentMethod", 518, voucher.C_Voucher_paymentMethod == 518 ? true : false) 支票
+                    @Html.RadioButton("paymentMethod", 519, voucher.C_Voucher_paymentMethod == 519 ? true : false) 汇款
+                </td>
+            </tr>
+            <tr style="height:auto;">
+                <td class="td1">摘要</td>
+                <td colspan="5" style="font-size: 14px;text-align:left;">
+                    @foreach (string caseArray in caseArrayList)
+                    {
+                        <span style="font-size:14px;">@caseArray<br /></span>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td class="td1">金额(大写)</td>
+                <td colspan="2" style="border-right: 1px solid black; font-size: 14px;width:230px;">@ViewBag.TotalAmountToUppercaseAmount</td>
+                <td class="td1">小写</td>
+                <td colspan="2" style="font-size:14px;width:230px;">@TotalAmount 元</td>@Html.Hidden("TotalAmount", TotalAmount)
+            </tr>
+            <tr>
+                <td class="td1">部门经理</td>
+                <td class="td2">@manager</td>
+                <td class="td1">财务审核</td>
+                <td class="td2"></td>
+                <td class="td1">集团财务审核</td>
+                <td style="font-size:14px;"></td>
+            </tr>
+            <tr>
+                <td class="td1">公司总经理</td>
+                <td class="td2"></td>
+                <td class="td1">集团总裁</td>
+                <td class="td2"></td>
+                <td class="td1">领款人签字</td>
+                <td style="font-size: 14px;"></td>
+            </tr>
+        </table>
+        <br />
+        <input style="margin-left:290px;" name="" type="button" id="btnSave" onclick="onPrint()" class="btn btnmr fl" value="打印" />
+    }
+</div>

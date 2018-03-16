@@ -1,0 +1,122 @@
+﻿@model CommonService.Model.BusinessChanceManager.B_BusinessChance
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "商机";
+}
+@{
+    List<CommonService.Model.SysManager.C_Userinfo> users = ViewBag.users;
+    List<CommonService.Model.SysManager.C_Userinfo> firstUsers = ViewBag.firstUsers;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+        $(function () {
+            var nameb = $('#B_BusinessChance_person').val();//二级负责人名称
+            var loginUser = '@ViewBag.loginUser';//登录人
+            if (loginUser == nameb)//二级负责人
+            {
+                $('#B_BusinessChance_firstClassResponsiblePerson').attr('disabled', 'true');
+                $('#B_BusinessChance_person').attr('disabled', 'true');
+            }
+        })
+    </script>
+}
+<div class="formbody">
+    <ul class="forminfo">
+        @using (Html.BeginForm("SaveCase", "BusinessChance", FormMethod.Post, new { id = "formBusinessChance", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("B_BusinessChance_id", Model.B_BusinessChance_id)
+            @Html.Hidden("B_BusinessChance_code", Model.B_BusinessChance_code)
+            @Html.Hidden("B_BusinessChance_state", Model.B_BusinessChance_state)
+             @Html.Hidden("B_BusinessChance_checkStatus", Model.B_BusinessChance_checkStatus)
+            @Html.Hidden("B_BusinessChance_creator", Model.B_BusinessChance_creator)
+            @Html.Hidden("B_BusinessChance_createTime", Model.B_BusinessChance_createTime)
+            @Html.Hidden("B_BusinessChance_isDelete", Model.B_BusinessChance_isDelete)
+            @Html.Hidden("B_BusinessChance_name", Model.B_BusinessChance_name)
+            @Html.Hidden("B_BusinessChance_number", Model.B_BusinessChance_number)
+            @Html.Hidden("B_BusinessChance_type", Model.B_BusinessChance_type)
+            @Html.Hidden("B_BusinessChance_customerType", Model.B_BusinessChance_customerType)
+            @Html.Hidden("B_BusinessChance_Customer_code", Model.B_BusinessChance_Customer_code)
+            @Html.Hidden("B_BusinessChance_Competitor", Model.B_BusinessChance_Competitor)
+            @Html.Hidden("B_BusinessChance_registerTime", Model.B_BusinessChance_registerTime)
+            @Html.Hidden("B_BusinessChance_Project_code", Model.B_BusinessChance_Project_code)
+            @Html.Hidden("B_BusinessChance_expectedTarget", Model.B_BusinessChance_expectedTarget)
+            @Html.Hidden("B_BusinessChance_Region_code", Model.B_BusinessChance_Region_code)
+            @Html.Hidden("B_BusinessChance_successProbability", Model.B_BusinessChance_successProbability)
+            @Html.Hidden("B_BusinessChance_obtainTime", Model.B_BusinessChance_obtainTime)
+            @Html.Hidden("B_BusinessChance_Client_code", Model.B_BusinessChance_Client_code)
+            @Html.Hidden("B_BusinessChance_Case_nature", Model.B_BusinessChance_Case_nature)
+            @Html.Hidden("B_BusinessChance_courtFirst", Model.B_BusinessChance_courtFirst)
+            @Html.Hidden("B_BusinessChance_courtSecond", Model.B_BusinessChance_courtSecond)
+            @Html.Hidden("B_BusinessChance_courtExec", Model.B_BusinessChance_courtExec)
+            @Html.Hidden("B_BusinessChance_transferTargetMoney", Model.B_BusinessChance_transferTargetMoney)
+            @Html.Hidden("B_BusinessChance_transferTargetOther", Model.B_BusinessChance_transferTargetOther)
+            @Html.Hidden("B_BusinessChance_expectedGrant", Model.B_BusinessChance_expectedGrant)
+            @Html.Hidden("B_BusinessChance_execMoney", Model.B_BusinessChance_execMoney)
+            @Html.Hidden("B_BusinessChance_execOther", Model.B_BusinessChance_execOther)
+            @Html.Hidden("B_BusinessChance_Person_code", Model.B_BusinessChance_Person_code)
+            @Html.Hidden("B_BusinessChance_Outline", Model.B_BusinessChance_Outline)
+            @Html.Hidden("B_BusinessChance_remark", Model.B_BusinessChance_remark)
+            @Html.Hidden("B_BusinessChance_Requirement", Model.B_BusinessChance_Requirement)
+            @Html.Hidden("B_BusinessChance_remarks", Model.B_BusinessChance_remarks)
+            @Html.Hidden("B_BusinessChance_factStartTime", Model.B_BusinessChance_factStartTime)
+            @Html.Hidden("B_BusinessChance_factEndTime", Model.B_BusinessChance_factEndTime)
+            
+             <li>
+                <label>首席专家</label>
+                @{
+            IList<SelectListItem> auserItems = new List<SelectListItem>();
+            SelectListItem selectItemone = new SelectListItem();
+            selectItemone.Value = null;
+            selectItemone.Text = "请选择";
+            auserItems.Add(selectItemone);
+            foreach (var firstUser in firstUsers)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = firstUser.C_Userinfo_code.ToString();
+                selectItem.Text = firstUser.C_Userinfo_name;
+                if (Model.B_BusinessChance_firstClassResponsiblePerson != null)
+                {
+                    if (Model.B_BusinessChance_firstClassResponsiblePerson.ToString() == selectItem.Value.ToString())
+                    {
+                        selectItem.Selected = true;
+                    }
+                }
+                auserItems.Add(selectItem);
+            }
+                }
+                @Html.DropDownList("B_BusinessChance_firstClassResponsiblePerson", auserItems, new { @class = "dfselect", requiredInput = "请选择负责人" })<i></i>
+            </li>
+            <li>
+                <label>部长</label>
+                @{
+            IList<SelectListItem> userItems = new List<SelectListItem>();
+            userItems.Add(selectItemone);
+            foreach (var user in users)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = user.C_Userinfo_code.ToString();
+                selectItem.Text = user.C_Userinfo_Organization_name + "->" + user.C_Userinfo_name; 
+
+                userItems.Add(selectItem);
+            }
+                }
+                @Html.DropDownList("B_BusinessChance_person", userItems, new { @class = "dfselect", requiredInput = "请选择负责人" })<i></i>
+            </li>           
+            <li><label>计划开始时间</label>@Html.TextBox("B_BusinessChance_planStartTime", Model.B_BusinessChance_planStartTime == null ? "" : Model.B_BusinessChance_planStartTime.Value.ToString("yyyy-MM-dd HH:mm:ss"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss", @class = "dfinput", requiredinput = "请选择日期" })<i></i></li>
+            <li><label>计划结束时间</label>@Html.TextBox("B_BusinessChance_planEndTime", Model.B_BusinessChance_planEndTime == null ? "" : Model.B_BusinessChance_planEndTime.Value.ToString("yyyy-MM-dd HH:mm:ss"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss", @class = "dfinput", requiredinput = "请选择日期" })<i></i></li>
+            <li><label>&nbsp;</label><input id="btnSave" name="" type="button" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i></li>
+        }
+    </ul>
+</div>

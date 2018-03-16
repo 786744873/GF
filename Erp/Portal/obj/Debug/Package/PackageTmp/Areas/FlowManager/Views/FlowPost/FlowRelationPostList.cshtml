@@ -1,0 +1,62 @@
+﻿@using CommonService.Model.FlowManager;
+@model IEnumerable<CommonService.Model.FlowManager.P_Flow_post>
+@{
+    string type = ViewBag.type;
+    string PostCode = ViewBag.PostCode;
+   
+}
+@section HeadScript
+{
+    <script type="text/javascript">
+        function reloadUsers() {//动态扩展方法
+            var $thisPrivateFrame = $(window.parent.document).find("iframe[name='iframe_users']");
+            var thisPrivateFrameSrc = $thisPrivateFrame.attr('baseurl');//目标链接地址
+            thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{postCode}", commonListData.uniqueId);//替换
+            thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{isChecked}", window.parent.globalCheckLocalArea);
+            $thisPrivateFrame.attr('src', thisPrivateFrameSrc);//导航到目标链接地址
+
+
+            
+        }
+    </script>
+}
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "流程关联岗位列表";
+}
+
+<table class="tablelist">
+    <tbody>
+        @foreach (var item in Model)
+        {
+            if (item.F_Post_code.Value.ToString() == PostCode)
+            {
+                <tr class="selected" id="cktr" target="sid_Iterm" rel="@item.F_Post_code" rowchange="reloadUsers()">
+                    <td>@item.C_Post_name</td>
+                </tr>
+            }
+            else
+            {
+                <tr id="cktr" target="sid_Iterm" rel="@item.F_Post_code" rowchange="reloadUsers()">
+                    <td>@item.C_Post_name</td>
+                </tr>
+            }
+
+
+
+        }
+        @if (type == "1")
+        {
+            <tr target="sid_Iterm" rel="@Guid.Empty" rowchange="reloadUsers()">
+                <td>法院律师</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<script>
+    $("#cktr").click();
+</script>

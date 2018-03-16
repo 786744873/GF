@@ -1,0 +1,383 @@
+﻿@using CommonService.Model.BusinessChanceManager;
+@using CommonService.Common;
+@using Context;
+@using CommonService.Model.SysManager;
+@model IEnumerable<CommonService.Model.BusinessChanceManager.B_BusinessChance>
+
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "商机列表";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        function openCaseExecuteView(buttonPower, title, dialogwidth, dialogheight, switchUrl, isPreSetManager, roleButtonIds) {//双击打开详细页面
+            var isAllowOpen = false;//是否允许打开
+            if (isPreSetManager == '1') {
+                isAllowOpen = true;
+            } else {
+                if (roleButtonIds.indexOf(buttonPower) >= 0) {
+                    isAllowOpen = true;
+                }
+            }
+            if (isAllowOpen) {
+                _openDialog(title, switchUrl, dialogwidth, dialogheight);
+            }
+        }
+
+        $(function () {
+            if (getCookie("isShow") == "0") {
+                $(".downDiv").attr("class", "upDiv");
+                $(".seachdiv").show();
+                $("#hidOrShow").html("收起");
+            } else {
+                $(".upDiv").attr("class", "downDiv");
+                $(".seachdiv").hide();
+                $("#hidOrShow").html("查询");
+            }
+            $("a[target=popdialog_owndefine]").each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    //替换url参数
+                    var switchUrl = $this.attr("href");
+                    _openDialog($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"));
+                });
+            });
+        })
+
+        function Layer_HideOrShow() {
+            if ($("#hidOrShow").html() == "查询") {
+                $(".downDiv").attr("class", "upDiv");
+                $(".seachdiv").show();
+                $("#hidOrShow").html("收起");
+                document.cookie = "isShow=0";
+            }
+            else {
+                $(".upDiv").attr("class", "downDiv");
+                $(".seachdiv").hide();
+                $("#hidOrShow").html("查询");
+                document.cookie = "isShow=1";
+            }
+        }
+
+        //读取cookies
+        function getCookie(name) {
+            var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+
+            if (arr = document.cookie.match(reg))
+
+                return unescape(arr[2]);
+            else
+                return null;
+        }
+    </script>
+}
+@section HeadCss{
+    <style type="text/css">
+        .aaa:link {
+            color: blue;
+        }
+
+        .aaa:hover {
+            color: blue;
+        }
+
+        .aaa:visited {
+            color: blue;
+        }
+
+        .upDiv {
+            float: left;
+            margin-left: 5px;
+            width: 30px;
+            height: 30px;
+            background: url(/theme/images/upIco.ico);
+        }
+
+        .downDiv {
+            float: left;
+            margin-left: 5px;
+            width: 30px;
+            height: 30px;
+            background: url(/theme/images/downIco.ico);
+        }
+
+        a[target=popdialog_owndefine] {
+            color: blue;
+        }
+    </style>
+}
+@{
+    B_BusinessChance bChanceConditon = ViewBag.BChanceConditon;//商机条件模型
+    List<CommonService.Model.C_Parameters> case_state = ViewBag.Case_state;
+    List<CommonService.Model.C_Parameters> businessChance_type = ViewBag.BusinessChance_type;
+    List<CommonService.Model.FlowManager.P_Flow> casestage = ViewBag.casestage;
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+}
+<li class="tools">
+    <ul class="toolbar"></ul>
+    <ul>
+        <li onclick="Layer_HideOrShow()">
+            <label id="hidOrShow" style="float:left;margin-left:20px;margin-top:5px;font-size:15px;">收起</label><div class="upDiv"></div>
+        </li>
+    </ul>
+    @using (Html.BeginForm("List", "BusinessChance", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+    {
+        <div class="seachdiv" style="border-top: 3px solid #3596d7;margin-top:5px;float:left;">
+            <ul class="forminfo">
+                <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+                <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+                <input name="CustomerCode" type="hidden" value="@ViewBag.CustomerCode" />
+                <input name="type" type="hidden" value="@ViewBag.type" />
+                <div class="mulitytext"><label>收案年份</label>@Html.TextBox("B_BusinessChance_registerTime", bChanceConditon.B_BusinessChance_registerTime, new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss" })<i></i></div>
+                <div class="mulitytext"><label>至</label>@Html.TextBox("B_BusinessChance_regiendTime", bChanceConditon.B_BusinessChance_registerTime2, new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss" })<i></i></div>
+                <div class="mulitytext"><label>商机名称</label>@Html.TextBox("B_BusinessChance_name", bChanceConditon.B_BusinessChance_name, new { @class = "dfinput" })<i></i></div>
+                <div class="mulitytext"><label>委托人</label>@Html.Hidden("clientmulitylookup.Code", bChanceConditon.B_BusinessChance_Client_code, new { mulitylookupgroup = "clientmulitylookup" })@Html.TextBox("clientmulitylookup.Name", bChanceConditon.B_BusinessChance_Client_name, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择委托人", requiredInput = "请选择委托人", switchurl = "/baseData/customer/mulitycallbackreflist?customerCodes={input[type=hidden][name='customermulitylookup.Code']}&type=82&checkedCustomerCodes=" + bChanceConditon.B_BusinessChance_Client_code, dialogwidth = "1080", dialogheight = "500", mulitylookupgroup = "clientmulitylookup" })<i></i></div>
+                <div class="mulitytext"><label>当事人</label>@Html.Hidden("rivallookupParty.Code", bChanceConditon.B_BusinessChance_Person_code, new { mulitylookupgroup = "rivallookupParty" })@Html.Hidden("rivallookupParty.Type", bChanceConditon.B_BusinessChance_Person_type, new { mulitylookupgroup = "rivallookupParty" })@Html.TextBox("rivallookupParty.Name", bChanceConditon.B_BusinessChance_Person_name, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择当事人", switchurl = "/baseData/rival/ListTabDetails?type=1&checkedRivalCode=" + bChanceConditon.B_BusinessChance_Person_code, dialogwidth = "1080", dialogheight = "550", mulitylookupgroup = "rivallookupParty" })<i></i></div>
+                <div class="mulitytext"><label>商机编码</label>@Html.TextBox("B_BusinessChance_number", bChanceConditon.B_BusinessChance_number, new { @class = "dfinput", maxlength = "50" })<i></i></div>
+                <div class="mulitytext"><label>专业顾问</label>@Html.Hidden("mainLawyerlookup.Code", bChanceConditon.B_BusinessChance_consultant_code, new { lookupgroup = "mainLawyerlookup" })@Html.TextBox("mainLawyerlookup.Name", bChanceConditon.B_BusinessChance_consultant_name, new { maxlength = "50", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "单选专业顾问", switchurl = "/sysmanager/userinfo/singlecallbackref_orgpostuserlayout", dialogwidth = "1050", dialogheight = "600", lookupgroup = "mainLawyerlookup" })<i></i></div>
+                <div class="mulitytext"><label>涉案项目</label>@Html.Hidden("projectlookup.Code", bChanceConditon.B_BusinessChance_Project_code, new { mulitylookupgroup = "projectlookup" })@Html.TextBox("projectlookup.Name", bChanceConditon.B_BusinessChance_Project_name, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择工程", switchurl = "/baseData/involved_project/MulityCallbackRefList?checkedProjectCode=" + bChanceConditon.B_BusinessChance_Project_code, dialogwidth = "1080", dialogheight = "520", mulitylookupgroup = "projectlookup" })<i></i></div>
+                <div class="mulitytext">
+                    <label>案件状态</label>
+                    @{
+        IList<SelectListItem> caseStateItems = new List<SelectListItem>();
+        SelectListItem selectItemone = new SelectListItem();
+        selectItemone.Value = null;
+        selectItemone.Text = "全部";
+        caseStateItems.Add(selectItemone);
+        foreach (var caseState in case_state)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = caseState.C_Parameters_id.ToString();
+            selectItem.Text = caseState.C_Parameters_name;
+            if (bChanceConditon.B_BusinessChance_state != null)
+            {
+                if (bChanceConditon.B_BusinessChance_state.ToString() == selectItem.Value.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+            caseStateItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("B_BusinessChance_state", caseStateItems, new { })<i></i>
+                </div>
+                <div class="mulitytext"><label>法院</label>@Html.Hidden("courtlookupOne.Code", bChanceConditon.B_BusinessChance_courtFirst, new { lookupgroup = "courtlookupOne" })@Html.TextBox("courtlookupOne.Name", bChanceConditon.B_BusinessChance_courtFirstName, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "单选法院", switchurl = "/baseData/court/SingleCallbackRefList?type=1", dialogwidth = "1080", dialogheight = "520", lookupgroup = "courtlookupOne" })<i></i></div>
+                <div class="mulitytext">
+                    <label>商机类型</label>
+                    @{
+        IList<SelectListItem> casetypeTypeItems = new List<SelectListItem>();
+        casetypeTypeItems.Add(selectItemone);
+        foreach (var businessChancetypeType in businessChance_type)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = businessChancetypeType.C_Parameters_id.ToString();
+            selectItem.Text = businessChancetypeType.C_Parameters_name;
+            if (bChanceConditon.B_BusinessChance_type != null)
+            {
+                if (bChanceConditon.B_BusinessChance_type.ToString() == selectItem.Value.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+            casetypeTypeItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("B_BusinessChance_type", casetypeTypeItems, new { })<i></i>
+                </div>
+                <div class="mulitytext">
+                    <label>办案阶段</label>
+                    @{
+        IList<SelectListItem> caseStageItems = new List<SelectListItem>();
+        caseStageItems.Add(selectItemone);
+        foreach (var item in casestage)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = item.P_Flow_code.ToString();
+            selectItem.Text = item.P_Flow_name;
+            if (bChanceConditon.B_BusinessChance_stage != null)
+            {
+                if (bChanceConditon.B_BusinessChance_stage.ToString() == selectItem.Value.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+
+            caseStageItems.Add(selectItem);
+        }
+                    }
+                    @Html.DropDownList("B_BusinessChance_stage", caseStageItems)<i></i>
+                </div>
+                <div class="mulitytext"><label>移交标的范围</label>@Html.TextBox("B_BusinessChance_transferTargetMoney", bChanceConditon.B_BusinessChance_transferTargetMoney, new { @class = "scinput" })</div>
+                <div class="mulitytext"><label>至</label>@Html.TextBox("B_BusinessChance_execMoney2", bChanceConditon.B_BusinessChance_execMoney2, new { @class = "scinput" })</div>
+                <div class="mulitytext"><label>客户名称</label>@Html.Hidden("customermulitylookup.Code", bChanceConditon.B_BusinessChance_Customer_code, new { mulitylookupgroup = "customermulitylookup", triggerevent = "change", clearRelationUIControlValue = "input[type=hidden][name='clientmulitylookup.Code'],input[type=text][name='clientmulitylookup.Name']" })@Html.TextBox("customermulitylookup.Name", bChanceConditon.B_BusinessChance_Customer_name, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择客户", requiredInput = "请选择客户", switchurl = "/basedata/customer/mulitycallbackreflist?type=81&checkedCustomerCodes=" + bChanceConditon.B_BusinessChance_Customer_code, dialogwidth = "1080", dialogheight = "500", mulitylookupgroup = "customermulitylookup" })<i></i></div>
+                <div class="mulitytext"><label>&nbsp;</label><input type="submit" onclick="osb('/BusinessChanceManager/BusinessChance/list')" class=" scbtn" value="查询" /></div>
+            </ul>
+        </div>
+    }
+</li>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th width="17%">商机名称</th>
+            <th width="7%">查看任务</th>
+            <th width="7%">业务类型</th>
+            <th width="10%">预开庭时间</th>
+            <th width="7%">成功概率</th>
+            <th width="10%">执行标的(元)</th>
+            <th width="8%">商机概述</th>
+            <th width="10%">商机获取时间</th>
+            <th>商机进度</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.B_BusinessChance_code" relname="@item.B_BusinessChance_name" ondblclick="openCaseExecuteView('82','商机执行','1400','830','/casemanager/caseexecute/businesschancedefaultlayout?fkCode=@item.B_BusinessChance_code&fkType=@Convert.ToInt32(FlowTypeEnum.商机)','@(UIContext.Current.IsPreSetManager==true ?  "1" : "0")','@ViewBag.RoleButtonIds')">
+                <td><a class="aaa" style="color:blue;">@item.B_BusinessChance_name</a></td>
+                <td><a title="查看流程" id="Td_@item.B_BusinessChance_code" onmouseout="omout_Tj2()" onclick="omover_Tj('Td_@item.B_BusinessChance_code', 'tjjyDetails','/flowmanager/businessflow/pkrelationbusinessflowlist2?pkCode=@item.B_BusinessChance_code&businessFlowCode=&fkType=@Convert.ToInt32(FlowTypeEnum.案件)')">查看流程</a></td>
+                @{
+            var businessChanceType = businessChance_type.Where(b => b.C_Parameters_id == item.B_BusinessChance_type).FirstOrDefault();
+                }
+                @if (businessChanceType != null)
+                {
+                    <td width="80px">@businessChanceType.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                <td width="100px">@(item.B_BusinessChance_registerTime == null ? "" : item.B_BusinessChance_registerTime.Value.ToString("yyyy-MM-dd"))</td>
+                <td width="70px">@item.B_BusinessChance_successProbability</td>
+                <td width="80px">@item.B_BusinessChance_execMoney</td>
+                <td>@(item.B_BusinessChance_Outline.Length > 20 ? item.B_BusinessChance_Outline.Substring(0, 20) + "..." : item.B_BusinessChance_Outline)</td>
+                <td width="100px">@(item.B_BusinessChance_obtainTime == null ? "" : item.B_BusinessChance_obtainTime.Value.ToString("yyyy-MM-dd"))</td>
+                @{
+                var caseState = case_state.Where(c => c.C_Parameters_id == item.B_BusinessChance_state).FirstOrDefault();
+                var color = "";
+                if (caseState != null)
+                {
+                    if (caseState.C_Parameters_id == Convert.ToInt32(BusinessFlowStatus.未开始))
+                    {
+                        color = "#C25812";
+                    }
+                    else if (caseState.C_Parameters_id == Convert.ToInt32(BusinessFlowStatus.正在进行))
+                    {
+                        color = "#126558";
+                    }
+                    else if (caseState.C_Parameters_id == Convert.ToInt32(BusinessFlowStatus.已超时))
+                    {
+                        color = "#0033CC";
+                    }
+                    else
+                    {
+                        color = "#85B4F2";
+                    }
+                }
+                }
+                @if (caseState != null)
+                {
+                    <td width="100px" style="color:@color;">@caseState.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    function osb(val) {
+        document.getElementById("@ViewBag.SearchFormID").action = val;
+        document.getElementById("@ViewBag.SearchFormID").submit();
+    }
+</script>
+<div id="tjjyDetails" trlabid="" trid="" trclient_url="" onmouseout="omout_Tj(this)" onmouseover="omover2(this)" class="tjjyDetails" style="overflow: auto; border: 1px solid #000000; display:none; background-color:white; height:180px;">
+    <table border="1" cellpadding="5" cellspacing="5" style=" margin-left: 10px; width: 400px;">
+        <tr style="height:180px; width:400px;">
+            <td align="center" width="400">
+                <img src="/Theme/assets/global/plugins/slider-revolution-slider/rs-plugin/assets/loader2.gif" /> 加载中...
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    var status = 0;
+    function omover_Tj(obj, id, client_url) {
+
+
+
+
+        $.ajax({
+            type: "POST",
+            async: true,
+            url: client_url,
+            success: function (result) {
+
+                $("#" + id).html(result);
+            }
+        })
+
+
+
+
+        var toplab = getAbsoluteTop(obj);
+        var leftlab = getAbsoluteLeft(obj);
+
+
+        //初始化
+        $("#tjjyDetails").css("display", "none");
+        $("#tjjyDetails").attr("trlabid", obj);
+        $("#tjjyDetails").attr("trid", id);
+        $("#tjjyDetails").attr("client_url", client_url);
+
+        var objDiv = $("#" + id + "");
+        var xPoint = window.event.clientX;
+        objDiv.attr("style", "position:absolute; left:" + (leftlab + 45) + "px; top:" + (toplab - 80) + "px; overflow: auto;background-color:white; border: 1px solid #000000; height:180px;");
+        $(objDiv).css("display", "block");
+
+
+    }
+    function omover2(val) {
+        var objDiv = $("#" + $(val).attr("trid") + "");
+        $(objDiv).css("display", "block");
+    }
+    function omout_Tj(val) {
+        var objDiv = $("#" + $(val).attr("trid") + "");
+        $(objDiv).css("display", "none");
+    }
+    function omout_Tj2() {
+
+        $("#tjjyDetails").hide();
+
+    }
+
+    //获取控件左绝对位置
+    function getAbsoluteLeft(objectId) {
+        var lo = document.getElementById(objectId)
+        oLeft = lo.offsetLeft
+        while (lo.offsetParent != null) {
+            oParent = lo.offsetParent
+            oLeft += oParent.offsetLeft
+            lo = oParent
+        }
+        return oLeft
+    }
+    //获取控件上绝对位置
+    function getAbsoluteTop(objectId) {
+
+        var o = document.getElementById(objectId);
+        oTop = o.offsetTop;
+        while (o.offsetParent != null) {
+            oParent = o.offsetParent
+            oTop += oParent.offsetTop  // Add parent top position
+            o = oParent
+        }
+        return oTop
+    }
+</script> 

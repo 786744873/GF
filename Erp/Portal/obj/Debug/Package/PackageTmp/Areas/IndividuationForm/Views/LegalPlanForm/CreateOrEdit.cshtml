@@ -1,0 +1,1420 @@
+﻿@using System.Data;
+@using CommonService.Common;
+@using CommonService.Model.Customer;
+@using System.Web.Script.Serialization;
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormProperty>
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "主子结构表单";
+}
+@section HeadCss{
+    <style type="text/css">
+        .tabAdd {
+            clear: both;
+            width: 100%;
+            border-bottom: solid 1px #d0dee5;
+            line-height: 35px;
+            position: relative;
+            height: 35px;
+            margin-bottom: 18px;
+            margin-top: 20px;
+        }
+
+            .tabAdd span {
+                font-weight: bold;
+                font-size: 14px;
+                border-bottom: solid 3px #66c9f3;
+                background: #7ccafe;
+                float: left;
+                position: absolute;
+                z-index: 100;
+                bottom: -1px;
+                padding: 0 3px;
+                height: 30px;
+                line-height: 30px;
+                cursor: pointer;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+                .tabAdd span a {
+                    color: #fff;
+                }
+
+        .tableedit {
+        }
+
+            .tableedit tbody td {
+                text-indent: 0px;
+            }
+
+            .tableedit tbody tr {
+                border: solid 1px #cbcbcb;
+            }
+
+        .itemtext {
+            float: left;
+            display: block;
+            width: 240px;
+            margin: 0;
+            padding: 5px;
+        }
+
+            .itemtext i {
+                color: red;
+                padding-left: 0px;
+                font-style: normal;
+                font-size: 12px;
+                color: red;
+                margin-left: 0px;
+                display: inline-block;
+                min-width: 220px;
+            }
+
+            .itemtext input[type=text], select {
+                float: left;
+                width: 220px;
+                height: 24px;
+                line-height: 24px;
+                border-top: solid 1px #a7b5bc;
+                border-left: solid 1px #a7b5bc;
+                border-right: solid 1px #ced9df;
+                border-bottom: solid 1px #ced9df;
+                /*background: url(../images/inputbg.gif) repeat-x;*/
+                text-indent: 5px;
+            }
+
+            .itemtext textarea {
+                float: left;
+                border-top: solid 1px #a7b5bc;
+                border-left: solid 1px #a7b5bc;
+                border-right: solid 1px #ced9df;
+                border-bottom: solid 1px #ced9df;
+                /*background: url(../images/inputbg.gif) repeat;*/
+                text-indent: 5px;
+                width: 220px;
+                height: 40px;
+                line-height: 20px;
+                overflow: auto;
+            }
+
+            .itemtext input[type=radio] {
+                float: left;
+                height: 24px;
+                line-height: 24px;
+            }
+
+            .itemtext span {
+                float: left;
+                padding: 0px 5px;
+                line-height: 21px;
+            }
+
+            .itemtext input[type=checkbox] {
+                float: left;
+                height: 24px;
+                line-height: 24px;
+            }
+
+        .bt {
+            padding-top: 20px;
+        }
+
+        .tablelink {
+            width: 50px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .complex_btn_dv {
+            clear: both;
+            width: 100%;
+            border-bottom: solid 1px #d0dee5;
+            line-height: 30px;
+            position: relative;
+            height: 30px;
+            margin-bottom: 18px;
+            margin-top: 20px;
+        }
+
+        .complex_btn {
+            float: left;
+            width: 60px;
+            height: 25px;
+            background: #3f97c9;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .complex_label {
+            float: left;
+            width: 70px;
+        }
+
+        .complex_btn_operate {
+            width: 80px;
+            height: 72px;
+            display: block;
+            position: absolute;
+            z-index: 100000;
+            left: 130px;
+            background: #e2eff8;
+            border: 1px solid #d0dee5;
+            display: none;
+        }
+
+            .complex_btn_operate span {
+                display: inline-block;
+                width: 78px;
+                height: 24px;
+                line-height: 24px;
+                text-align: center;
+                cursor: pointer;
+            }
+
+                .complex_btn_operate span.line {
+                    border-bottom: 1px dotted #d0dee5;
+                }
+
+                .complex_btn_operate span.icon {
+                    height: 20px;
+                    line-height: 20px;
+                    background: url("/Theme/images/guanbi.png") no-repeat right;
+                }
+
+        .mulitytext i.warmPrompt {
+            color: #7F7F7F;
+        }
+    </style>
+}
+@section HeadScript{
+    <script type="text/javascript" src="/theme/js/customerform.js"></script>
+    <script type="text/javascript">
+        //生成文书
+        function createDocument(obj) {
+            $this = $(obj);
+            var switchUrl = $this.attr("url");
+            //_openDialog($this.attr("title"), switchUrl, $this.attr("dialogwidth"), $this.attr("dialogheight"));
+            title = $this.attr("title");
+            dialogwidth = $this.attr("dialogwidth");
+            dialogheight = $this.attr("dialogheight");
+
+            if (dialogwidth > $(document.body).width()) {
+                var temp = dialogwidth - $(document.body).width();
+                dialogwidth = $(document.body).width() - 35;
+                dialogheight = parseInt(dialogheight) + parseInt(temp * 2);
+                //$(".dialog").find("iframe").css("overflow-y", "yes");
+            }
+            //dialog options
+            var dialogOptions = {
+                "title": title,
+                "width": dialogwidth,
+                "height": dialogheight,
+                "modal": true,
+                "resizable": true,
+                "draggable": true,
+                "position": { my: "top", at: "top", of: window },
+                "closeText": "关闭",
+                "close": function () {
+                    $(this).remove();
+                }
+            };
+            var dialogExtendOptions = {
+                "close": true,
+                "maximize": true,
+                "minimize": false,
+                "dblclick": "maximize",
+                "titlebar": false
+            };
+            //插件事件
+            dialogExtendOptions.events = dialogExtendOptions.events || {};
+            dialogExtendOptions.events["beforeMaximize"] = function (evt, dlg) {//触发最大化之前
+                $(this).parents(".ui-dialog").offset({ top: 0, left: 0 });//从左上角开始最大化
+            };
+
+
+            $("<div class=\"dialog\"><iframe width=\"99%\" height=\"100%\" scrolling=\"auto\"  src=\"" + switchUrl + "\"></iframe></div>").dialog(dialogOptions).dialogExtend(dialogExtendOptions);
+
+        }
+
+        //表单元素自定义事件处理
+        $(function () {
+            //页面加载时,自定义事件触发,执行相应业务逻辑
+            //radio事件触发
+            $("input[type=radio]").each(function () {
+                var $this = $(this);
+                if ($this.attr('triggereventtype') && $this.attr('triggereventtype') == '685') {
+                    radio_change(this);
+                }
+            });
+
+            //监听"确定诉讼请求"元素CheckBox点击事件
+            $("input[type=checkbox][ssqq=ssqq]").click(function () {
+                //"违约金"元素与"逾期付款损失"元素不能同时选中
+                $thisCheckbox = $(this);
+                checkValue = $thisCheckbox.val();
+                textname = $thisCheckbox.attr('name') + '_' + checkValue;
+                if ($thisCheckbox.is(':checked')) {
+                    $thisCheckbox.parents('.mulitytext').find('input[type=text][name=' + textname + ']').removeAttr("readonly");
+                    //处理互斥CheckBox
+                    if (checkValue == '703') {
+                        $("input[type=checkbox][ssqq=ssqq]").each(function () {
+                            if ($(this).val() == '702') {
+                                $(this).attr("checked", false);
+                                return false;
+                            }
+                        });
+                        textname = $thisCheckbox.attr('name') + '_702';
+                        $thisCheckbox.parents('.mulitytext').find('input[type=text][name=' + textname + ']').val('');
+                        $thisCheckbox.parents('.mulitytext').find('input[type=text][name=' + textname + ']').attr("readonly", "readonly");
+                    }
+                    if (checkValue == '702') {
+                        $("input[type=checkbox][ssqq=ssqq]").each(function () {
+                            if ($(this).val() == '703') {
+                                $(this).attr("checked", false);
+                                return false;
+                            }
+                        });
+                        textname = $thisCheckbox.attr('name') + '_703';
+                        $thisCheckbox.parents('.mulitytext').find('input[type=text][name=' + textname + ']').val('');
+                        $thisCheckbox.parents('.mulitytext').find('input[type=text][name=' + textname + ']').attr("readonly", "readonly");
+                    }
+                } else {
+                    $thisCheckbox.parents('.mulitytext').find('input[type=text][name=' + textname + ']').val('');
+                    $thisCheckbox.parents('.mulitytext').find('input[type=text][name=' + textname + ']').attr("readonly", "readonly");
+                }
+            });
+        });
+        //打开操作容器
+        function openOperateDv(dvId) {
+            $('#' + dvId).show();
+        }
+        //关闭操作容器
+        function closeOperateDv(dvId) {
+            $('#' + dvId).hide();
+        }
+        //操作打开容器按钮
+        function operateBtn(obj) {
+            $this = $(obj);
+            $this.parents(".complex_btn_operate").hide();//关闭操作容器
+            $('#' + $this.attr('relationbutton')).click();//激活新增事件
+        }
+    </script>
+}
+@{
+    List<CommonService.Model.CustomerForm.F_FormProperty> EditFormPropertys = ViewBag.EditFormPropertys;//表单头编辑属性及其属性值
+    DataSet DynamicItemFormPropertyValues = ViewBag.DynamicItemFormPropertyValues;//动态明细表单属性值
+    CommonService.Model.CustomerForm.F_Form formcon = ViewBag.formCon;
+
+    bool isHasSaveFormPower = ViewBag.IsHasSaveFormPower;
+    bool isSwitchFormHistoryRecordUrl = ViewBag.IsSwitchFormHistoryRecordUrl;
+    string fFormCode = ViewBag.FormCode; //ERP表单Guid
+    string businessFlowCode = ViewBag.BusinessFlowCode;//业务流程Guid
+    string businessFlowFormCode = ViewBag.BusinessFlowFormCode;//业务流程表单关联Guid
+    int formStatus = ViewBag.FormStatus;//表单状态
+    string fkType = ViewBag.FkType;//流程类型(商机或案件类型)
+    string pkCode = ViewBag.PkCode;//商机guid或者案件guid
+}
+@{
+    var itemGourp = Model.Where(p => p.F_FormProperty_uiType == Convert.ToInt32(UiControlType.普通子表));//明细组(有多少个明细子表)
+}
+@if (!isHasSaveFormPower)
+{//没有保存权限，加入蒙版
+    @*<div class="outer_wrapper_show"></div>*@
+}
+
+<div class="formbody">
+    @{
+        string dvId = String.Empty;
+        string relname = String.Empty;
+        string name = String.Empty;
+        string showName = String.Empty;//属性显示名称
+        string defaultValue = String.Empty;//默认值
+        string id = String.Empty;
+        string relid = String.Empty;
+        string propertyValue = String.Empty;//属性值
+        string propertyId = String.Empty;//属性id
+        string tempPropertyValue = String.Empty;//临时属性值
+        string propertyTime = String.Empty;
+        string htmlAttributes = String.Empty;
+        string htmlcontent = String.Empty;
+        string jsonContent = String.Empty;
+        string relRefUi = String.Empty;
+        string refUi = String.Empty;//关联UI控件名称
+        string refUrl = String.Empty;//关联异步地址
+        string lookupGroup = String.Empty;
+        string lookupUrl = String.Empty;
+        string relLookupUrl = String.Empty;
+        string lookupId = String.Empty;
+        string relLookupId = String.Empty;
+        string lookupName = String.Empty;
+        string relLookupName = String.Empty;
+
+    }
+    <form action="/IndividuationForm/LegalPlanForm/SaveHeadItems" id="legalPlanForm" method="post" onsubmit="return validateCallback(this,dialogAjaxDone);">
+        <ul class="forminfo">
+            @{
+                @Html.Hidden("fFormCode", fFormCode);
+                @Html.Hidden("businessFlowCode", businessFlowCode);
+                @Html.Hidden("businessFlowFormCode", businessFlowFormCode);
+                @Html.Hidden("fkType", fkType);
+                                              foreach (var group in itemGourp)
+                                              {
+                                                  int childItemNum = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code).Count();//子属性数量
+                                                  string itemGroupValue = group.F_FormProperty_code + "_" + childItemNum;
+                                                <input type="hidden" name="itemGroup_@group.F_FormProperty_code" value="@itemGroupValue" />
+                                              }
+                                            <div class="complex_btn_dv">
+                                                <label class="complex_label">确认原告：</label><input type="button" onclick="openOperateDv('complex_btn_operate_yg')" class="complex_btn" value="增加"><span style="color:orange;">**温馨提示：本页面所有下拉框双击可进行选择，单击可进行录入</span>
+                                                <div id="complex_btn_operate_yg" class="complex_btn_operate">
+                                                    <span class="line" relationbutton="formdv_addbutton_4535" onclick="operateBtn(this)">个人原告</span>
+                                                    <span class="line" relationbutton="formdv_addbutton_4545" onclick="operateBtn(this)">企业原告</span>
+                                                    <span class="icon" onclick="closeOperateDv('complex_btn_operate_yg')"></span>
+                                                </div>
+                                            </div>
+                {
+                    //处理"确认原告"
+                    //假如列表属性为"原告(个人/企业)"属性时,需要把table list转化为可新增编辑页面属性
+                }
+                foreach (var group in itemGourp)
+                {
+                    if (group.F_FormProperty_code.Value.ToString().ToLower() == "aec605f5-8fc9-4d1b-bcc2-033a2fa21457" || group.F_FormProperty_code.Value.ToString().ToLower() == "8f13ba03-e6ec-4d51-99b1-c9c8f373999b")
+                    {
+                        var groupItems = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code);
+                        <div class="tabAdd hide"><span><a id="formdv_addbutton_@group.F_FormProperty_id">新增@(group.F_FormProperty_showName)</a></span></div>
+                        <div class="formdvedit" id="formdv_@group.F_FormProperty_id" relationbutton="formdv_addbutton_@group.F_FormProperty_id">
+                            <div class="formdv_head">
+                                @foreach (var groupItem in groupItems)
+                                {
+                                    id = String.Empty;
+                                    name = String.Empty;
+                                    showName = String.Empty;
+                                    defaultValue = String.Empty;
+                                    htmlAttributes = String.Empty;
+                                    htmlcontent = String.Empty;
+                                    jsonContent = String.Empty;
+                                    propertyTime = String.Empty;
+                                    refUi = String.Empty;
+                                    refUrl = String.Empty;
+                                    lookupGroup = String.Empty;
+                                    lookupId = String.Empty;
+                                    lookupName = String.Empty;
+                                    lookupUrl = String.Empty;
+
+                                    id = "items_index_" + groupItem.F_FormProperty_fieldName;
+                                    name = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType;
+                                    showName = groupItem.F_FormProperty_showName;
+                                    defaultValue = groupItem.F_FormProperty_defaultValue;
+                                    if (!groupItem.F_FormProperty_isShow)
+                                    {
+                                        <span class="hide" uitype="hid" id="@id" name="@name" defaultval="@defaultValue">@groupItem.F_FormProperty_showName</span>
+                                        continue;
+                                    }
+
+                                    if (groupItem.F_FormProperty_isRequire)
+                                    {
+                                        htmlAttributes += "requiredInput=请输入" + groupItem.F_FormProperty_showName + "！ ";
+                                    }
+                                    if (groupItem.F_FormProperty_isOnlyRead)
+                                    {
+                                        htmlAttributes += "readonly=readonly ";
+                                    }
+                                    //处理其它验证
+                                    string otherValidateStr = groupItem.F_FormProperty_validationMessage;
+                                    if (!String.IsNullOrEmpty(otherValidateStr))
+                                    {
+                                        string[] validateMessageGroup = otherValidateStr.Split('|');
+                                        for (int i = 0; i < validateMessageGroup.Length; i++)
+                                        {
+                                            htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                                        }
+                                    }
+                                    htmlAttributes += "maxlength=" + groupItem.F_FormProperty_fieldLength + " ";
+                                    switch (groupItem.F_FormProperty_uiType.Value)
+                                    {
+                                        case 133://下拉框
+                                        case 682://联动下拉框
+                                            MvcHtmlString mvcHtmlStr = Html.Action("GenerateTableEditListDropDownHtmls", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                            htmlcontent = mvcHtmlStr.ToString();
+                                            if (!String.IsNullOrEmpty(groupItem.F_FormProperty_targetUrl))
+                                            {
+                                                if (groupItem.F_FormProperty_targetUrl.ToLower().Contains("refui"))
+                                                {//代表有关联触发联动UI控件,举例：/demo/combox/area?refui=dkxz&para=20(refui=dkxz必须为第一参数)
+                                                    //拆分目标链接地址
+                                                    string[] urlGroup = groupItem.F_FormProperty_targetUrl.Split('?');
+                                                    refUrl = groupItem.F_FormProperty_targetUrl;
+                                                    string[] paraGroup = urlGroup[1].Split('&');
+                                                    string[] uiGroup = paraGroup[0].Split('=');
+                                                    refUi = uiGroup[1];
+                                                    //处理被触发联动UI控件,重新组织 refUi控件的值
+                                                    var refGroupItem = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code && p.F_FormProperty_fieldName == refUi).FirstOrDefault();
+                                                    if (refGroupItem != null)
+                                                    {
+                                                        refUi = "items_index_" + refGroupItem.F_FormProperty_fieldName;
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                        case 131://单选框
+                                            MvcHtmlString mvcJsonStr = Html.Action("GenerateTableEditListRadioJsons", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                            jsonContent = mvcJsonStr.ToString();
+                                            break;
+                                        case 705://不严谨单选弹出框
+                                            lookupGroup = groupItem.F_FormProperty_fieldName + "lookup";
+                                            lookupUrl = groupItem.F_FormProperty_targetUrl;
+
+                                            if (lookupUrl.Contains("?"))
+                                            {
+                                                lookupUrl = lookupUrl + "&lookupgroup=" + lookupUrl + "&rebuildProperty=items_index_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+                                            }
+                                            else
+                                            {
+                                                lookupUrl = lookupUrl + "?lookupgroup=" + lookupGroup + "&rebuildProperty=items_index_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+                                            }
+
+                                            lookupId = lookupGroup + "_code_items_index_" + groupItem.F_FormProperty_fieldName;
+                                            lookupName = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Code";
+                                            id = lookupGroup + "_name_items_index_" + groupItem.F_FormProperty_fieldName;
+                                            name = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Name";
+                                            break;
+                                    }
+                                    <span uitype="@groupItem.F_FormProperty_uiType" id="@id" name="@name" showname="@showName" refui="@refUi" refurl="@refUrl" htmlattributes="@htmlAttributes" jsoncontent="@jsonContent" htmlcontent="@htmlcontent" defaultval="@defaultValue" lookupgroup="@lookupGroup" lookupurl="@lookupUrl" lookupid="@lookupId" lookupname="@lookupName">@groupItem.F_FormProperty_showName</span>
+                                }
+                                <span uitype="del">操作</span>
+                            </div>
+                            <div class="formdv_body">
+                                @for (int j = 0; j < DynamicItemFormPropertyValues.Tables.Count; j++)
+                                {//这个地方的业务逻辑都为处理加载列表表单属性值
+                                    DataTable dt = DynamicItemFormPropertyValues.Tables[j];
+                                    bool isThisTable = false;//是否为普通子表属性关联table
+                                    int columnCount = 0;//table 列数量
+                                    foreach (var groupItem in groupItems)
+                                    {
+                                        if (dt.Columns.Contains(groupItem.F_FormProperty_code.Value.ToString().ToUpper()))
+                                        {
+                                            isThisTable = true;
+                                            columnCount = dt.Columns.Count;
+                                            break;
+                                        }
+                                    }
+                                    if (isThisTable)
+                                    {
+                                        int rowIndex = 0;//行索引号
+                                        foreach (DataRow dr in dt.Rows)
+                                        {
+                                            <div class="formdv_body_item">
+                                                @foreach (var groupItem in groupItems)
+                                                {
+                                                    id = String.Empty;
+                                                    relid = String.Empty;
+                                                    relname = String.Empty;
+                                                    name = String.Empty;
+                                                    lookupGroup = String.Empty;
+                                                    lookupId = String.Empty;
+                                                    relLookupId = String.Empty;
+                                                    lookupName = String.Empty;
+                                                    relLookupName = String.Empty;
+                                                    lookupUrl = String.Empty;
+                                                    relLookupUrl = String.Empty;
+
+                                                    htmlAttributes = String.Empty;
+                                                    htmlcontent = String.Empty;
+                                                    propertyId = String.Empty;
+                                                    propertyValue = String.Empty;
+                                                    tempPropertyValue = String.Empty;
+                                                    relRefUi = String.Empty;
+                                                    refUi = String.Empty;
+                                                    refUrl = String.Empty;
+
+                                                    tempPropertyValue = dr[groupItem.F_FormProperty_code.Value.ToString().ToUpper()].ToString();
+                                                    if (!String.IsNullOrEmpty(tempPropertyValue))
+                                                    {
+                                                        if (tempPropertyValue.Substring(0, 1) == "[")
+                                                        {
+                                                            tempPropertyValue = tempPropertyValue.Substring(1, tempPropertyValue.Length - 1);
+                                                            int charIndex = tempPropertyValue.IndexOf(']');
+                                                            propertyId = tempPropertyValue.Substring(0, charIndex);
+                                                            propertyValue = tempPropertyValue.Substring(charIndex + 1, tempPropertyValue.Length - charIndex - 1);
+                                                        }
+                                                    }
+
+                                                    id = "items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName;
+                                                    relid = "items_index_" + groupItem.F_FormProperty_fieldName;
+                                                    name = "items_" + group.F_FormProperty_code + "_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + propertyId;
+                                                    relname = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + propertyId;
+                                                    if (!groupItem.F_FormProperty_isShow)
+                                                    {
+                                                        <span class="hide"><input type="hidden" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" /></span>
+                                                        continue;
+                                                    }
+
+                                                    if (groupItem.F_FormProperty_isRequire)
+                                                    {
+                                                        htmlAttributes += "requiredInput=请输入" + groupItem.F_FormProperty_showName + "！ ";
+                                                    }
+                                                    if (groupItem.F_FormProperty_isOnlyRead)
+                                                    {
+                                                        htmlAttributes += "readonly=readonly ";
+                                                    }
+                                                    //处理其它验证
+                                                    string otherValidateStr = groupItem.F_FormProperty_validationMessage;
+                                                    if (!String.IsNullOrEmpty(otherValidateStr))
+                                                    {
+                                                        string[] validateMessageGroup = otherValidateStr.Split('|');
+                                                        for (int i = 0; i < validateMessageGroup.Length; i++)
+                                                        {
+                                                            htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                                                        }
+                                                    }
+                                                    htmlAttributes += "maxlength=" + groupItem.F_FormProperty_fieldLength + " ";
+
+                                                    switch (groupItem.F_FormProperty_uiType.Value)
+                                                    {
+                                                        case 129://单行文本框
+                                                            <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><input type="text" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes><i></i></div>
+                                                            break;
+                                                        case 130://多行文本框
+                                                        <div class="mulitytextarealonger"><label>@groupItem.F_FormProperty_showName</label><textarea rows="2" cols="20" id="@id" relid="@relid" name="@name" relname="@relname" @htmlAttributes>@propertyValue</textarea><i></i></div>
+                                                            break;
+                                                        case 131://单选框
+                                                            groupItem.V_FormPropertyValue_Value = propertyValue;
+                                                            MvcHtmlString mvcJsonStr = Html.Action("GenerateTableEditListRadioJsons", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                                            jsonContent = mvcJsonStr.ToString();
+                                                            JavaScriptSerializer jss = new JavaScriptSerializer();
+                                                            List<V_KeyValue> keyVlaues = jss.Deserialize<List<V_KeyValue>>(jsonContent);//json格式字符串转化为json对象集合
+
+                                                            <div class="mulitytext">
+                                                                <label>@groupItem.F_FormProperty_showName</label>
+                                                                @foreach (var raido in keyVlaues)
+                                                                {
+                                                                    if (raido.IsChecked == "1")
+                                                                    {
+                                                                        <input type="radio" name="@name" relname="@relname" value="@raido.Key" checked="checked" /><span>@raido.Value</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <input type="radio" name="@name" relname="@relname" value="@raido.Key" /><span>@raido.Value</span>
+                                                                    }
+                                                                }
+                                                                <i></i>
+                                                            </div>
+                                                                break;
+                                                        case 132://复选框
+
+                                                                break;
+                                                        case 133://下拉框
+                                                                groupItem.V_FormPropertyValue_Value = propertyValue;
+                                                                MvcHtmlString mvcHtmlStr = Html.Action("GenerateTableEditListDropDownHtmls", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                                                htmlcontent = mvcHtmlStr.ToString();
+                                                                if (!String.IsNullOrEmpty(groupItem.F_FormProperty_targetUrl))
+                                                                {//可以触发关联下拉框的下拉框
+                                                                    if (groupItem.F_FormProperty_targetUrl.ToLower().Contains("refui"))
+                                                                    {//代表有关联触发联动UI控件,举例：/demo/combox/area?refui=dkxz&para=20(refui=dkxz必须为第一参数)
+                                                                        //拆分目标链接地址
+                                                                        string[] urlGroup = groupItem.F_FormProperty_targetUrl.Split('?');
+                                                                        refUrl = groupItem.F_FormProperty_targetUrl;
+                                                                        string[] paraGroup = urlGroup[1].Split('&');
+                                                                        string[] uiGroup = paraGroup[0].Split('=');
+                                                                        refUi = uiGroup[1];
+                                                                        //处理被触发联动UI控件,重新组织 refUi控件的值
+                                                                        var refGroupItem = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code && p.F_FormProperty_fieldName == refUi).FirstOrDefault();
+                                                                        if (refGroupItem != null)
+                                                                        {
+                                                                            relRefUi = "items_index_" + refGroupItem.F_FormProperty_fieldName;
+                                                                            refUi = "items_" + rowIndex + "_" + refGroupItem.F_FormProperty_fieldName;
+                                                                        }
+                                                                        <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><select id="@id" relid="@relid" name="@name" relname="@relname" relrefui="@relRefUi" refui="@refUi" refurl="@refUrl" onchange="select_onchange_ref(this)">@Html.Raw(htmlcontent)</select><i></i></div>
+                                                                    }
+                                                                }
+                                                                else
+                                                                {//正常下拉框
+                                                                    <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><select id="@id" relid="@relid" name="@name" relname="@relname">@Html.Raw(htmlcontent)</select><i></i></div>
+                                                                }
+                                                                break;
+                                                        case 682://联动下拉框
+                                                                //处理联动源
+                                                                var refSourceGroupItem = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code && p.F_FormProperty_targetUrl.ToLower().Contains("refui") && p.F_FormProperty_targetUrl.Contains(groupItem.F_FormProperty_fieldName)).FirstOrDefault();
+                                                                if (refSourceGroupItem != null)
+                                                                {
+                                                                    groupItem.F_FormProperty_dataSource_conditionValue = refSourceGroupItem.V_FormPropertyValue_Value;
+                                                                }
+                                                                groupItem.V_FormPropertyValue_Value = propertyValue;
+                                                                MvcHtmlString mvcLinkAgeHtmlStr = Html.Action("GenerateTableEditListDropDownHtmls", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                                                htmlcontent = mvcLinkAgeHtmlStr.ToString();
+                                                                <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><select id="@id" relid="@relid" name="@name" relname="@relname">@Html.Raw(htmlcontent)</select><i></i></div>
+                                                                break;
+                                                        case 134://日期框
+                                                        <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><input type="text" date="date" dateformat="yyyy-MM-dd" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes><i></i></div>
+                                                                break;
+                                                        case 135://日期时间框
+                                                        <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><input type="text" date="date" dateformat="yyyy-MM-dd HH:mm:ss" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes><i></i></div>
+                                                                break;
+                                                        case 705://不严谨单选弹出框
+                                                                lookupGroup = groupItem.F_FormProperty_fieldName + "lookup";
+                                                                lookupUrl = groupItem.F_FormProperty_targetUrl;
+                                                                if (lookupUrl.Contains("?"))
+                                                                {
+                                                                    lookupUrl = lookupUrl + "&lookupgroup=" + lookupUrl + "&rebuildProperty=items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+                                                                    relLookupUrl = lookupUrl + "&lookupgroup=" + lookupUrl + "&rebuildProperty=items_index_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    lookupUrl = lookupUrl + "?lookupgroup=" + lookupGroup + "&rebuildProperty=items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+                                                                    relLookupUrl = lookupUrl + "?lookupgroup=" + lookupGroup + "&rebuildProperty=items_index_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+                                                                }
+
+                                                                lookupId = lookupGroup + "_code_items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName;
+                                                                relLookupId = lookupGroup + "_code_items_index_" + groupItem.F_FormProperty_fieldName;
+                                                                lookupName = "items_" + group.F_FormProperty_code + "_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Code_" + propertyId;
+                                                                relLookupName = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Code_" + propertyId;
+                                                                id = lookupGroup + "_name_items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName;
+                                                                relid = lookupGroup + "_name_items_index_" + groupItem.F_FormProperty_fieldName;
+                                                                name = "items_" + group.F_FormProperty_code + "_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Name_" + propertyId;
+                                                                relname = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Name_" + propertyId;
+                                                                <div class="mulitytext">
+                                                                    <label>@groupItem.F_FormProperty_showName</label><input type="hidden" id="@lookupId" relid="@relLookupId" name="@lookupName" relname="@relLookupName" lookupgroup="@lookupGroup">
+                                                                    <input type="text" selectdialog="selectdialog" isdblclick="isdblclick" class="textselect" dialogheight="550" dialogwidth="1080" id="@id" relid="@relid" name="@name" relname="@relname" lookupgroup="@lookupGroup" title="@groupItem.F_FormProperty_showName" switchurl="@lookupUrl" relswitchurl="@relLookupUrl" value="@propertyValue" @htmlAttributes>
+                                                                    <i></i>
+                                                                </div>
+                                                                break;
+                                                    }
+                                                }
+                                                <div class="formdv_body_item_line"><a href="javascript:;" class="tablelink"> 删除</a></div>
+                                            </div>
+                                                rowIndex++;
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                <div class="complex_btn_dv">
+                    <label class="complex_label">确认被告：</label><input type="button" onclick="openOperateDv('complex_btn_operate_bg')" class="complex_btn" value="增加">
+                    <div id="complex_btn_operate_bg" class="complex_btn_operate">
+                        <span class="line" relationbutton="formdv_addbutton_4536" onclick="operateBtn(this)">个人原告</span>
+                        <span class="line" relationbutton="formdv_addbutton_4546" onclick="operateBtn(this)">企业原告</span>
+                        <span class="icon" onclick="closeOperateDv('complex_btn_operate_bg')"></span>
+                    </div>
+                </div>
+                {
+                    //处理"确认被告"
+                    //假如列表属性为"被告(个人/企业)"属性时,需要把table list转化为可新增编辑页面属性
+                }
+                foreach (var group in itemGourp)
+                {
+                    if (group.F_FormProperty_code.Value.ToString().ToLower() == "fbbd6323-54de-4d2c-af16-8faf21363ffd" || group.F_FormProperty_code.Value.ToString().ToLower() == "12887b6e-4864-4284-b2cb-947b169f30af")
+                    {
+                        var groupItems = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code);
+                        <div class="tabAdd hide"><span><a id="formdv_addbutton_@group.F_FormProperty_id">新增@(group.F_FormProperty_showName)</a></span></div>
+                        <div class="formdvedit" id="formdv_@group.F_FormProperty_id" relationbutton="formdv_addbutton_@group.F_FormProperty_id">
+                            <div class="formdv_head">
+                                @foreach (var groupItem in groupItems)
+                                {
+                                    id = String.Empty;
+                                    name = String.Empty;
+                                    showName = String.Empty;
+                                    defaultValue = String.Empty;
+                                    htmlAttributes = String.Empty;
+                                    htmlcontent = String.Empty;
+                                    jsonContent = String.Empty;
+                                    propertyTime = String.Empty;
+                                    refUi = String.Empty;
+                                    refUrl = String.Empty;
+                                    lookupGroup = String.Empty;
+                                    lookupId = String.Empty;
+                                    lookupName = String.Empty;
+                                    lookupUrl = String.Empty;
+
+                                    id = "items_index_" + groupItem.F_FormProperty_fieldName;
+                                    name = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType;
+                                    showName = groupItem.F_FormProperty_showName;
+                                    defaultValue = groupItem.F_FormProperty_defaultValue;
+                                    if (!groupItem.F_FormProperty_isShow)
+                                    {
+                                        <span class="hide" uitype="hid" id="@id" name="@name" defaultval="@defaultValue">@groupItem.F_FormProperty_showName</span>
+                                        continue;
+                                    }
+
+                                    if (groupItem.F_FormProperty_isRequire)
+                                    {
+                                        htmlAttributes += "requiredInput=请输入" + groupItem.F_FormProperty_showName + "！ ";
+                                    }
+                                    if (groupItem.F_FormProperty_isOnlyRead)
+                                    {
+                                        htmlAttributes += "readonly=readonly ";
+                                    }
+                                    //处理其它验证
+                                    string otherValidateStr = groupItem.F_FormProperty_validationMessage;
+                                    if (!String.IsNullOrEmpty(otherValidateStr))
+                                    {
+                                        string[] validateMessageGroup = otherValidateStr.Split('|');
+                                        for (int i = 0; i < validateMessageGroup.Length; i++)
+                                        {
+                                            htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                                        }
+                                    }
+                                    htmlAttributes += "maxlength=" + groupItem.F_FormProperty_fieldLength + " ";
+                                    switch (groupItem.F_FormProperty_uiType.Value)
+                                    {
+                                        case 133://下拉框
+                                        case 682://联动下拉框
+                                            MvcHtmlString mvcHtmlStr = Html.Action("GenerateTableEditListDropDownHtmls", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                            htmlcontent = mvcHtmlStr.ToString();
+                                            if (!String.IsNullOrEmpty(groupItem.F_FormProperty_targetUrl))
+                                            {
+                                                if (groupItem.F_FormProperty_targetUrl.ToLower().Contains("refui"))
+                                                {//代表有关联触发联动UI控件,举例：/demo/combox/area?refui=dkxz&para=20(refui=dkxz必须为第一参数)
+                                                    //拆分目标链接地址
+                                                    string[] urlGroup = groupItem.F_FormProperty_targetUrl.Split('?');
+                                                    refUrl = groupItem.F_FormProperty_targetUrl;
+                                                    string[] paraGroup = urlGroup[1].Split('&');
+                                                    string[] uiGroup = paraGroup[0].Split('=');
+                                                    refUi = uiGroup[1];
+                                                    //处理被触发联动UI控件,重新组织 refUi控件的值
+                                                    var refGroupItem = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code && p.F_FormProperty_fieldName == refUi).FirstOrDefault();
+                                                    if (refGroupItem != null)
+                                                    {
+                                                        refUi = "items_index_" + refGroupItem.F_FormProperty_fieldName;
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                        case 131://单选框
+                                            MvcHtmlString mvcJsonStr = Html.Action("GenerateTableEditListRadioJsons", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                            jsonContent = mvcJsonStr.ToString();
+                                            break;
+                                        case 705://不严谨单选弹出框
+                                            lookupGroup = groupItem.F_FormProperty_fieldName + "lookup";
+                                            lookupUrl = groupItem.F_FormProperty_targetUrl;
+
+                                            if (lookupUrl.Contains("?"))
+                                            {
+                                                lookupUrl = lookupUrl + "&lookupgroup=" + lookupUrl + "&rebuildProperty=items_index_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+                                            }
+                                            else
+                                            {
+                                                lookupUrl = lookupUrl + "?lookupgroup=" + lookupGroup + "&rebuildProperty=items_index_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+                                            }
+
+                                            lookupId = lookupGroup + "_code_items_index_" + groupItem.F_FormProperty_fieldName;
+                                            lookupName = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Code";
+                                            id = lookupGroup + "_name_items_index_" + groupItem.F_FormProperty_fieldName;
+                                            name = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Name";
+                                            break;
+                                    }
+                                    <span uitype="@groupItem.F_FormProperty_uiType" id="@id" name="@name" showname="@showName" refui="@refUi" refurl="@refUrl" htmlattributes="@htmlAttributes" jsoncontent="@jsonContent" htmlcontent="@htmlcontent" defaultval="@defaultValue" lookupgroup="@lookupGroup" lookupurl="@lookupUrl" lookupid="@lookupId" lookupname="@lookupName">@groupItem.F_FormProperty_showName</span>
+                                }
+                                <span uitype="del">操作</span>
+                            </div>
+                            <div class="formdv_body">
+                                @for (int j = 0; j < DynamicItemFormPropertyValues.Tables.Count; j++)
+                                {//这个地方的业务逻辑都为处理加载列表表单属性值
+                                    DataTable dt = DynamicItemFormPropertyValues.Tables[j];
+                                    bool isThisTable = false;//是否为普通子表属性关联table
+                                    int columnCount = 0;//table 列数量
+                                    foreach (var groupItem in groupItems)
+                                    {
+                                        if (dt.Columns.Contains(groupItem.F_FormProperty_code.Value.ToString().ToUpper()))
+                                        {
+                                            isThisTable = true;
+                                            columnCount = dt.Columns.Count;
+                                            break;
+                                        }
+                                    }
+                                    if (isThisTable)
+                                    {
+                                        int rowIndex = 0;//行索引号
+                                        foreach (DataRow dr in dt.Rows)
+                                        {
+                                            <div class="formdv_body_item">
+                                                @foreach (var groupItem in groupItems)
+                                                {
+                                                    id = String.Empty;
+                                                    relid = String.Empty;
+                                                    relname = String.Empty;
+                                                    name = String.Empty;
+                                                    lookupGroup = String.Empty;
+                                                    lookupId = String.Empty;
+                                                    relLookupId = String.Empty;
+                                                    lookupName = String.Empty;
+                                                    relLookupName = String.Empty;
+                                                    lookupUrl = String.Empty;
+                                                    relLookupUrl = String.Empty;
+
+                                                    htmlAttributes = String.Empty;
+                                                    htmlcontent = String.Empty;
+                                                    propertyId = String.Empty;
+                                                    propertyValue = String.Empty;
+                                                    tempPropertyValue = String.Empty;
+                                                    relRefUi = String.Empty;
+                                                    refUi = String.Empty;
+                                                    refUrl = String.Empty;
+
+                                                    tempPropertyValue = dr[groupItem.F_FormProperty_code.Value.ToString().ToUpper()].ToString();
+                                                    if (!String.IsNullOrEmpty(tempPropertyValue))
+                                                    {
+                                                        if (tempPropertyValue.Substring(0, 1) == "[")
+                                                        {
+                                                            tempPropertyValue = tempPropertyValue.Substring(1, tempPropertyValue.Length - 1);
+                                                            int charIndex = tempPropertyValue.IndexOf(']');
+                                                            propertyId = tempPropertyValue.Substring(0, charIndex);
+                                                            propertyValue = tempPropertyValue.Substring(charIndex + 1, tempPropertyValue.Length - charIndex - 1);
+                                                        }
+                                                    }
+
+                                                    id = "items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName;
+                                                    relid = "items_index_" + groupItem.F_FormProperty_fieldName;
+                                                    name = "items_" + group.F_FormProperty_code + "_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + propertyId;
+                                                    relname = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + propertyId;
+                                                    if (!groupItem.F_FormProperty_isShow)
+                                                    {
+                                                        <span class="hide"><input type="hidden" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" /></span>
+                                                        continue;
+                                                    }
+
+                                                    if (groupItem.F_FormProperty_isRequire)
+                                                    {
+                                                        htmlAttributes += "requiredInput=请输入" + groupItem.F_FormProperty_showName + "！ ";
+                                                    }
+                                                    if (groupItem.F_FormProperty_isOnlyRead)
+                                                    {
+                                                        htmlAttributes += "readonly=readonly ";
+                                                    }
+                                                    //处理其它验证
+                                                    string otherValidateStr = groupItem.F_FormProperty_validationMessage;
+                                                    if (!String.IsNullOrEmpty(otherValidateStr))
+                                                    {
+                                                        string[] validateMessageGroup = otherValidateStr.Split('|');
+                                                        for (int i = 0; i < validateMessageGroup.Length; i++)
+                                                        {
+                                                            htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                                                        }
+                                                    }
+                                                    htmlAttributes += "maxlength=" + groupItem.F_FormProperty_fieldLength + " ";
+
+                                                    switch (groupItem.F_FormProperty_uiType.Value)
+                                                    {
+                                                        case 129://单行文本框
+                                                            <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><input type="text" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes><i></i></div>
+                                                            break;
+                                                        case 130://多行文本框
+                                                        <div class="mulitytextarealonger"><label>@groupItem.F_FormProperty_showName</label><textarea rows="2" cols="20" id="@id" relid="@relid" name="@name" relname="@relname" @htmlAttributes>@propertyValue</textarea><i></i></div>
+                                                            break;
+                                                        case 131://单选框
+                                                            groupItem.V_FormPropertyValue_Value = propertyValue;
+                                                            MvcHtmlString mvcJsonStr = Html.Action("GenerateTableEditListRadioJsons", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                                            jsonContent = mvcJsonStr.ToString();
+                                                            JavaScriptSerializer jss = new JavaScriptSerializer();
+                                                            List<V_KeyValue> keyVlaues = jss.Deserialize<List<V_KeyValue>>(jsonContent);//json格式字符串转化为json对象集合
+
+                                                            <div class="mulitytext">
+                                                                <label>@groupItem.F_FormProperty_showName</label>
+                                                                @foreach (var raido in keyVlaues)
+                                                                {
+                                                                    if (raido.IsChecked == "1")
+                                                                    {
+                                                                        <input type="radio" name="@name" relname="@relname" value="@raido.Key" checked="checked" /><span>@raido.Value</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <input type="radio" name="@name" relname="@relname" value="@raido.Key" /><span>@raido.Value</span>
+                                                                    }
+                                                                }
+                                                                <i></i>
+                                                            </div>
+                                                                break;
+                                                        case 132://复选框
+
+                                                                break;
+                                                        case 133://下拉框
+                                                                groupItem.V_FormPropertyValue_Value = propertyValue;
+                                                                MvcHtmlString mvcHtmlStr = Html.Action("GenerateTableEditListDropDownHtmls", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                                                htmlcontent = mvcHtmlStr.ToString();
+                                                                if (!String.IsNullOrEmpty(groupItem.F_FormProperty_targetUrl))
+                                                                {//可以触发关联下拉框的下拉框
+                                                                    if (groupItem.F_FormProperty_targetUrl.ToLower().Contains("refui"))
+                                                                    {//代表有关联触发联动UI控件,举例：/demo/combox/area?refui=dkxz&para=20(refui=dkxz必须为第一参数)
+                                                                        //拆分目标链接地址
+                                                                        string[] urlGroup = groupItem.F_FormProperty_targetUrl.Split('?');
+                                                                        refUrl = groupItem.F_FormProperty_targetUrl;
+                                                                        string[] paraGroup = urlGroup[1].Split('&');
+                                                                        string[] uiGroup = paraGroup[0].Split('=');
+                                                                        refUi = uiGroup[1];
+                                                                        //处理被触发联动UI控件,重新组织 refUi控件的值
+                                                                        var refGroupItem = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code && p.F_FormProperty_fieldName == refUi).FirstOrDefault();
+                                                                        if (refGroupItem != null)
+                                                                        {
+                                                                            relRefUi = "items_index_" + refGroupItem.F_FormProperty_fieldName;
+                                                                            refUi = "items_" + rowIndex + "_" + refGroupItem.F_FormProperty_fieldName;
+                                                                        }
+                                                                        <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><select id="@id" relid="@relid" name="@name" relname="@relname" relrefui="@relRefUi" refui="@refUi" refurl="@refUrl" onchange="select_onchange_ref(this)">@Html.Raw(htmlcontent)</select><i></i></div>
+                                                                    }
+                                                                }
+                                                                else
+                                                                {//正常下拉框
+                                                                    <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><select id="@id" relid="@relid" name="@name" relname="@relname">@Html.Raw(htmlcontent)</select><i></i></div>
+                                                                }
+                                                                break;
+                                                        case 682://联动下拉框
+                                                                //处理联动源
+                                                                var refSourceGroupItem = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code && p.F_FormProperty_targetUrl.ToLower().Contains("refui") && p.F_FormProperty_targetUrl.Contains(groupItem.F_FormProperty_fieldName)).FirstOrDefault();
+                                                                if (refSourceGroupItem != null)
+                                                                {
+                                                                    groupItem.F_FormProperty_dataSource_conditionValue = refSourceGroupItem.V_FormPropertyValue_Value;
+                                                                }
+                                                                groupItem.V_FormPropertyValue_Value = propertyValue;
+                                                                MvcHtmlString mvcLinkAgeHtmlStr = Html.Action("GenerateTableEditListDropDownHtmls", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                                                htmlcontent = mvcLinkAgeHtmlStr.ToString();
+                                                                <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><select id="@id" relid="@relid" name="@name" relname="@relname">@Html.Raw(htmlcontent)</select><i></i></div>
+                                                                break;
+                                                        case 134://日期框
+                                                        <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><input type="text" date="date" dateformat="yyyy-MM-dd" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes><i></i></div>
+                                                                break;
+                                                        case 135://日期时间框
+                                                        <div class="mulitytext"><label>@groupItem.F_FormProperty_showName</label><input type="text" date="date" dateformat="yyyy-MM-dd HH:mm:ss" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes><i></i></div>
+                                                                break;
+                                                        case 705://不严谨单选弹出框
+                                                                lookupGroup = groupItem.F_FormProperty_fieldName + "lookup";
+                                                                lookupUrl = groupItem.F_FormProperty_targetUrl;
+                                                                if (lookupUrl.Contains("?"))
+                                                                {
+                                                                    lookupUrl = lookupUrl + "&lookupgroup=" + lookupUrl + "&rebuildProperty=items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+                                                                    relLookupUrl = lookupUrl + "&lookupgroup=" + lookupUrl + "&rebuildProperty=items_index_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    lookupUrl = lookupUrl + "?lookupgroup=" + lookupGroup + "&rebuildProperty=items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+                                                                    relLookupUrl = lookupUrl + "?lookupgroup=" + lookupGroup + "&rebuildProperty=items_index_" + groupItem.F_FormProperty_fieldName + "&mappingField=" + groupItem.F_FormProperty_dataSource_mappingField + "&mappingFieldName=" + groupItem.F_FormProperty_dataSource_mappingFieldName;
+                                                                }
+
+                                                                lookupId = lookupGroup + "_code_items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName;
+                                                                relLookupId = lookupGroup + "_code_items_index_" + groupItem.F_FormProperty_fieldName;
+                                                                lookupName = "items_" + group.F_FormProperty_code + "_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Code_" + propertyId;
+                                                                relLookupName = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Code_" + propertyId;
+                                                                id = lookupGroup + "_name_items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName;
+                                                                relid = lookupGroup + "_name_items_index_" + groupItem.F_FormProperty_fieldName;
+                                                                name = "items_" + group.F_FormProperty_code + "_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Name_" + propertyId;
+                                                                relname = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + lookupGroup + ".Name_" + propertyId;
+                                                                <div class="mulitytext">
+                                                                    <label>@groupItem.F_FormProperty_showName</label><input type="hidden" id="@lookupId" relid="@relLookupId" name="@lookupName" relname="@relLookupName" lookupgroup="@lookupGroup">
+                                                                    <input type="text" selectdialog="selectdialog" isdblclick="isdblclick" class="textselect" dialogheight="550" dialogwidth="1080" id="@id" relid="@relid" name="@name" relname="@relname" lookupgroup="@lookupGroup" title="@groupItem.F_FormProperty_showName" switchurl="@lookupUrl" relswitchurl="@relLookupUrl" value="@propertyValue" @htmlAttributes>
+                                                                    <i></i>
+                                                                </div>
+                                                                break;
+                                                    }
+                                                }
+                                                <div class="formdv_body_item_line"><a href="javascript:;" class="tablelink"> 删除</a></div>
+                                            </div>
+                                                rowIndex++;
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                {
+                    //处理编辑头部页面
+                }
+                foreach (var item in EditFormPropertys)
+                {
+                    id = String.Empty;
+                    name = String.Empty;
+                    id = "formproperty_" + item.V_FormPropertyValue_Code;
+                    name = "formproperty_" + item.F_FormProperty_uiType + "_" + item.V_FormPropertyValue_Code;
+                    if (!item.F_FormProperty_isShow)
+                    {
+                        <input type="hidden" id="@id" name="@name" value="@item.V_FormPropertyValue_Value" />
+                        continue;
+                    }
+                    htmlAttributes = String.Empty;
+                    propertyTime = String.Empty;
+                    if (item.F_FormProperty_isRequire)
+                    {
+                        htmlAttributes += "requiredInput=请输入" + item.F_FormProperty_showName + "！ ";
+                    }
+                    if (item.F_FormProperty_isOnlyRead)
+                    {
+                        htmlAttributes += "readonly=readonly ";
+                    }
+                    //处理其它验证
+                    string otherValidateStr = item.F_FormProperty_validationMessage;
+                    if (!String.IsNullOrEmpty(otherValidateStr))
+                    {
+                        string[] validateMessageGroup = otherValidateStr.Split('|');
+                        for (int i = 0; i < validateMessageGroup.Length; i++)
+                        {
+                            htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                        }
+                    }
+                    htmlAttributes += "maxlength=" + item.F_FormProperty_fieldLength + " ";
+                    dvId = "formproperty_" + item.F_FormProperty_fieldName + "_dv";
+
+                    switch (item.F_FormProperty_uiType.Value)
+                    {
+                        case 129://单行文本框
+                            if (item.F_FormProperty_fieldName.ToString() == "rwmc" && string.IsNullOrEmpty(item.V_FormPropertyValue_Value))
+                            {
+                                <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input id="@id" name="@name" type="text" @htmlAttributes value="@formcon.F_Form_chineseName"><i></i></div>
+                            }
+                            else
+                            {
+                                <div id="@dvId" class="mulitytext">
+                                    <label>@item.F_FormProperty_showName</label><input id="@id" name="@name" type="text" @htmlAttributes value="@item.V_FormPropertyValue_Value">
+                                    @if (item.F_FormProperty_code.Value.ToString().ToLower() == "0dc04304-1582-4a98-ada2-88280da22673" || item.F_FormProperty_code.Value.ToString().ToLower() == "6daa86fe-25de-4406-ae85-6c7dac372a83")
+                                    {
+                                        <i class="warmPrompt">温馨提示：非手填项目，勾选并且生成后显示</i>
+                                    }
+                                    else
+                                    {
+                                        <i></i>
+                                    }
+                                </div>
+                            }
+                            break;
+                        case 130://多行文本框
+                        <div id="@dvId" class="mulitytextarealonger"><label>@item.F_FormProperty_showName</label><textarea id="@id" name="@name" rows="2" cols="20" @htmlAttributes>@item.V_FormPropertyValue_Value</textarea><i></i></div>
+                            break;
+                        case 131://单选框
+                        <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><i></i></div>
+                            break;
+                        case 132://复选框
+                            if (!String.IsNullOrEmpty(item.F_FormProperty_dataSource))
+                            {
+                                <div id="@dvId" style="width:100%" class="mulitytext"><label>@item.F_FormProperty_showName</label>@{Html.RenderAction("GenerateCheckboxText", "LegalPlanForm", new { area = "IndividuationForm", formPropertyValue = @item, htmlAttributes = @htmlAttributes });}<i></i></div>
+                            }
+                            else
+                            {//这种情况只能存放一个布尔型的值：1或者0
+                                if (String.IsNullOrEmpty(item.V_FormPropertyValue_Value))
+                                {
+                                    <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input name="formproperty_@item.V_FormPropertyValue_Code" value="0" type="checkbox" /><i></i></div>
+                                }
+                                else
+                                {
+                                    <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input name="formproperty_@item.V_FormPropertyValue_Code" value="1" type="checkbox" /><i></i></div>
+                                }
+                            }
+                            break;
+                        case 133://下拉框
+                        <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><i></i></div>
+                            break;
+                        case 134://日期框
+                            htmlAttributes += "date=date dateformat=yyyy-MM-dd";
+                            if (!String.IsNullOrEmpty(item.V_FormPropertyValue_Value))
+                            {
+                                propertyTime = DateTime.Parse(item.V_FormPropertyValue_Value).ToString("yyyy-MM-dd");
+                            }
+                            <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input id="@id" name="@name" type="text" @htmlAttributes value="@propertyTime"><i></i></div>
+                            break;
+                        case 135://日期时间框
+                            htmlAttributes += "date=date ";
+                            if (!String.IsNullOrEmpty(item.V_FormPropertyValue_Value))
+                            {
+                                propertyTime = DateTime.Parse(item.V_FormPropertyValue_Value).ToString("yyyy-MM-dd HH:mm:ss");
+                            }
+                            <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><input dateformat="yyyy-MM-dd HH:mm:ss" id="@id" name="@name" type="text" @htmlAttributes value="@propertyTime"><i></i></div>
+                            break;
+                        case 136://单选弹出框
+                        <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><i></i></div>
+                            break;
+                        case 137://多选弹出框
+                        <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><i></i></div>
+                            break;
+                        case 138://单选弹出树
+                        <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label><i></i></div>
+                            break;
+                        case 705://不严谨单选弹出框
+                        <div id="@dvId" class="mulitytext"><label>@item.F_FormProperty_showName</label>@{Html.RenderAction("GenerateSingleCallbackRefList", "LegalPlanForm", new { area = "IndividuationForm", formPropertyValue = @item, htmlAttributes = @htmlAttributes });}<i></i></div>
+                        break;
+                    }
+                }
+            }
+        </ul>
+
+        @foreach (var group in itemGourp)
+        {
+            //假如列表属性为"原告(个人/企业)"或"被告(个人/企业)"属性时,在table list中不会显示，需要把这些属性及其子属性转化为可新增编辑页面中
+            if (group.F_FormProperty_code.ToString().ToLower() == "aec605f5-8fc9-4d1b-bcc2-033a2fa21457" || group.F_FormProperty_code.ToString().ToLower() == "8f13ba03-e6ec-4d51-99b1-c9c8f373999b"
+                || group.F_FormProperty_code.ToString().ToLower() == "fbbd6323-54de-4d2c-af16-8faf21363ffd" || group.F_FormProperty_code.ToString().ToLower() == "12887b6e-4864-4284-b2cb-947b169f30af")
+            {
+                continue;
+            }
+            <div class="tabAdd"><span><a id="table_addbutton_@group.F_FormProperty_id">新增@(group.F_FormProperty_showName)</a></span></div>
+            <table class="tablelist tableedit" id="table_@group.F_FormProperty_id" relationbutton="table_addbutton_@group.F_FormProperty_id">
+                <thead>
+                    <tr>
+                        @{
+            var groupItems = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code);
+                        }
+                        @foreach (var groupItem in groupItems)
+                        {
+                            id = String.Empty;
+                            name = String.Empty;
+                            defaultValue = String.Empty;
+                            htmlAttributes = String.Empty;
+                            htmlcontent = String.Empty;
+                            propertyTime = String.Empty;
+                            refUi = String.Empty;
+                            refUrl = String.Empty;
+
+                            id = "items_index_" + groupItem.F_FormProperty_fieldName;
+                            name = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType;
+                            defaultValue = groupItem.F_FormProperty_defaultValue;
+                            if (!groupItem.F_FormProperty_isShow)
+                            {
+                                <th class="hide" uitype="hid" id="@id" name="@name">@groupItem.F_FormProperty_showName</th>
+                                continue;
+                            }
+
+                            if (groupItem.F_FormProperty_isRequire)
+                            {
+                                htmlAttributes += "requiredInput=请输入" + groupItem.F_FormProperty_showName + "！ ";
+                            }
+                            if (groupItem.F_FormProperty_isOnlyRead)
+                            {
+                                htmlAttributes += "readonly=readonly ";
+                            }
+                            //处理其它验证
+                            string otherValidateStr = groupItem.F_FormProperty_validationMessage;
+                            if (!String.IsNullOrEmpty(otherValidateStr))
+                            {
+                                string[] validateMessageGroup = otherValidateStr.Split('|');
+                                for (int i = 0; i < validateMessageGroup.Length; i++)
+                                {
+                                    htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                                }
+                            }
+                            htmlAttributes += "maxlength=" + groupItem.F_FormProperty_fieldLength + " ";
+                            switch (groupItem.F_FormProperty_uiType.Value)
+                            {
+                                case 133://下拉框
+                                case 682://联动下拉框
+                                    MvcHtmlString mvcHtmlStr = Html.Action("GenerateTableEditListDropDownHtmls", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                    htmlcontent = mvcHtmlStr.ToString();
+                                    if (!String.IsNullOrEmpty(groupItem.F_FormProperty_targetUrl))
+                                    {
+                                        if (groupItem.F_FormProperty_targetUrl.ToLower().Contains("refui"))
+                                        {//代表有关联触发联动UI控件,举例：/demo/combox/area?refui=dkxz&para=20(refui=dkxz必须为第一参数)
+                                            //拆分目标链接地址
+                                            string[] urlGroup = groupItem.F_FormProperty_targetUrl.Split('?');
+                                            refUrl = groupItem.F_FormProperty_targetUrl;
+                                            string[] paraGroup = urlGroup[1].Split('&');
+                                            string[] uiGroup = paraGroup[0].Split('=');
+                                            refUi = uiGroup[1];
+                                            //处理被触发联动UI控件,重新组织 refUi控件的值
+                                            var refGroupItem = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code && p.F_FormProperty_fieldName == refUi).FirstOrDefault();
+                                            if (refGroupItem != null)
+                                            {
+                                                refUi = "items_index_" + refGroupItem.F_FormProperty_fieldName;
+                                            }
+                                        }
+                                    }
+                                    break;
+                            }
+                            <th uitype="@groupItem.F_FormProperty_uiType" id="@id" name="@name" refui="@refUi" refurl="@refUrl" htmlattributes="@htmlAttributes" htmlcontent="@htmlcontent" defaultval="@defaultValue">@groupItem.F_FormProperty_showName</th>
+                        }
+                        <th uitype="del">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int j = 0; j < DynamicItemFormPropertyValues.Tables.Count; j++)
+                    {//这个地方的业务逻辑都为处理加载列表表单属性值
+                        DataTable dt = DynamicItemFormPropertyValues.Tables[j];
+                        bool isThisTable = false;//是否为普通子表属性关联table
+                        int columnCount = 0;//table 列数量
+                        foreach (var groupItem in groupItems)
+                        {
+                            if (dt.Columns.Contains(groupItem.F_FormProperty_code.Value.ToString().ToUpper()))
+                            {
+                                isThisTable = true;
+                                columnCount = dt.Columns.Count;
+                                break;
+                            }
+                        }
+                        if (isThisTable)
+                        {
+                            int rowIndex = 0;//行索引号
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                <tr>
+                                    @foreach (var groupItem in groupItems)
+                                    {
+                                        id = String.Empty;
+                                        relid = String.Empty;
+                                        relname = String.Empty;
+                                        name = String.Empty;
+
+                                        htmlAttributes = String.Empty;
+                                        htmlcontent = String.Empty;
+                                        propertyId = String.Empty;
+                                        propertyValue = String.Empty;
+                                        tempPropertyValue = String.Empty;
+                                        relRefUi = String.Empty;
+                                        refUi = String.Empty;
+                                        refUrl = String.Empty;
+
+                                        tempPropertyValue = dr[groupItem.F_FormProperty_code.Value.ToString().ToUpper()].ToString();
+                                        if (!String.IsNullOrEmpty(tempPropertyValue))
+                                        {
+                                            if (tempPropertyValue.Substring(0, 1) == "[")
+                                            {
+                                                tempPropertyValue = tempPropertyValue.Substring(1, tempPropertyValue.Length - 1);
+                                                int charIndex = tempPropertyValue.IndexOf(']');
+                                                propertyId = tempPropertyValue.Substring(0, charIndex);
+                                                propertyValue = tempPropertyValue.Substring(charIndex + 1, tempPropertyValue.Length - charIndex - 1);
+                                            }
+                                        }
+
+                                        id = "items_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName;
+                                        relid = "items_index_" + groupItem.F_FormProperty_fieldName;
+                                        name = "items_" + group.F_FormProperty_code + "_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + propertyId;
+                                        relname = "items_" + group.F_FormProperty_code + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_code + "_" + groupItem.F_FormProperty_uiType + "_" + propertyId;
+                                        if (!groupItem.F_FormProperty_isShow)
+                                        {
+                                            <td class="hide"><input type="hidden" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" /></td>
+                                            continue;
+                                        }
+
+                                        if (groupItem.F_FormProperty_isRequire)
+                                        {
+                                            htmlAttributes += "requiredInput=请输入" + groupItem.F_FormProperty_showName + "！ ";
+                                        }
+                                        if (groupItem.F_FormProperty_isOnlyRead)
+                                        {
+                                            htmlAttributes += "readonly=readonly ";
+                                        }
+                                        //处理其它验证
+                                        string otherValidateStr = groupItem.F_FormProperty_validationMessage;
+                                        if (!String.IsNullOrEmpty(otherValidateStr))
+                                        {
+                                            string[] validateMessageGroup = otherValidateStr.Split('|');
+                                            for (int i = 0; i < validateMessageGroup.Length; i++)
+                                            {
+                                                htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                                            }
+                                        }
+                                        htmlAttributes += "maxlength=" + groupItem.F_FormProperty_fieldLength + " ";
+
+                                        switch (groupItem.F_FormProperty_uiType.Value)
+                                        {
+                                            case 129://单行文本框
+                                                <td>
+                                                    <div class="itemtext"><input type="text" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes><i></i></div>
+                                                </td>
+                                                break;
+                                            case 130://多行文本框
+                                            <td>
+                                                <div class="itemtext"><textarea rows="2" cols="20" id="@id" relid="@relid" name="@name" relname="@relname" @htmlAttributes>@propertyValue</textarea><i></i></div>
+                                            </td>
+                                                break;
+                                            case 131://单选框
+
+                                                break;
+                                            case 132://复选框
+
+                                                break;
+                                            case 133://下拉框
+                                                groupItem.V_FormPropertyValue_Value = propertyValue;
+                                                MvcHtmlString mvcHtmlStr = Html.Action("GenerateTableEditListDropDownHtmls", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                                htmlcontent = mvcHtmlStr.ToString();
+                                                if (!String.IsNullOrEmpty(groupItem.F_FormProperty_targetUrl))
+                                                {//可以触发关联下拉框的下拉框
+                                                    if (groupItem.F_FormProperty_targetUrl.ToLower().Contains("refui"))
+                                                    {//代表有关联触发联动UI控件,举例：/demo/combox/area?refui=dkxz&para=20(refui=dkxz必须为第一参数)
+                                                        //拆分目标链接地址
+                                                        string[] urlGroup = groupItem.F_FormProperty_targetUrl.Split('?');
+                                                        refUrl = groupItem.F_FormProperty_targetUrl;
+                                                        string[] paraGroup = urlGroup[1].Split('&');
+                                                        string[] uiGroup = paraGroup[0].Split('=');
+                                                        refUi = uiGroup[1];
+                                                        //处理被触发联动UI控件,重新组织 refUi控件的值
+                                                        var refGroupItem = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code && p.F_FormProperty_fieldName == refUi).FirstOrDefault();
+                                                        if (refGroupItem != null)
+                                                        {
+                                                            relRefUi = "items_index_" + refGroupItem.F_FormProperty_fieldName;
+                                                            refUi = "items_" + rowIndex + "_" + refGroupItem.F_FormProperty_fieldName;
+                                                        }
+                                                        <td>
+                                                            <div class="itemtext"><select id="@id" relid="@relid" name="@name" relname="@relname" relrefui="@relRefUi" refui="@refUi" refurl="@refUrl" onchange="select_onchange_ref(this)">@Html.Raw(htmlcontent)</select><i></i></div>
+                                                        </td>
+                                                    }
+                                                }
+                                                else
+                                                {//正常下拉框
+                                                    <td>
+                                                        <div class="itemtext"><select id="@id" relid="@relid" name="@name" relname="@relname">@Html.Raw(htmlcontent)</select><i></i></div>
+                                                    </td>
+                                                }
+                                                break;
+                                            case 682://联动下拉框
+                                                //处理联动源
+                                                var refSourceGroupItem = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code && p.F_FormProperty_targetUrl.ToLower().Contains("refui") && p.F_FormProperty_targetUrl.Contains(groupItem.F_FormProperty_fieldName)).FirstOrDefault();
+                                                if (refSourceGroupItem != null)
+                                                {
+                                                    groupItem.F_FormProperty_dataSource_conditionValue = refSourceGroupItem.V_FormPropertyValue_Value;
+                                                }
+                                                groupItem.V_FormPropertyValue_Value = propertyValue;
+                                                MvcHtmlString mvcLinkAgeHtmlStr = Html.Action("GenerateTableEditListDropDownHtmls", new { formPropertyValue = @groupItem, businessFlowFormCode = @businessFlowFormCode });
+                                                htmlcontent = mvcLinkAgeHtmlStr.ToString();
+                                                <td>
+                                                    <div class="itemtext"><select id="@id" relid="@relid" name="@name" relname="@relname">@Html.Raw(htmlcontent)</select><i></i></div>
+                                                </td>
+                                                break;
+                                            case 134://日期框
+                                            <td>
+                                                <div class="itemtext"><input type="text" date="date" dateformat="yyyy-MM-dd" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes><i></i></div>
+                                            </td>
+                                                break;
+                                            case 135://日期时间框
+                                            <td>
+                                                <div class="itemtext"><input type="text" date="date" dateformat="yyyy-MM-dd HH:mm:ss" id="@id" relid="@relid" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes><i></i></div>
+                                            </td>
+                                                break;
+                                        }
+                                    }
+                                    <td><a href="javascript:;" class="tablelink"> 删除</a></td>
+                                </tr>
+                                    rowIndex++;
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+        <ul class="forminfo bt">
+            @if (isHasSaveFormPower)
+            {
+                if (formStatus != Convert.ToInt32(FormStatusEnum.已作废))
+                {
+                    <div class="buttonWrap clear">
+                        <label>&nbsp;</label><input type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存"><i></i>
+                        <label>&nbsp;</label><input type="button" onclick="viewAttachment(this)" class="btn btnmr fl" value="附件信息" title="表单附件" dialogwidth="1200" dialogheight="700" url="/attachmentupload/attachment_defaultlayout?relationCode=@businessFlowFormCode&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.自定义表单)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.自定义表单)" /><i></i>
+                        <label>&nbsp;</label><input type="button" onclick="createDocument(this)" class="btn btnmr fl" value="生成文书" title="起诉状" dialogwidth="1200" dialogheight="700" url="/IndividuationForm/LegalPlanForm/CreateDocument?formCode=@fFormCode&businessFlowFormCode=@businessFlowFormCode&businessFlowCode=@businessFlowCode&fkType=@fkType" /><i></i>
+                    </div>
+                }
+            }
+            else
+            {
+                if (formStatus != Convert.ToInt32(FormStatusEnum.已作废))
+                {
+                    <div class="buttonWrap clear">
+                        <label>&nbsp;</label><input type="button" onclick="viewAttachment(this)" class="btn btnmr fl" value="附件信息" title="表单附件" dialogwidth="1200" dialogheight="700" url="/attachmentupload/attachment_defaultlayout_view?relationCode=@businessFlowFormCode&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.自定义表单)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.自定义表单)" /><i></i>
+                        <label>&nbsp;</label><input type="button" onclick="createDocument(this)" class="btn btnmr fl" value="生成文书" title="起诉状" dialogwidth="1200" dialogheight="700" url="/IndividuationForm/LegalPlanForm/CreateDocument?formCode=@fFormCode&businessFlowFormCode=@businessFlowFormCode&businessFlowCode=@businessFlowCode&fkType=@fkType" /><i></i>
+                    </div>
+                }
+            }
+        </ul>
+    </form>
+    <ul class="forminfo">
+        @{Html.RenderAction("GenerateReDoneForm", "FormReDone", new { formUiType = 3, fkType = fkType, pkCode = pkCode, businessFlowCode = businessFlowCode, formCode = fFormCode, businessFlowFormCode = businessFlowFormCode, formStatus = formStatus, isSwitchFormHistoryRecordUrl = isSwitchFormHistoryRecordUrl ? 1 : 0 });}
+    </ul>
+</div>
+<script type="text/javascript" src="/theme/js/tableedit.js"></script>@*加载编辑table js，这个js目前只能放在底部，不可以放在<head>标签里*@
+<script type="text/javascript" src="/theme/js/formdvedit.js"></script>@*加载编辑form js，这个js目前只能放在底部，不可以放在<head>标签里*@

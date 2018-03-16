@@ -1,0 +1,82 @@
+﻿@{
+    Layout = "~/Views/Shared/_MulityListIframeWithCallbackTemplate.cshtml";//多个列表Iframe Callback 页面固定模板
+}
+@{
+    ViewBag.Title = "组织机构->岗位->人员";//多选带回
+}
+@section HeadScript{
+    <script type="text/javascript">
+        function seachUser() {
+            var name = $("#C_Userinfo_name").val();
+            var $thisPrivateFrame = $(window.document).find("iframe[name='iframe_users']");
+            var thisPrivateFrameSrc = $thisPrivateFrame.attr('baseurl');//目标链接地址
+            thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{userName}", name);//替换岗位参数
+            $thisPrivateFrame.attr('src', thisPrivateFrameSrc);//导航到目标链接地址
+        }
+
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                seachUser();
+            }
+        }
+    </script>
+}
+@{
+    string lookupGroup = ViewBag.Lookupgroup;
+    string propertyValueCode = ViewBag.PropertyValueCode;
+    string mappingField = ViewBag.MappingField;//暂时不做处理
+    string mappingFieldName = ViewBag.MappingFieldName;//暂时不做处理
+    //string code = "Code_formproperty_" + propertyValueCode;
+    //string name = "Name_formproperty_" + propertyValueCode;
+}
+<div class="iframe_callback_list_tool">
+    <div class="tools">
+        <ul class="toolbar">
+            <li><a target="ajaxtodo" notice="请选中人员信息！" mulityoperate="mulityoperate" frametype="iframe" frametarget="iframe_users" frameuitype="list" href="javascript:window.parent.mulityBringBack({callbackjson})"><span></span>确定</a></li>
+        </ul>
+        <ul class="seachform">
+            <li><label>人员名称</label>@Html.TextBox("C_Userinfo_name", "", new { @class = "scinput" })</li>
+            <li><label>&nbsp;</label><input type="submit" onclick="seachUser()" class="scbtn" value="查询" /></li>
+
+        </ul>
+    </div>
+</div>
+<table class="table_tree_mulitylist">
+    <tr>
+        <td class="rightborder" width="33%" height="490">
+            <table class="table_noborder" height="100%">
+                @*<tr class="bottomborder">
+                        <td height="44" align="center"><b class="fontsize14">组织机构</b></td>
+                    </tr>*@
+                <tr>
+                    <td height="100%"><iframe name="iframe_tree" width="100%" height="100%" frameborder="0" src="/sysmanager/organization/tree?sourceType=2" scrolling="auto"></iframe></td>
+                </tr>
+            </table>
+        </td>
+        <td class="rightborder" width="33%" height="490">
+            <table class="table_noborder" height="100%">
+                <tr class="bottomborder">
+                    <td height="44" align="center"><b class="fontsize14">岗位</b></td>
+                </tr>
+                <tr>
+                    <td height="100%"><iframe name="iframe_posts" width="100%" height="100%" frameborder="0" baseurl="/sysmanager/organizationpost/orgrelationpostlist?orgCode={orgCode}" src="/sysmanager/organizationpost/orgrelationpostlist?orgCode={orgCode}" scrolling="auto"></iframe></td>
+                </tr>
+            </table>
+        </td>
+        <td width="*" height="490">
+            <table class="table_noborder" height="100%">
+                <tr class="bottomborder">
+                    <td height="44" align="center"><b class="fontsize14">人员</b></td>
+                </tr>
+                <tr>
+                    <td height="100%"><iframe name="iframe_users" width="100%" height="100%" frameborder="0" baseurl="/sysmanager/userinfo/MulityCallbackRefList_UserForm?orgCode={orgCode}&postCode={postCode}&lookupGroup=@lookupGroup&propertyValueCode=@propertyValueCode" src="/sysmanager/userinfo/MulityCallbackRefList_UserForm?orgCode={orgCode}&postCode={postCode}&lookupGroup=@lookupGroup&propertyValueCode=@propertyValueCode" scrolling="auto"></iframe></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

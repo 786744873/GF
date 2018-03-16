@@ -1,0 +1,66 @@
+﻿@model CommonService.Model.CaseManager.B_Case_Confirm
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "结案确认";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+@{
+    List<CommonService.Model.C_Parameters> EndCaseSuggests = ViewBag.EndCaseSuggests;
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "EndCase", FormMethod.Post, new { id = "formEndCase", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("B_Case_Confirm_id", Model.B_Case_Confirm_id)
+            @Html.Hidden("B_Case_Confirm_code", Model.B_Case_Confirm_code)
+            @Html.Hidden("B_Case_code", Model.B_Case_code)
+            @Html.Hidden("P_Business_Flow_code", Model.P_Business_Flow_code)
+            @Html.Hidden("B_Case_Confirm_creator", Model.B_Case_Confirm_creator)
+            @Html.Hidden("B_Case_Confirm_createTime", Model.B_Case_Confirm_createTime)
+            @Html.Hidden("B_Case_Confirm_isDelete", Model.B_Case_Confirm_isDelete)
+            <li>
+              <label>结案类型</label>
+              @{
+                 IList<SelectListItem> endCaseSuggestItems = new List<SelectListItem>();
+                 foreach (var endCaseSuggest in EndCaseSuggests)
+                 {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = endCaseSuggest.C_Parameters_id.ToString();
+                    selectItem.Text = endCaseSuggest.C_Parameters_name;
+
+                    endCaseSuggestItems.Add(selectItem);
+                  }
+               }
+               @Html.DropDownList("B_Case_Confirm_SuggestType", endCaseSuggestItems, new { @class = "dfselect" })
+              <i></i>
+            </li>
+            <li><label>结案意见</label>@Html.TextArea("B_Case_Confirm_SuggestContent", Model.B_Case_Confirm_SuggestContent, new { @class = "textinput", maxlength = "500" })<i></i></li>
+            if (Model.B_Case_Confirm_creator != null)
+            {
+               <li><label>操作人</label><span>@Model.B_Case_Confirm_creator_name</span><i></i></li> 
+               <li><label>操作时间</label><span>@Model.B_Case_Confirm_createTime.Value.ToString("yyyy-MM-dd HH:mm:ss")</span><i></i></li>  
+            }
+            else
+            {
+                <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认结案" /><i></i></li>
+            }
+        }
+    </ul>
+</div>

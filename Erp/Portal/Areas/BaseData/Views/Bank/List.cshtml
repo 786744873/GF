@@ -1,0 +1,41 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Bank>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "客户银行列表";
+}
+
+@{
+    C_Bank bankConditon = ViewBag.BankConditon;//客户银行条件模型
+}
+<div class="tools">
+    <ul class="toolbar">
+        <li><a target="popdialog" title="银行名称" dialogwidth="600" dialogheight="400" href="/basedata/bank/create?customerCode=@bankConditon.C_Bank_customer"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+        <li><a target="popdialog" title="银行名称" dialogwidth="600" dialogheight="400" edit="edit" href="/basedata/bank/edit?bankCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+        <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/bank/delete?bankCode={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+    </ul>
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>账号</th>
+            <th>开户行</th>
+            <th>账户号</th>
+            <th>是否默认</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Bank_code">
+                <td>@item.C_Bank_account</td>
+                <td>@item.C_Bank_openBank</td>
+                <td>@item.C_Bank_accountNo</td>
+                <td>@(item.C_Bank_isDefault == true ? "是" : "否")</td>
+            </tr>
+        }
+    </tbody>
+</table>    

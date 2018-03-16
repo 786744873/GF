@@ -1,0 +1,43 @@
+﻿@using CommonService.Model;
+
+@model CommonService.Model.C_Property_trail_stock
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "股票信息";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "Property_trail_stock", FormMethod.Post, new { id = "formProperty_trail_stock", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_Property_trail_stock_id", Model.C_Property_trail_stock_id)
+            @Html.Hidden("C_Property_trail_stock_type", Model.C_Property_trail_stock_type)
+            @Html.Hidden("C_Property_trail_stock_belongs", Model.C_Property_trail_stock_belongs)
+            @Html.Hidden("C_Property_trail_stock_code", Model.C_Property_trail_stock_code)
+            @Html.Hidden("C_Property_trail_stock_isDelete", Model.C_Property_trail_stock_isDelete)
+            @Html.Hidden("C_Property_trail_stock_creator", Model.C_Property_trail_stock_creator)
+            @Html.Hidden("C_Property_trail_stock_createTime", Model.C_Property_trail_stock_createTime)
+            <li><label>股票公司名称</label>@Html.TextBox("C_Property_trail_stock_name", Model.C_Property_trail_stock_name, new { @class = "dfinput", requiredInput = "请输入股票公司名称", maxlength = "100" })<i></i></li>
+            <li><label>股数</label>@Html.TextBox("C_Property_trail_stock_count", Model.C_Property_trail_stock_count, new { @class = "dfinput", requiredInput = "请输入股数", positiveInteger = "请输入有效数字", maxlength = "50" })<i></i></li>
+            <li><label>当日股价</label>@Html.TextBox("C_Property_trail_stock_price", Model.C_Property_trail_stock_price, new { @class = "dfinput", money = "请输入有效金额", maxlength = "50" })<i></i></li>
+              <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></li>
+        }
+    </ul>
+</div>

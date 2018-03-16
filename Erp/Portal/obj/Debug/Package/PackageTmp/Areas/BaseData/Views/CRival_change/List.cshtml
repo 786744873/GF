@@ -1,0 +1,39 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_CRival_change>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "公司信息";
+}
+
+@{
+    C_CRival_change crConditon = ViewBag.CrChangeConditon;//对手公司变更条件模型
+}
+<div class="tools">
+    <ul class="toolbar">
+        <li><a target="popdialog" title="公司信息" dialogwidth="600" dialogheight="300" href="/basedata/CRival_change/create?C_CRival_code=@crConditon.C_CRival_code"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+        <li><a target="popdialog" title="公司信息" dialogwidth="600" dialogheight="300" edit="edit" href="/basedata/CRival_change/edit?crivalchangeID={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+        <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/CRival_change/delete?crivalchangeID={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+    </ul>
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>变更事项</th>
+            <th>变更内容</th>
+            <th>变更时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_CRival_change_id">
+                <td>@item.C_CRival_change_matter</td>
+                <td>@item.C_CRival_change_content</td>
+                <td>@(item.C_CRival_change_date==null ? "" : item.C_CRival_change_date.Value.ToString("yyyy-MM-dd"))</td>
+            </tr>
+        }
+    </tbody>
+</table>

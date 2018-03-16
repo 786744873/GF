@@ -1,0 +1,238 @@
+﻿@{
+    Layout = "~/Views/Shared/_KMSLayout.cshtml";//KMS母版页
+}
+@{
+    List<CommonService.Model.KMS.K_Resources> listResources = ViewBag.listResources;//资源文档列表
+    List<CommonService.Model.KMS.K_Resources> listMovies = ViewBag.listMovies;//资源视频列表
+    List<CommonService.Model.KMS.K_Problem> listProblem = ViewBag.listProblem;//问题列表
+    List<CommonService.Model.CaseManager.B_Case_Typicalcase> listTypicals = ViewBag.listTypicals;//典型案例列表
+}
+<div class="portlet light">
+    <div class="portlet-body">
+        <div class="tabbable-custom ">
+            <ul class="nav nav-tabs ">
+                <li class="active">
+                    <a href="#tab_5_1" data-toggle="tab">
+                        任务指南
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab_5_2" data-toggle="tab">
+                        问答
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab_5_3" data-toggle="tab">
+                        视频
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab_5_4" data-toggle="tab">
+                        典型案例
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content" style=" height:auto">
+                <div class="tab-pane active" id="tab_5_1" style=" height:100%">
+                    <h5><span>@ViewBag.flowName</span><span>>></span><span>@ViewBag.formName</span>--<span>相关文档</span></h5>
+                    <table class="table table-striped  table-hover margin-top-10">
+                        <tbody>
+                            @if (listResources != null && listResources.Count() != 0)
+                            {
+                                foreach (var item in listResources)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="row booking-results col-md-12">
+                                                <div class="col-md-12">
+                                                    <div class="booking-result">
+                                                        <div class="booking-img" style="width:auto;">
+                                                            <a href="/kms/Resources/SelectResources?resourceCode=@item.K_Resources_code&type=@item.K_Resources_type"><img src='@item.K_Resources_coverImage' style="width:173px; height:130px" alt=""></a>
+                                                        </div>
+                                                        <div class="booking-info">
+                                                            <h5>
+                                                                <a href="/kms/Resources/SelectResources?resourceCode=@item.K_Resources_code&type=@item.K_Resources_type">@item.K_Resources_name</a>
+                                                            </h5>
+                                                            <div style="line-height:35px;">
+                                                                <p>
+                                                                    @item.K_Resources_description
+                                                                </p>
+                                                            </div>
+                                                            <ul class="list-inline blog-tags">
+                                                                <li></li>
+                                                                @if (item.K_Resources_zambiaCount == null)
+                                                                {
+                                                                    <li style="margin-left:15px;">赞(0)</li>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <li style="margin-left:15px;">赞(@item.K_Resources_zambiaCount)</li>
+                                                                }
+                                                                @if (item.K_Resources_browseCount == null)
+                                                                {
+                                                                    <li style="margin-left:15px;">浏览(0)</li>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <li style="margin-left:15px;">浏览(@item.K_Resources_browseCount)</li>
+                                                                }
+                                                                <li style="margin-left:15px;">发布于 @item.K_Resources_createTime</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td><p class="list-group-item" style="padding: 7px 15px; text-align: center; color: red;">无相关文档！<a href="/kms/resources/Upload?resourceesCode=&type=&reflash=&court=@ViewBag.court&flow=@ViewBag.flow&form=@ViewBag.form&caseArea=@ViewBag.caseArea ">我要分享</a></p></td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="tab_5_2" style=" height:100%">
+                    <h5><span>@ViewBag.flowName</span><span>>></span><span>@ViewBag.formName</span>--<span>相关问题</span></h5>
+                    <div data-handle-color="#D7DCE2">
+                        <!-- START TASK LIST -->
+                        <ul class="list-group">
+                            <li class="list-group-item" style="padding:6px 15px;">
+                                <div class="row">
+                                    <div class="col-md-7 text-center" style="padding:0px;">问题</div>
+                                    <div class="col-md-2 text-center" style="padding-right:5px;padding-left:5px;">提问者</div>
+                                    <div class="col-md-2 text-center" style="padding-right:5px;padding-left:5px;">时间</div>
+                                    <div class="col-md-1 text-center" style="padding:0px;">回复</div>
+                                </div>
+                            </li>
+                            @if (listProblem != null)
+                            {
+                                foreach (var problem in listProblem)
+                                {
+                                    <li class="list-group-item" style="padding:7px 15px;">
+                                        <div class="row">
+                                            <div class="col-md-7" style="padding:0px;padding-left:10px;">
+                                                @{
+                                    DateTime create = Convert.ToDateTime(problem.K_Problem_createTime);
+                                    DateTime now = DateTime.Now;
+                                    double hours = (now - create).TotalHours;
+                                                }
+                                                <span style="color: #45B6AF;">[@problem.K_Problem_Knowledge_name] </span>
+                                                <a style="color: gray;" href="/kms/problem/AnswerProblem?problemCode=@problem.K_Problem_code">@(problem.K_Problem_content.Length > 17 ? problem.K_Problem_content.Substring(0, 17) + "..." : problem.K_Problem_content)</a>
+                                                @if (hours < 12)
+                                                { <span class="badge badge-danger">new</span>}
+                                                @*<i class="fa fa-desktop" style="color: #7DBBDE;margin-left:10px;"></i>*@
+                                            </div>
+                                            <div class="col-md-2 text-center" style="padding-right:5px;padding-left:5px;">@problem.K_Problem_creatorName</div>
+                                            <div class="col-md-2 text-center" style="padding-right:5px;padding-left:5px;">@(Convert.ToDateTime(problem.K_Problem_createTime).ToShortDateString())</div>
+                                            <div class="col-md-1 text-center" style="padding:0px;">
+                                                <span class="badge badge-badge badge-warning">@(problem.K_Problem_AnswerCount == null ? 0 : problem.K_Problem_AnswerCount)</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li class="list-group-item" style="padding: 7px 15px; text-align: center; color: red;">无相关问题！<a href="/kms/problem/addproblem?problemContent=&court=@ViewBag.court&flow=@ViewBag.flow&form=@ViewBag.form" >我要提问</a></li>
+                            }
+
+                        </ul>
+                        <!-- END START TASK LIST -->
+                    </div>
+
+                </div>
+                <div class="tab-pane" id="tab_5_3" style=" height:100%">
+                    <h5><span>@ViewBag.flowName</span><span>>></span><span>@ViewBag.formName</span>--<span>相关视频</span></h5>
+                    <table class="table table-striped  table-hover margin-top-10">
+                        <tbody>
+                            @if (listMovies != null)
+                            {
+                                foreach (var item in listMovies)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="row booking-results col-md-12">
+                                                <div class="col-md-12">
+                                                    <div class="booking-result">
+                                                        <div class="booking-img" style="width:auto;">
+                                                            <a href="/kms/avi/Details?id=@item.K_Resources_url"><img src='@item.K_Resources_coverImage' style="width:173px; height:130px" alt=""></a>
+                                                        </div>
+                                                        <div class="booking-info">
+                                                            <h5>
+                                                                <a href="/kms/avi/Details?id=@item.K_Resources_url">@item.K_Resources_name</a>
+                                                            </h5>
+                                                            <div style="line-height:35px;">
+                                                                <p>
+                                                                    @item.K_Resources_description
+                                                                </p>
+                                                            </div>
+                                                            <ul class="list-inline blog-tags">
+                                                                <li></li>
+                                                                @if (item.K_Resources_zambiaCount == null)
+                                                                {
+                                                                    <li style="margin-left:15px;">赞(0)</li>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <li style="margin-left:15px;">赞(@item.K_Resources_zambiaCount)</li>
+                                                                }
+                                                                @if (item.K_Resources_browseCount == null)
+                                                                {
+                                                                    <li style="margin-left:15px;">浏览(0)</li>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <li style="margin-left:15px;">浏览(@item.K_Resources_browseCount)</li>
+                                                                }
+                                                                <li style="margin-left:15px;">发布于 @item.K_Resources_createTime </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td><p class="list-group-item" style="padding: 7px 15px; text-align: center; color: red;">无相关视频！<a href="/kms/avi/create?court=@ViewBag.court&flow=@ViewBag.flow&form=@ViewBag.form">我要分享</a></p></td></tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="tab-pane" id="tab_5_4" style=" height:100%">
+                    <h5><span>@ViewBag.flowName</span><span>>></span><span>@ViewBag.formName</span>--<span>典型案例</span></h5>
+                    <div data-handle-color="#D7DCE2">
+                        <!-- START TASK LIST -->
+                        <ul class="list-group">
+                            @if (listTypicals != null&&listTypicals.Count()!=0)
+                            {
+                                foreach (var typical in listTypicals)
+                                {
+                                    <li class="list-group-item" style="padding:7px 15px;">
+                                        <div class="row">
+                                            <div class="col-md-9" style="padding:0px;padding-left:10px;">
+                                                <a style="color: #45B6AF;" href="/kms/FormHelp/Details?typicalCode=@typical.B_Case_Typicalcase_code">@typical.B_Case_Typicalcase_title</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li class="list-group-item" style="padding: 7px 15px; text-align: center; color: red;">无相关案例！<a href="/kms/FormHelp/CreateTypical?caseCode=@ViewBag.caseCode&flowCode=@ViewBag.businessFlow&formCode=@ViewBag.businessForm">去创建</a></li>
+                            }
+
+                        </ul>
+                        <!-- END START TASK LIST -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

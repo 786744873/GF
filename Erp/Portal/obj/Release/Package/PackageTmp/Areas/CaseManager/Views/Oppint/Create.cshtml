@@ -1,0 +1,55 @@
+﻿@model CommonService.Model.CaseManager.B_Oppint
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "担保物约定";
+}
+@{
+    List<CommonService.Model.C_Parameters> Guarantys = ViewBag.Guarantys;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "Oppint", FormMethod.Post, new { id = "formOppint", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("B_Oppint_id", Model.B_Oppint_id)
+            @Html.Hidden("B_Oppint_code", Model.B_Oppint_code)
+            @Html.Hidden("B_Case_code", Model.B_Case_code)
+            @Html.Hidden("B_Oppint_creator", Model.B_Oppint_creator)
+            @Html.Hidden("B_Oppint_createTime", Model.B_Oppint_createTime)
+            @Html.Hidden("B_Oppint_isDelete", Model.B_Oppint_isDelete)
+            <li><label>客户类型</label>
+                @{
+            IList<SelectListItem> guarantyItems = new List<SelectListItem>();
+            foreach (var guaranty in Guarantys)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = guaranty.C_Parameters_id.ToString();
+                selectItem.Text = guaranty.C_Parameters_name;
+
+                guarantyItems.Add(selectItem);
+            }
+                }
+                @Html.DropDownList("B_Oppint_guaranty", guarantyItems, new { @class="dfselect", requiredInput = "请选择担保物" })<i></i></li>
+            <li><label>担保物价值</label>@Html.TextBox("B_Oppint_guarantyvalue", Model.B_Oppint_guarantyvalue, new { @class = "dfinput", money = "请输入有效金额", maxlength = "50" })<i></i></li>
+            <li><label>客户其他需求</label>@Html.TextArea("B_Oppint_coneed", Model.B_Oppint_coneed, new { @class = "textinput", onkeydown = "EnterPress(event)", maxlength = "500" })<i></i></li>
+            <div class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></div>
+        }
+    </ul>
+</div>

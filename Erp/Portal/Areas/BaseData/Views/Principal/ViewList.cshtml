@@ -1,0 +1,145 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Principal>
+@{
+    Layout = "~/Views/Shared/_ListSearchTemplate.cshtml";    //普通列表页面固定模板
+}
+@{
+    ViewBag.Title = "委托人列表";
+}
+@section HeadScript{
+    <script type="text/javascript" src="/theme/js/basedialog.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("a[target=popdialog_owndefine]").each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    //替换url参数
+                    var switchUrl = $this.attr("href");
+                    _openDialog($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"));
+                });
+            });
+        })
+    </script>
+}
+@{
+    C_Principal principalConditon = ViewBag.PrincipalConditon;//委托人条件模型
+}
+@{
+    List<CommonService.Model.C_Parameters> PrincipalTypes = ViewBag.PrincipalTypes;
+    List<CommonService.Model.C_Parameters> PrincipalSources = ViewBag.PrincipalSources;
+    List<CommonService.Model.C_Parameters> PrincipalLevels = ViewBag.PrincipalLevels;
+    List<CommonService.Model.C_Parameters> IsSignedStates = ViewBag.IsSignedStates;
+    List<CommonService.Model.C_Parameters> SignedStates = ViewBag.SignedStates;
+    List<CommonService.Model.C_Parameters> PrincipalLoyaltys = ViewBag.PrincipalLoyaltys;
+}
+<div class="tools">
+    @using (Html.BeginForm("ViewList", "Principal", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+    {
+        <ul class="seachform">
+            <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+            <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+            @Html.Hidden("C_Principal_code", principalConditon.C_Principal_code)
+            <li><label>委托人名称</label>@Html.TextBox("C_Principal_name", principalConditon.C_Principal_name, new { @class = "scinput" })</li>
+            <li><label>&nbsp;</label><input type="submit" class="scbtn" value="查询" /></li>
+        </ul>
+    }
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            @*<th>委托人代码</th>*@
+            <th>委托人名称</th>
+            <th>委托人级别</th>
+            <th>委托人类型</th>
+            <th>委托人来源</th>
+            <th>委托人忠诚度</th>
+            <th>专业顾问</th>
+            <th>最后接触日期</th>
+            <th>是否签约</th>
+            <th>签约状态</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Principal_code">
+                @*<td>@item.C_Customer_number</td>*@
+                <td><a target="popdialog_owndefine" title="客户详细" style="color:blue;" dialogwidth="1080" dialogheight="550" href="/basedata/principal/tabdetails?principalCode=@item.C_Principal_code">@item.C_Principal_name</a></td>
+                @{
+            var principalLevel = PrincipalLevels.Where(c => c.C_Parameters_id == item.C_Principal_level).FirstOrDefault();
+                }
+                @if (principalLevel != null)
+                {
+                    <td>@principalLevel.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+            var principalType = PrincipalTypes.Where(c => c.C_Parameters_id == item.C_Principal_type).FirstOrDefault();
+                }
+                @if (principalType != null)
+                {
+                    <td>@principalType.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+            var principalSource = PrincipalSources.Where(c => c.C_Parameters_id == item.C_Principal_source).FirstOrDefault();
+                }
+                @if (principalSource != null)
+                {
+                    <td>@principalSource.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+            var principalLoyalty = PrincipalLoyaltys.Where(c => c.C_Parameters_id == item.C_Principal_loyalty).FirstOrDefault();
+                }
+                @if (principalLoyalty != null)
+                {
+                    <td>@principalLoyalty.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                <td>@item.C_principal_consultant_name</td>
+                <td>@(item.C_Principal_lastContactDate == null ? "" : item.C_Principal_lastContactDate.Value.ToString("yyyy-MM-dd"))</td>
+                @{
+            var issignedstate = IsSignedStates.Where(c => c.C_Parameters_id == item.C_Principal_isSignedState).FirstOrDefault();
+                }
+                @if (issignedstate != null)
+                {
+                    <td>@issignedstate.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+            var signedstate = SignedStates.Where(c => c.C_Parameters_id == item.C_Principal_signedState).FirstOrDefault();
+                }
+                @if (signedstate != null)
+                {
+                    <td>@signedstate.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+

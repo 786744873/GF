@@ -1,0 +1,102 @@
+﻿@using Context;
+@using CommonService.Model.SysManager;
+@{
+    Layout = "~/Views/Shared/_TreeMulityListIframeTemplate.cshtml";//一棵树多个列表Iframe页面固定模板
+}
+@{
+    ViewBag.Title = "分解任务";
+}
+@{
+    string fkCode = ViewBag.FkCode;
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+}
+<div class="iframe_tree_tool">
+    <div class="tools">
+        <ul class="toolbar">
+          @if (UIContext.Current.IsPreSetManager)
+          {
+            <li><a target="popdialog" title="菜单" dialogwidth="600" dialogheight="400" href="/sysmanager/menu/create?menuId={sid_Iterm}"><span><img src="/theme/images/new_add.png" /></span>添加菜单</a></li>
+            <li><a target="popdialog" title="菜单" dialogwidth="600" dialogheight="400" edit="edit" href="/sysmanager/menu/edit?menuId={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改菜单</a></li>
+            <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/sysmanager/menu/delete?menuId={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除菜单</a></li>
+            <li><a target="ajaxtodo" title="确认要上移选中数据吗?" singleoperate="singleoperate" href="/sysmanager/menu/moveforward?menuId={sid_Iterm}"><span><img src="/theme/images/new_up.png" /></span>上移</a></li>
+            <li><a target="ajaxtodo" title="确认要下移选中数据吗?" singleoperate="singleoperate" href="/sysmanager/menu/movebackward?menuId={sid_Iterm}"><span><img src="/theme/images/new_down.png" /></span>下移</a></li>
+          }
+          else
+          {
+              if (RoleButtons.Where(r => r.C_Menu_buttons_id == 99).Count() != 0)
+              {
+                  <li><a target="popdialog" title="菜单" dialogwidth="600" dialogheight="400" href="/sysmanager/menu/create?menuId={sid_Iterm}"><span><img src="/theme/images/new_add.png" /></span>添加菜单</a></li>
+              }
+              if (RoleButtons.Where(r => r.C_Menu_buttons_id == 100).Count() != 0)
+              {
+                  <li><a target="popdialog" title="菜单" dialogwidth="600" dialogheight="400" edit="edit" href="/sysmanager/menu/edit?menuId={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改菜单</a></li>
+              }
+              if (RoleButtons.Where(r => r.C_Menu_buttons_id == 101).Count() != 0)
+              {
+                  <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/sysmanager/menu/delete?menuId={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除菜单</a></li>
+              }
+              if (RoleButtons.Where(r => r.C_Menu_buttons_id == 134).Count() != 0)
+              {
+                  <li><a target="ajaxtodo" title="确认要上移选中数据吗?" singleoperate="singleoperate" href="/sysmanager/menu/moveforward?menuId={sid_Iterm}"><span><img src="/theme/images/new_up.png" /></span>上移</a></li>
+              }
+              if (RoleButtons.Where(r => r.C_Menu_buttons_id == 135).Count() != 0)
+              {
+                   <li><a target="ajaxtodo" title="确认要下移选中数据吗?" singleoperate="singleoperate" href="/sysmanager/menu/movebackward?menuId={sid_Iterm}"><span><img src="/theme/images/new_down.png" /></span>下移</a></li>
+              }
+          }
+        </ul>
+    </div>
+</div>
+<table class="table_tree_mulitylist">
+    <tr>
+        <td class="rightborder" width="20%" height="800">
+            <table class="table_noborder" height="100%">
+                <tr class="bottomborder">
+                    <td height="44" align="center"><b class="fontsize14">菜单</b></td>
+                </tr>
+                <tr>
+                    <td height="100%"><iframe name="iframe_tree" width="100%" height="100%" frameborder="0" src="/sysmanager/menu/tree" scrolling="auto"></iframe></td>
+                </tr>
+            </table>
+        </td>
+        <td class="rightborder" height="800">
+            <table class="table_noborder" height="100%">
+                <tr class="bottomborder">
+                    <td height="44" valign="middle">
+                        <div class="iframe_list_tool">
+                            <div class="tools margin_bottom0 margin_left5">
+                                <ul class="toolbar">
+                                 @if (UIContext.Current.IsPreSetManager)
+                                 {
+                                    <li><a target="popdialog" title="菜单按钮" notice="请选中菜单信息！" dialogwidth="600" dialogheight="260" edit="edit" frametype="iframe" frametarget="iframe_tree" frameuitype="tree" href="/sysmanager/menu_buttons/create?menuId={sid_Iterm}"><span><img src="/theme/images/new_add.png" /></span>添加按钮</a></li>
+                                    <li><a target="popdialog" title="菜单按钮" notice="请选中按钮信息！" dialogwidth="600" dialogheight="260" edit="edit" frametype="iframe" frametarget="iframe_buttons" frameuitype="list" href="/sysmanager/menu_buttons/edit?menu_buttonsId={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改按钮</a></li>
+                                    <li><a target="ajaxtodo" title="确认要删除选中按钮吗?" notice="请选中按钮信息！" singleoperate="singleoperate" frametype="iframe" frametarget="iframe_buttons" frameuitype="list" href="/sysmanager/menu_buttons/delete?menu_buttonsId={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除按钮</a></li>
+                                 }
+                                 else
+                                 {
+                                     if (RoleButtons.Where(r => r.C_Menu_buttons_id == 102).Count() != 0)
+                                     {
+                                         <li><a target="popdialog" title="菜单按钮" notice="请选中菜单信息！" dialogwidth="600" dialogheight="260" edit="edit" frametype="iframe" frametarget="iframe_tree" frameuitype="tree" href="/sysmanager/menu_buttons/create?menuId={sid_Iterm}"><span><img src="/theme/images/new_add.png" /></span>添加按钮</a></li>
+                                     }
+                                     if (RoleButtons.Where(r => r.C_Menu_buttons_id == 103).Count() != 0)
+                                     {
+                                         <li><a target="popdialog" title="菜单按钮" notice="请选中按钮信息！" dialogwidth="600" dialogheight="260" edit="edit" frametype="iframe" frametarget="iframe_buttons" frameuitype="list" href="/sysmanager/menu_buttons/edit?menu_buttonsId={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改按钮</a></li>
+                                     }
+                                     if (RoleButtons.Where(r => r.C_Menu_buttons_id == 104).Count() != 0)
+                                     {
+                                         <li><a target="ajaxtodo" title="确认要删除选中按钮吗?" notice="请选中按钮信息！" singleoperate="singleoperate" frametype="iframe" frametarget="iframe_buttons" frameuitype="list" href="/sysmanager/menu_buttons/delete?menu_buttonsId={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除按钮</a></li>
+                                     }
+                                 }
+                                 <li><a href="javascript:void(0);"><span style="color:red;">注意：不允许任何系统用户操作菜单或按钮，系统管理员也不例外，如确实需要处理相应信息，请联系研发人员！</span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td height="100%"><iframe name="iframe_buttons" width="100%" height="100%" frameborder="0" baseurl="/sysmanager/Menu_buttons/MenuRelationButtonsList?menuId={menuId}" src="/sysmanager/Menu_buttons/MenuRelationButtonsList?menuId={menuId}" scrolling="auto"></iframe></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

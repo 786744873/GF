@@ -1,0 +1,37 @@
+﻿@model CommonService.Model.SysManager.C_Organization
+@{
+    Layout = "~/Views/Shared/_TreeTemplate.cshtml";//树形结构固定模板
+}
+@{
+    ViewBag.Title = "组织机构树";
+}
+@{
+    int sourceType = ViewBag.SourceType;
+    string frametype = String.Empty;
+    string target = String.Empty;
+    switch (sourceType)
+    {
+        case 1:
+            frametype = "frameset";
+            target = "centerContentFrame,rightContentFrame";
+            break;
+        case 2:
+            frametype = "iframe";
+            target = "iframe_posts,iframe_users";
+            break;
+        case 3:
+            frametype = "iframe";
+            target = "iframe_org_posts,iframe_allocatedPostList,iframe_postAreaList,iframe_postRoleList";
+            break;
+        case 4:           
+            break;
+    }
+}
+<div class="treeinfo" frametype="@frametype" target="@target">
+    <div style="height: 35px; text-align: center; margin: 10px; border-bottom: solid 1px #d0dee5; ">
+        <b class="fontsize14">组织架构</b>
+    </div>
+    <div class="tree">
+        @Html.Raw(ViewBag.SingleOrganizationTreeHtml)
+    </div>
+</div>

@@ -1,0 +1,29 @@
+﻿<style type="text/css">
+    /*
+         * 重置CSS
+         **/ 
+
+    .grey {
+        background: #e0dfdf;
+    }
+
+    .yellow {
+        background: #ffcd99;
+    }
+
+    .blue {
+        background: #85b4f2;
+    }
+</style>
+<table class="tablelist" style="margin-right:10px;" width="500">
+    <thead>
+        <tr>
+            <th style="width:50px;">序号</th>
+            <th style="width:250px;">流程名称</th>
+            <th style="width:200px;" >状态</th>
+        </tr>
+    </thead>
+    <tbody>
+        @Html.Raw(ViewBag.BusinessFlowListHtml)
+    </tbody>
+</table>

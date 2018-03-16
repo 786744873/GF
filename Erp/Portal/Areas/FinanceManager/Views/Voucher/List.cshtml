@@ -1,0 +1,129 @@
+﻿@using CommonService.Model.FinanceManager;
+@using CommonService.Common;
+@using CommonService.Model.SysManager;
+@using Context;
+@model IEnumerable<CommonService.Model.FinanceManager.C_Voucher>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "凭证信息列表";
+}
+@section HeadCss{
+    <style type="text/css">
+        .mulitytext{
+            width:280px;
+        } 
+        .mulitytext label {
+            width: 60px;
+        }
+        .mulitytext input[type=text] {
+            width:200px;
+        }
+    </style>    
+}
+@{
+    C_Voucher couConditon = ViewBag.Conditon;//法院条件模型
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+}
+<div class="tools">
+    <ul class="toolbar">
+        @if (UIContext.Current.IsPreSetManager)
+        {
+            <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/FinanceManager/Voucher/Delete?voucherCode={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+            <li><a target="popdialog" title="还原单" dialogwidth="1240" dialogheight="550" edit="edit" href="/FinanceManager/Voucher/RestoreOrder?voucherCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>还原单</a></li>
+            <li><a target="popdialog" title="打印单据" dialogwidth="760" dialogheight="700" edit="edit" href="/FinanceManager/Voucher/GeneratingDocuments?voucherCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>打印</a></li>
+            <li><a target="ajaxtodo" title="确认要付款吗?" singleoperate="singleoperate" href="/FinanceManager/Voucher/ConfirmationOfPayment?voucherCode={sid_Iterm}"><span></span>确认付款</a></li>
+            @*<li><a target="popdialog" title="驳回" dialogwidth="750" dialogheight="350" edit="edit" href="/FinanceManager/Voucher/Reject?voucherCode={sid_Iterm}"><span></span>驳回</a></li>*@
+        }else
+        {
+             if (RoleButtons.Where(r => r.C_Menu_buttons_id == 1141).Count() != 0)
+            {
+                <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/FinanceManager/Voucher/Delete?voucherCode={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+            }
+            if(RoleButtons.Where(r => r.C_Menu_buttons_id == 1142).Count() != 0)
+            {
+                 <li><a target="popdialog" title="还原单" dialogwidth="1240" dialogheight="550" edit="edit" href="/FinanceManager/Voucher/RestoreOrder?voucherCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>还原单</a></li>
+            }
+            if(RoleButtons.Where(r => r.C_Menu_buttons_id == 1143).Count() != 0)
+            {
+                 <li><a target="popdialog" title="打印单据" dialogwidth="760" dialogheight="700" edit="edit" href="/FinanceManager/Voucher/GeneratingDocuments?voucherCode={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>打印</a></li>
+            }
+            if(RoleButtons.Where(r => r.C_Menu_buttons_id == 1144).Count() != 0)
+            {
+                 <li><a target="ajaxtodo" title="确认要付款吗?" singleoperate="singleoperate" href="/FinanceManager/Voucher/ConfirmationOfPayment?voucherCode={sid_Iterm}"><span></span>确认付款</a></li>
+            }
+        }
+    </ul>
+    @using (Html.BeginForm("List", "Voucher", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+    {
+        <div class="seachdiv" style="margin-top:5px;float:left;">
+            <ul class="forminfo">
+                <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+                <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+                <div class="mulitytext"><label>借款/报销编号</label>@Html.TextBox("C_Voucher_FeeLoanOrFeeReimbursementNumber", couConditon.C_Voucher_FeeLoanOrFeeReimbursementNumber, new { @class = "scinput" })</div>
+                <div class="mulitytext"><label>凭证编号</label>@Html.TextBox("C_Voucher_number", couConditon.C_Voucher_number, new { @class = "scinput" })</div>
+                <div class="mulitytext"><label>申请人</label>@Html.TextBox("C_Voucher_applicationPersonName", couConditon.C_Voucher_applicationPersonName, new { @class = "scinput" })</div>
+                <div class="mulitytext"><label>申请时间</label>@Html.TextBox("C_Voucher_applicationTime", couConditon.C_Voucher_applicationTime, new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd 00:00:00" })</div>
+                <div class="mulitytext"><label>到</label>@Html.TextBox("C_Voucher_applicationTime1", couConditon.C_Voucher_applicationTime1, new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd 23:59:59" })</div>
+                <div class="mulitytext"><label>金额</label>@Html.TextBox("C_Voucher_amounts", couConditon.C_Voucher_amounts, new { @class = "scinput" })</div>
+                <div class="mulitytext"><label>到</label>@Html.TextBox("C_Voucher_amounts1", couConditon.C_Voucher_amounts1, new { @class = "scinput" })</div>
+                <div class="mulitytext"><label>确认时间</label>@Html.TextBox("C_Voucher_confirmTime", couConditon.C_Voucher_confirmTime, new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd 00:00:00" })</div>
+                <div class="mulitytext"><label>到</label>@Html.TextBox("C_Voucher_confirmTime1", couConditon.C_Voucher_confirmTime1, new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd 23:59:59" })</div>
+                <div class="mulitytext"><label>案号</label>@Html.TextBox("C_Voucher_CaseNumber", couConditon.C_Voucher_CaseNumber, new { @class = "scinput" })</div>
+                <div class="mulitytext"><label>原告/被告</label>@Html.TextBox("C_Voucher_CaseName", couConditon.C_Voucher_CaseName, new { @class = "scinput" })</div>
+                <div class="mulitytext"><label>&nbsp;</label><input type="submit" class="scbtn" value="查询" /></div>
+            </ul>
+        </div>
+
+    }
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>凭证编号</th>
+            <th>状态</th>
+            <th>申请时间</th>
+            <th>申请人</th>
+            <th>单据类型</th>
+            <th>部门</th>
+            <th>金额(元)</th>
+            <th>上级审核人</th>
+            <th>财务确认人</th>
+            <th>确认时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string style = "";
+            string state = "";
+            if(item.C_Voucher_state==1)
+            {
+                style = "style=color:blue;";
+                state = "已付";
+            }else if(item.C_Voucher_state==0)
+            {
+                style = "style=color:Green;";
+                state = "未付";
+            }else
+            {
+                style = "style=color:red;";
+                state = "作废";
+            }
+            <tr target="sid_Iterm" rel="@item.C_Voucher_code" relname="@item.C_Voucher_number" >
+                <td>@item.C_Voucher_number</td>
+                <td @style>@state</td>
+                <td>@(item.C_Voucher_applicationTime==null ? "" : item.C_Voucher_applicationTime.Value.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                <td>@item.C_Voucher_applicationPersonName</td>
+                <td>@(item.C_Voucher_documentType==600 ? "报销" : "借款")</td>
+                <td>@item.C_Voucher_departmentName</td>
+                <td>@item.C_Voucher_amounts</td>
+                <td>@item.C_Voucher_superiorAuditPersonName</td>
+                <td>@item.C_Voucher_financeConfirmPersonName</td>
+                <td>@item.C_Voucher_confirmTime</td>
+            </tr>
+        }
+    </tbody>
+</table>    

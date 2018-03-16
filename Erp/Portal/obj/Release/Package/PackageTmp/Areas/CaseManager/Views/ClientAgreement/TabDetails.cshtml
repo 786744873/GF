@@ -1,0 +1,21 @@
+﻿@using CommonService.Common;
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "客户约定";
+}
+<div class="itab">
+    <ul>
+        <li><a href="/casemanager/eqallot/list?caseCode=@ViewBag.caseCode&type=@ViewBag.type" tabpanelwidth="100%" tabpanelheight="800" class="selected">涉案合同权益分配</a></li>
+        <li><a href="/casemanager/beartopay/list?caseCode=@ViewBag.caseCode" tabpanelwidth="100%" tabpanelheight="900">费用承担</a></li>
+        <li><a href="/casemanager/oppint/list?caseCode=@ViewBag.caseCode" tabpanelwidth="100%" tabpanelheight="800">担保物协定</a></li>
+        @if (ViewBag.type==1)
+        {
+            <li><a href="/casemanager/case/caseeditrequirement?caseCode=@ViewBag.caseCode" tabpanelwidth="100%" tabpanelheight="900">其他要求</a></li>
+        }else
+        {
+            <li><a href="/BusinessChanceManager/BusinessChance/BusinessChanceEditRequirement?businessChance_code=@ViewBag.caseCode" tabpanelwidth="100%" tabpanelheight="900">其他要求</a></li>
+        }        
+    </ul>
+</div>

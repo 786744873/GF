@@ -1,0 +1,97 @@
+﻿@using CommonService.Model;
+
+@model CommonService.Model.C_Contacts
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "法官信息";
+}
+@{
+    List<CommonService.Model.C_Parameters> Contactsnation = ViewBag.Contacts_nation;
+    List<CommonService.Model.C_Parameters> Contactspolitical = ViewBag.Contacts_political;
+}
+@section HeadCss{
+    <style type="text/css">
+        b {
+            color: red;
+            float: left;
+            margin-left: -10px;
+            margin-top: 5px;
+        }
+    </style>
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "Judge", FormMethod.Post, new { id = "formContacts", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+                                        @Html.Hidden("C_Contacts_id", Model.C_Contacts_id)
+                                        @Html.Hidden("C_Contacts_code", Model.C_Contacts_code)
+                                        @Html.Hidden("C_Contacts_number", Model.C_Contacts_number)
+                                        @Html.Hidden("C_Contacts_type", Model.C_Contacts_type)
+                                        @Html.Hidden("C_Contacts_relationCode", Model.C_Contacts_relationCode)
+                                        @Html.Hidden("C_Contacts_creator", Model.C_Contacts_creator)
+                                        @Html.Hidden("C_Contacts_createTime", Model.C_Contacts_createTime)
+                                        @Html.Hidden("C_Contacts_isDelete", Model.C_Contacts_isDelete)
+                                        <div class="mulitytext"><b>*</b><label>姓名</label>@Html.TextBox("C_Contacts_name", Model.C_Contacts_name, new { requiredInput = "请输入法官姓名", maxlength = "50" })<i></i></div>
+                                        <div class="mulitytext">
+                                            <label>性别</label>@Html.RadioButtonFor(m => m.C_Contacts_sex, "1", new { @class = "dfradio" })<span>男</span>
+                                            @Html.RadioButtonFor(m => m.C_Contacts_sex, "0", new { @class = "dfradio" })<span>女</span>
+                                        </div>
+                                        <div class="mulitytext">
+                                            <label>民族</label>
+                                            @{
+            IList<SelectListItem> contactsnationItems = new List<SelectListItem>();
+            foreach (var contactsnation in Contactsnation)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = contactsnation.C_Parameters_id.ToString();
+                selectItem.Text = contactsnation.C_Parameters_name;
+
+                contactsnationItems.Add(selectItem);
+            }
+                                            }
+                                            @Html.DropDownList("C_Contacts_nation", contactsnationItems, new { })<i></i>
+                                        </div>
+                                        <div class="mulitytext"><label>出生年月</label>@Html.TextBox("C_Contacts_birthday", Model.C_Contacts_birthday == null ? "" : Model.C_Contacts_birthday.Value.ToString("yyyy-MM-dd"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd" })<i></i></div>
+                                        <div class="mulitytext"><label>住址</label>@Html.TextBox("C_Contacts_address", Model.C_Contacts_address, new { maxlength = "200" })<i></i></div>                                           
+                                        <div class="mulitytext">
+                                            <label>政治面貌</label>
+                                            @{
+            IList<SelectListItem> contactspoliticalItems = new List<SelectListItem>();
+            foreach (var contactspolitical in Contactspolitical)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = contactspolitical.C_Parameters_id.ToString();
+                selectItem.Text = contactspolitical.C_Parameters_name;
+
+                contactspoliticalItems.Add(selectItem);
+            }
+                                            }
+                                            @Html.DropDownList("C_Contacts_political", contactspoliticalItems, new { })<i></i>
+                                        </div>
+                                        <div class="mulitytext"><label>籍贯</label>@Html.TextBox("C_Contacts_hometown", Model.C_Contacts_hometown, new { maxlength = "100" })<i></i></div>
+                                        <div class="mulitytext"><label>联系电话</label>@Html.TextBox("C_Contacts_contact_number", Model.C_Contacts_contact_number, new { positiveInteger = "请输入有效数字", maxlength = "50" })<i></i></div>
+                                        <div class="mulitytext"><label>身份证号</label>@Html.TextBox("C_Contacts_id_number", Model.C_Contacts_id_number, new { maxlength = "50" })<i></i></div>
+                                        <div class="mulitytextarealonger"><label>兴趣爱好</label>@Html.TextArea("C_Contacts_hobby", Model.C_Contacts_hobby, new { maxlength = "200" })<i></i></div>
+                                        <div class="mulitytextarealonger"><label>性格特征</label>@Html.TextArea("C_Contacts_character", Model.C_Contacts_character, new { maxlength = "200" })<i></i></div>
+                                        <div class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></div>
+        }
+    </ul>
+</div>

@@ -1,0 +1,139 @@
+﻿@using CommonService.Model;
+@using CommonService.Common;
+@using CommonService.Model.SysManager;
+@using Context;
+@model IEnumerable<CommonService.Model.C_Contacts>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "法官信息";
+}
+
+@{
+    C_Contacts ConConditon = ViewBag.JudgeConditon;//法官条件模型
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+}
+@{
+    List<CommonService.Model.C_Parameters> Contactspolitical = ViewBag.Contacts_political;
+}
+<div class="tools">
+    <ul class="toolbar" style="margin-bottom:8px">
+        @if (UIContext.Current.IsPreSetManager)
+        {
+            <li><a target="popdialog" title="法官信息" dialogwidth="860" dialogheight="550" href="/BaseData/Judge/create"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+            <li><a target="popdialog" title="法官信息" dialogwidth="860" dialogheight="550" edit="edit" href="/basedata/Judge/edit?C_Contacts_code={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+            <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/Judge/delete?C_Contacts_code={sid_Iterm}&relationCode=@ConConditon.C_Contacts_relationCode&contactType=4"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+            <li><a target="popdialog" title="法官附件" dialogwidth="1010" dialogheight="550" edit="edit" href="/attachmentupload/attachment_defaultlayout?relationCode={sid_Iterm}&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.法官)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.法官)"><span><img src="/theme/images/new_document.png" /></span>附件</a></li>
+            <li><a target="popdialog" title="法官详细" dialogwidth="1100" dialogheight="550" edit="edit" href="/basedata/Contacts/TabDetails?C_Contacts_code={sid_Iterm}&type=1"><span><img src="/theme/images/new_view.png" /></span>详细</a></li>
+            <li><a target="popdialog" title="选择联系人" dialogwidth="1010" dialogheight="550" href="/basedata/contacts/SingleRefList?relationCode={sid_Iterm}&contactType=4"><span></span>选择联系人</a></li>
+            <li><a target="popdialog" title="教育程度" dialogwidth="1010" dialogheight="550" edit="edit" href="/BaseData/Contacts_education/list?C_Contacts_code={sid_Iterm}"><span></span>教育程度</a></li>
+            <li><a target="popdialog" title="工作经历" dialogwidth="1010" dialogheight="550" edit="edit" href="/basedata/Contacts_experience/list?C_Contacts_code={sid_Iterm}"><span></span>工作经历</a></li>
+            <li><a target="popdialog" title="财产状况" dialogwidth="1050" dialogheight="550" edit="edit" href="/basedata/Property_trail/TabDetails?crival_code={sid_Iterm}&property_trail_type=86"><span></span>财产状况</a></li>
+            <li><a target="_self" title="导出" dialogwidth="1400" dialogheight="830" href="#" onclick="osb('/baseData/Judge/Export')"><span><img src="/theme/images/new_export.png" /></span>导出</a></li>
+        }
+        else
+        {
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 36).Count() != 0)
+            {
+                <li><a target="popdialog" title="法官信息" dialogwidth="860" dialogheight="550" href="/BaseData/Judge/create"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 37).Count() != 0)
+            {
+                <li><a target="popdialog" title="法官信息" dialogwidth="860" dialogheight="550" edit="edit" href="/basedata/Judge/edit?C_Contacts_code={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 38).Count() != 0)
+            {
+                <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/Judge/delete?C_Contacts_code={sid_Iterm}&relationCode=@ConConditon.C_Contacts_relationCode&contactType=4"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 40).Count() != 0)
+            {
+                <li><a target="popdialog" title="法官附件" dialogwidth="1010" dialogheight="550" edit="edit" href="/attachmentupload/attachment_defaultlayout?relationCode={sid_Iterm}&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.法官)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.法官)"><span><img src="/theme/images/new_document.png" /></span>附件</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 39).Count() != 0)
+            {
+                <li><a target="popdialog" title="法官详细" dialogwidth="1100" dialogheight="550" edit="edit" href="/basedata/Contacts/TabDetails?C_Contacts_code={sid_Iterm}&type=1"><span><img src="/theme/images/new_view.png" /></span>详细</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 41).Count() != 0)
+            {
+                <li><a target="popdialog" title="选择联系人" dialogwidth="1010" dialogheight="550" href="/basedata/contacts/SingleRefList?relationCode={sid_Iterm}&contactType=4"><span></span>选择联系人</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 42).Count() != 0)
+            {
+                <li><a target="popdialog" title="教育程度" dialogwidth="1010" dialogheight="550" edit="edit" href="/BaseData/Contacts_education/list?C_Contacts_code={sid_Iterm}"><span></span>教育程度</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 43).Count() != 0)
+            {
+                <li><a target="popdialog" title="工作经历" dialogwidth="1010" dialogheight="550" edit="edit" href="/basedata/Contacts_experience/list?C_Contacts_code={sid_Iterm}"><span></span>工作经历</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 44).Count() != 0)
+            {
+                <li><a target="popdialog" title="财产状况" dialogwidth="1050" dialogheight="550" edit="edit" href="/basedata/Property_trail/TabDetails?crival_code={sid_Iterm}&property_trail_type=86"><span></span>财产状况</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 1132).Count() != 0)
+            {
+                <li><a target="_self" title="导出" dialogwidth="1400" dialogheight="830" href="#" onclick="osb('/baseData/Judge/Export')"><span><img src="/theme/images/new_export.png" /></span>导出</a></li>
+            }
+
+        }
+    </ul>
+
+    @using (Html.BeginForm("List", "Judge", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+    {
+        <ul class="seachform">
+            <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+            <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+            <li><label>联系电话</label>@Html.TextBox("C_Contacts_contact_number", ConConditon.C_Contacts_contact_number, new { @class = "scinput" })</li>
+            <li><label>法官姓名</label>@Html.TextBox("C_Contacts_name", ConConditon.C_Contacts_name, new { @class = "scinput" })</li>
+            <li><label>&nbsp;</label><input type="submit" class="scbtn" onclick="osb('/BaseData/Judge/list')" style="color:blue;" value="查询" /></li>
+        </ul>
+    }
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            @*<th>法官编码</th>*@
+            <th width="15%">姓名</th>
+            <th width="7%">性别</th>
+            <th width="8%">政治面貌</th>
+            
+            <th width="10%">联系电话</th>
+            <th width="10%">性格特征</th>
+            <th width="15%">兴趣爱好</th>
+            <th width="*%">住址</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Contacts_code" relname="@item.C_Contacts_name">
+                @*<td>@item.C_Contacts_number</td>*@
+                <td>@item.C_Contacts_name</td>
+                <td>@(item.C_Contacts_sex == 1 ? "男" : "女")</td>
+                @{
+            var political = Contactspolitical.Where(p => p.C_Parameters_id == item.C_Contacts_political).FirstOrDefault();
+                }
+                @if (political != null)
+                {
+                    <td>@political.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+         
+                <td>@item.C_Contacts_contact_number</td>
+                <td>@item.C_Contacts_character</td>
+                <td>@item.C_Contacts_hobby</td>
+                <td>@item.C_Contacts_address</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    function osb(val) {
+        document.getElementById("@ViewBag.SearchFormID").action = val;
+        document.getElementById("@ViewBag.SearchFormID").submit();
+    }
+</script>

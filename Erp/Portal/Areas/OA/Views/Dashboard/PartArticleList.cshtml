@@ -1,0 +1,69 @@
+﻿@{
+    Layout = null;
+}
+@{
+    List<CommonService.Model.OA.O_Article> lists = ViewBag.articles;
+}
+<div class="col-md-6 col-sm-6">
+    <div class="portlet light ">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="icon-share font-blue-steel"></i>
+                <span class="caption-subject font-blue-steel bold uppercase">通知公告</span>
+            </div>
+            <div class="actions">
+                    @*<div class="btn-group">
+                        <a class="btn btn-sm btn-default btn-circle" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            Filter By <i class="fa fa-angle-down"></i>
+                        </a>
+                        <div class="dropdown-menu hold-on-click dropdown-checkboxes pull-right">
+                            <label><input type="checkbox" /> Finance</label>
+                            <label><input type="checkbox" checked="" /> Membership</label>
+                            <label><input type="checkbox" /> Customer Support</label>
+                            <label><input type="checkbox" checked="" /> HR</label>
+                            <label><input type="checkbox" /> System</label>
+                        </div>
+                    </div>*@
+                <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="全屏">
+                </a>
+                </div>
+        </div>
+        <div class="portlet-body">
+            <div class="scroller" style="height: 300px;" data-always-visible="1" data-rail-visible="0">
+                <ul class="feeds">
+                    @foreach (var item in lists)
+                    {
+                        <li>
+                            <div class="col1">
+                                <div class="cont">
+                                    @*<div class="cont-col1">
+                                            <div class="label label-sm label-info">
+                                                <i class="fa fa-check"></i>
+                                            </div>
+                                        </div>*@
+                                    <div class="cont-col1">
+                                        <div class="desc">
+                                            <a href="/oa/myarticle/Details?articleCode=@item.O_Article_code&type=2" style="color:#5b9bd1" class="ajaxify">@item.O_Article_title</a> 
+                                            @*<span class="label label-sm label-warning "> </span>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col2">
+                                <div class="date">
+                                    @item.O_Article_createTime.Value.ToString("yyyy/MM/dd")
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="scroller-footer">
+                <div class="btn-arrow-link pull-right">
+                    <a href="/oa/myarticle/list" class="ajaxify">查看更多</a>
+                    <i class="icon-arrow-right"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

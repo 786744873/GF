@@ -1,0 +1,106 @@
+﻿@using CommonService.Model.CaseManager;
+@using Context;
+@model IEnumerable<CommonService.Model.CaseManager.B_CaseMaintain>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "案件维护";
+}
+@{
+    B_Case caseConditon = ViewBag.CaseConditon;//案件条件模型
+    string fcasename = ViewBag.casename;
+   
+
+}
+@{
+
+    List<CommonService.Model.SysManager.C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+}
+@section HeadScript{
+    <script type="text/javascript">
+        $(function () {
+            $("a[target=popdialog_owndefine]").each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    //替换url参数
+                    var switchUrl = $this.attr("href");
+                    _openDialog($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"));
+                });
+            });
+        })
+
+
+        function openCaseExecuteView(buttonPower, title, dialogwidth, dialogheight, switchUrl, isPreSetManager, roleButtonIds) {//双击打开详细页面
+            var isAllowOpen = false;//是否允许打开
+            if (isPreSetManager == '1') {
+                isAllowOpen = true;
+            } else {
+                if (roleButtonIds.indexOf(buttonPower) >= 0) {
+                    isAllowOpen = true;
+                }
+            }
+            if (isAllowOpen) {
+                _openDialog(title, switchUrl, dialogwidth, dialogheight);
+            }
+        }
+    </script>}
+@section HeadCss{
+    <style type="text/css">
+        .aaa:link {
+            color: blue;
+        }
+
+        .aaa:hover {
+            color: #74c6b9;
+        }
+
+        .aaa:visited {
+            color: blue;
+        }
+    </style>
+}
+
+<!DOCTYPE html>
+@*<div class="tools">
+        <ul><li><label>@ViewBag.casename</label></li></ul>
+        <ul class="toolbar">
+
+
+
+                <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+                <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+
+        </ul>
+
+    </div>*@
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>沟通时间</th>
+            <th>案件维护人</th>
+            <th>沟通对象</th>
+            <th>沟通阶段</th>
+            <th>沟通任务</th>
+            <th>沟通纪要</th>
+            <th>沟通意见</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.B_CaseMaintain_id" relname="@item.B_CaseMaintain_Name">
+                <td><a class="aaa" title="案件执行">@(item.B_CaseCost_createTime == null ? DateTime.Now.ToString() : item.B_CaseCost_createTime.Value.ToString("yyyy-MM-dd"))</a></td>
+                <td>@item.B_CaseCost_creatorName</td>
+                <td>@item.B_CaseMaintain_Name</td>
+                <td>@item.B_Flow_name</td>
+                <td>@item.F_Form_name</td>
+                <td>@item.B_CaseMaintain_Content</td>
+                <td>@item.B_CaseMaintain_Suggest</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

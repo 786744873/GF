@@ -1,0 +1,41 @@
+﻿@model CommonService.Model.SysManager.C_Menu_buttons
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "菜单按钮";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "Menu_buttons", FormMethod.Post, new { id = "formMenu_buttons", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_Menu_buttons_id", Model.C_Menu_buttons_id)
+            @Html.Hidden("C_Menu_id", Model.C_Menu_id)
+            @Html.Hidden("C_Menu_buttons_order", Model.C_Menu_buttons_order)
+            @Html.Hidden("C_Menu_buttons_isdelete", Model.C_Menu_buttons_isdelete)
+            @Html.Hidden("C_Menu_buttons_creator", Model.C_Menu_buttons_creator)
+            @Html.Hidden("C_Menu_buttons_createTime", Model.C_Menu_buttons_createTime)
+
+            <li><label>按钮名称</label>@Html.TextBox("C_Menu_buttons_name", Model.C_Menu_buttons_name, new { @class = "dfinput", requiredInput = "请输入按钮名称", maxlength = "200" })<i></i></li>
+            <li><label>按钮Url</label>@Html.TextBox("C_Menu_Buttons_url", Model.C_Menu_Buttons_url, new { @class = "dfinput",  maxlength = "500" })<i></i></li>
+          <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></li>
+        }
+    </ul>
+</div>

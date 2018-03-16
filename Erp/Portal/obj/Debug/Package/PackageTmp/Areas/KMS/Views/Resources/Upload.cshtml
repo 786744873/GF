@@ -1,0 +1,552 @@
+﻿@model CommonService.Model.KMS.K_Resources
+@{
+    Layout = "~/Views/Shared/_KMSLayout.cshtml";//KMS母版页
+}
+@{
+    List<CommonService.Model.KMS.K_Knowledge> knowledgeList = ViewBag.KnowlwedgeList;
+    List<CommonService.Model.KMS.K_Resources_Cover> coverList = ViewBag.listCover;
+    List<CommonService.Model.FlowManager.P_Flow> flowList = ViewBag.flowItems;
+    List<CommonService.Model.C_Court> courtList = ViewBag.courtItems;
+    List<CommonService.Model.FlowManager.P_Flow_form> formList = ViewBag.formItem;
+    CommonService.Model.KMS.K_PorblemAndResources_LinkCase linkModel = ViewBag.linkModel;
+    List<CommonService.Model.C_Region> regionList = ViewBag.regionList;
+    string flow = "";
+    if (linkModel != null)
+    {
+        flow = linkModel.K_ProblemAndResources_LinkCase_BusinessFlowcode.ToString();
+    }
+    int? type = ViewBag.type;
+    bool display = true;
+    if (Model.K_Resources_id > 0)
+    {
+        display = false;
+    }
+    string caseArea = "";
+    if (ViewBag.caseArea != null)
+    {
+        caseArea = ViewBag.caseArea;
+    }
+}
+<div class="modal-header">
+    @*<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>*@
+    <h4 class="modal-title">我要分享 • 上传文档</h4>
+</div>
+<div class="modal-body">
+    <!--表单中使用 jquery form 插件，实现表单数据与附件同步提交(这中情况只需在<form>中加入submitplug="formplug"标记)-->
+    @using (Html.BeginForm("Save", "Resources", FormMethod.Post, new { id = "formDocument", @class = "form-horizontal", role = "form", enctype = "multipart/form-data", submitplug = "formplug", baseLargeModal = "baseModal" }))
+    {
+        <div class="form-body">
+            <div class="alert alert-danger display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+            </div>
+            <div class="alert alert-success display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据验证通过，数据处理中..."></span>
+            </div>
+            @Html.Hidden("K_Resources_id", Model.K_Resources_id)
+            @Html.Hidden("K_Resources_code", Model.K_Resources_code)
+            @Html.Hidden("K_Resources_type", Model.K_Resources_type)
+            @Html.Hidden("K_Resources_state", Model.K_Resources_state)
+            @Html.Hidden("K_Resources_creator", Model.K_Resources_creator)
+            @Html.Hidden("K_Resources_createTime", Model.K_Resources_createTime)
+            @Html.Hidden("K_Resources_isDelete", Model.K_Resources_isDelete)
+            @Html.Hidden("K_Resources_browseCount", Model.K_Resources_browseCount)
+            @Html.Hidden("K_Resources_collectionCount", Model.K_Resources_collectionCount)
+            @Html.Hidden("K_Resources_zambiaCount", Model.K_Resources_zambiaCount)
+            @Html.Hidden("K_Resources_nouserCount", Model.K_Resources_nouserCount)
+            @Html.Hidden("K_Resources_downloadCount", Model.K_Resources_downloadCount)
+            @Html.Hidden("K_Resources_url", Model.K_Resources_url)
+            @Html.Hidden("K_Resources_Extension", Model.K_Resources_Extension)
+            @Html.Hidden("reflash")
+            @Html.Hidden("K_ProblemAndResources_LinkCase_Courtcode")
+            @Html.Hidden("problemType")
+            <div class="row">
+                <div class="col-md-6">
+                    @{
+        IList<SelectListItem> Items = new List<SelectListItem>();
+        foreach (var item in knowledgeList)
+        {
+            SelectListItem selectItem = new SelectListItem();
+            selectItem.Value = item.K_Knowledge_code.ToString();
+            selectItem.Text = item.K_Knowledge_name;
+            if (Model.K_Resources_Knowledge_code != null && Model.K_Resources_Knowledge_code != "")
+            {
+                if (Model.K_Resources_Knowledge_code == item.K_Knowledge_code.ToString())
+                {
+                    selectItem.Selected = true;
+                }
+            }
+            Items.Add(selectItem);
+        }
+        IList<SelectListItem> BusinessFlowtItems = new List<SelectListItem>();
+        if (flowList != null)
+        {
+            foreach (var businessFlow in flowList)
+            {
+                SelectListItem item = new SelectListItem();
+                item.Value = businessFlow.P_Flow_code.ToString();
+                item.Text = businessFlow.P_Flow_name;
+                if (linkModel != null && linkModel.K_ProblemAndResources_LinkCase_BusinessFlowcode.ToString() != "")
+                {
+                    if (linkModel.K_ProblemAndResources_LinkCase_BusinessFlowcode.ToString() == businessFlow.P_Flow_code.ToString())
+                    {
+                        item.Selected = true;
+                    }
+                }
+                BusinessFlowtItems.Add(item);
+            }
+        }
+        IList<SelectListItem> FormItems = new List<SelectListItem>();
+        if (formList != null)
+        {
+            foreach (var form in formList)
+            {
+                SelectListItem item = new SelectListItem();
+                item.Value = form.F_Form_code.ToString();
+                item.Text = form.F_Form_chineseName;
+                if (linkModel != null && linkModel.K_ProblemAndResources_LinkCase_Formcode.ToString() != "")
+                {
+                    if (linkModel.K_ProblemAndResources_LinkCase_Formcode.ToString() == form.F_Form_code.ToString())
+                    {
+                        item.Selected = true;
+                    }
+                }
+                FormItems.Add(item);
+            }
+        }
+        IList<SelectListItem> RegionItems = new List<SelectListItem>();
+        SelectListItem defaultItem = new SelectListItem();
+        defaultItem.Value = null;
+        defaultItem.Text = "全部";
+        RegionItems.Add(defaultItem);
+        if (regionList != null)
+        {
+            foreach (var region in regionList)
+            {
+                SelectListItem item = new SelectListItem();
+                item.Value = region.C_Region_code.ToString();
+                item.Text = region.C_Region_name;
+                if (caseArea == region.C_Region_code.ToString())
+                {
+                    item.Selected = true;
+                }
+                RegionItems.Add(item);
+            }
+        }
+                    }
+                    @if (display)
+                    {
+                        <div class="form-group">
+                            <label class="control-label col-md-3">文件：</label>
+                            <div class="col-md-9">
+                                <div class="fileinput fileinput-new" data-provides="fileinput">
+                                    <div class="input-group input-large">
+                                        <div class="form-control uneditable-input input-fixed input-medium" data-trigger="fileinput">
+                                            <i class="fa fa-file fileinput-exists"></i>&nbsp; <span class="fileinput-filename">
+                                            </span>
+                                        </div>
+                                        <span class="input-group-addon btn default btn-file">
+                                            <span class="fileinput-new">
+                                                选择文件
+                                            </span>
+                                            <span class="fileinput-exists">
+                                                更改
+                                            </span>
+                                            <i class="fa"></i>
+                                            <input type="file" name="resourcesFile" onchange="fileResourcesChange(this,1)" validatetype="{required:true}" validatemessage="{required:'文件不能为空'}">
+                                        </span>
+                                        <a href="javascript:;" class="input-group-addon btn red fileinput-exists" data-dismiss="fileinput">
+                                            取消
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (Model.K_Resources_id > 0)
+                    {
+                        <div class="form-group">
+                            <label class="control-label col-md-3"><span class="required">*</span> 名称：</label>
+                            <div class="col-md-9">
+                                <div class="input-icon right">
+                                    <i class="fa"></i>
+                                    @Html.TextBox("K_Resources_name", Model.K_Resources_name, new
+                                   {
+                                       @class = "form-control",
+                                       placeholder = "资源名称",
+                                       maxlength = "200",
+                                       validateType = "{required:true}",
+                                       validateMessage = "{required:'资源名称不能为空'}"
+                                   })
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="form-group">
+                        <label class="control-label col-md-3"><span class="required">*</span> 作者： </label>
+                        <div class="col-md-9">
+                            <div class="input-icon right">
+                                <i class="fa"></i>
+                                @Html.TextBox("K_Resources_author", Model.K_Resources_author, new { @class = "form-control", placeholder = "作者", maxlength = "200", validateType = "{required:true}", validateMessage = "{required:'作者不能为空'}" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3"><span class="required">*</span> 分类：</label>
+                        <div class="col-md-9">
+                            @Html.DropDownList("K_Resources_Knowledge", Items, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="form-group  hidden" id="court">
+                        <label class="control-label col-md-3"><span class="required">*</span>法院： </label>
+                        <div class="col-md-3">
+                            @Html.DropDownList("caseArea", RegionItems, new { @class = "form-control" })
+                        </div>
+                        <div class="col-md-6">
+                            <select id="select_receivers" name="select_receivers" data-live-search="true" class="form-control bs-select" multiple>
+                                @Html.Raw(ViewBag.userhtml);
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group  hidden" id="businessflow">
+                        <label class="control-label col-md-3"><span class="required">*</span>业务流程： </label>
+                        <div class="col-md-9">
+                            @Html.DropDownList("K_ProblemAndResources_LinkCase_BusinessFlowcode", BusinessFlowtItems, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="form-group hidden" id="flowform">
+                        <label class="control-label col-md-3"><span class="required">*</span>任务名称： </label>
+                        <div class="col-md-9">
+                            @Html.DropDownList("K_ProblemAndResources_LinkCase_Formcode", FormItems, new { @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-3"><span class="required">*</span> 简介： </label>
+                        <div class="col-md-9">
+                            <div class="input-icon right">
+                                <i class="fa"></i>
+                                @Html.TextArea("K_Resources_description", Model.K_Resources_description, new
+                                {
+                                    @class = "form-control",
+                                    rows = "3",
+                                    placeholder = "文件描述",
+                                    maxlength = "500",
+                                    validateType = "{required:true}",
+                                    validateMessage = "{required:'文件描述不能为空'}"
+                                })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 skin skin-square">
+                    <div class="form-group" @display>
+                        <label class="control-label col-md-2">@*<span class="required">*</span>*@ 标签： </label>
+                        <div class="col-md-9">
+                            <div class="input-icon right">
+                                <i class="fa"></i>
+                                @Html.TextBox("K_Resources_Keyword", Model.K_Resources_Keyword, new
+                               {
+                                   @class = "form-control",
+                                   placeholder = "输入多个请用逗号隔开",
+                                   maxlength = "200"
+                               })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2"><span class="required">*</span> 封面：</label>
+                        <div class="col-md-8">
+                            <div class="fileinput fileinput-new" data-provides="fileinput">
+                                <div class="input-group input-large">
+                                    <div class="form-control uneditable-input input-fixed input-medium" data-trigger="fileinput">
+                                        <i class="fa fa-file fileinput-exists"></i>&nbsp; <span class="fileinput-filename">
+                                            @Model.K_Resources_coverImage
+                                        </span>
+                                    </div>
+                                    <span id="buttonXuan" class="input-group-addon btn blue default btn-file">
+                                        <span class="fileinput-new">
+                                            选择文件
+                                        </span>
+                                        <span class="fileinput-exists">
+                                            更改
+                                        </span>
+                                        @if (Model.K_Resources_coverImage == null)
+                                        {
+                                            <input type="file" id="cover" name="resourcesCoverImage" onchange="fileResourcesChange(this,2)" validatetype="{required:true}" validatemessage="{required:'资源封面图不能为空'}">
+                                        }
+                                        else
+                                        {
+                                            <input type="file" id="cover" name="resourcesCoverImage" onchange="fileResourcesChange(this,2)">
+                                        }
+                                    </span>
+                                    <a href="javascript:;" class="input-group-addon btn red fileinput-exists" data-dismiss="fileinput">
+                                        取消
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn default green-stripe" onclick="GetCover(1)" id="selectCover">选择默认</button>
+                        </div>
+                    </div>
+                    <div class="form-group row" style="display: none;" id="coverImg">
+                        <label class="control-label col-md-2">@*默认封面*@</label>
+                        @if (coverList.Count > 0)
+                        {
+                            <div class="col-md-10 row">
+                                @{int num = 1;}
+                                @foreach (var cover in coverList)
+                                {
+                                    <div class="col-md-4 margin-top-10 text-center">
+                                        <img src="@cover.K_Resources_cover_url" style="width: 106px; height: 80px; cursor: pointer; " onclick="checknext($(this))" />
+                                        <label class="margin-top-10">
+                                            @if (Model.K_Resources_coverImage == null && num == 1)
+                                            {
+                                                @Html.RadioButtonFor(m => m.K_Resources_coverImage, cover.K_Resources_cover_url, new { @class = "icheck", @checked = "checked" })<span style="cursor: pointer;">默认 @num</span>
+                                            }
+                                            else
+                                            {
+                                                @Html.RadioButtonFor(m => m.K_Resources_coverImage, cover.K_Resources_cover_url, new { @class = "icheck" })<span style="cursor: pointer;">默认 @num</span>
+                                            }
+                                        </label>
+                                    </div>
+                                            num++;
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="note note-success">
+    <h4 class="block">提示</h4>
+    <p>
+        为方便资源共享，请为文档输入相应的描述(文档的作用简述).
+        目前仅支持上传文档格式为office格式的word文档,excel表格,ppt演示,pdf阅读文件,jpg图片.请不要上传含有密码以及安全隐患的文件!
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-md-11 modal-footer">
+        <button type="button" class="btn blue" onclick="saveResources('formDocument')" id="saveBtn">保存</button>
+        @if (Model.K_Resources_id > 0)
+        {
+            string href = "";
+            if (type == 1)
+            {
+                href = "/kms/resources/List";
+            }
+            else if (type == 2)
+            {
+                href = "/kms/resources/MyShare?type=1";
+            }
+            else if (type == 3)
+            {
+                href = "/kms/resources/MyShare?type=3";
+            }
+
+            <a class="btn" href="@href">
+                返回
+            </a>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        function fileResourcesChange(target, type) {
+            var fileSize = 0;
+            if (!target.files) {
+                var filePath = target.value;
+                var fileSystem = new ActiveXObject("Scripting.FileSystemObject");
+                var file = fileSystem.GetFile(filePath);
+                fileSize = file.Size;
+            } else {
+                fileSize = target.files[0].size;
+                //target.value = "";
+                //return
+            }
+            var size = fileSize / 1024;
+            if (size > 20000) {
+                bootbox.alert("文件不能大于20M");
+                target.value = "";
+                return
+            }
+            var name = target.value;
+            var fileName = name.substring(name.lastIndexOf(".") + 1).toLowerCase();
+            if (type == 1) {
+                if (fileName != "jpg" && fileName != "png" && fileName != "gif" && fileName != "xls" && fileName != "xlsx" && fileName != "pdf" && fileName != "ppt" && fileName != "pptx" && fileName != "pps" && fileName != "ppsx" && fileName != "docx" && fileName != "doc") {
+                    bootbox.alert("请选择文件格式为(jpg,png,gif,xls,xlsx,pdf,ppt,pptx,pps,ppsx,docx,doc)的文件上传！");
+                    target.value = "";
+                    return
+                }
+            } else {
+                if (fileName != "jpg" && fileName != "png" && fileName != "gif") {
+                    bootbox.alert("请选择图片格式文件上传(jpg,png,gif)！");
+                    target.value = "";
+                    return
+                }
+            }
+        }
+        FormValidation.init('formDocument', formNavAjaxDone);//用表单Id和表单回调函数，初始化表单
+
+        function saveResources(formId) {
+            var receiverGuids = $selectReceivers.select2("val");//收件人选中值
+            $('#' + formId).find("input[type=hidden][name='K_ProblemAndResources_LinkCase_Courtcode']").val(receiverGuids);//重新赋值收件人Guid
+            var problemtype = $("#problemType").val();
+            if (problemtype == '1') {
+                if (receiverGuids == '' || receiverGuids == null) {
+                    bootbox.alert('请选择法院!');
+                    return;
+                }
+            }
+            saveForm(formId);
+        }
+        function GetCover(type) {
+            if (type == 1) {
+                var num = '@coverList.Count.ToString()';
+                if (num > 0) {
+                    $('#coverImg').attr("style", "display: block;");
+                    $('#selectCover').attr("onclick", "GetCover(0)");
+                    $('#cover').attr("disabled", "disabled");
+                    $('#cover').attr("validatetype", "{required:false}");
+                    $('#cover').attr("validatemessage", "");
+                    $('#buttonXuan').removeClass("blue");
+                    document.getElementById("selectCover").innerHTML = "取消选择";
+                } else {
+                    bootbox.alert('暂无默认封面，请上传封面!');
+                }
+            } else {
+                $('#coverImg').attr("style", "display: none;");
+                $('#selectCover').attr("onclick", "GetCover(1)");
+                document.getElementById("cover").disabled = "";
+                $('#cover').attr("validatetype", "{required:true}");
+                $('#cover').attr("validatemessage", "{required:'资源封面图不能为空'}");
+                $('#buttonXuan').addClass("blue");
+                document.getElementById("selectCover").innerHTML = "选择默认";
+            }
+        }
+        //$(function () {
+        //    var intHot = $("input[name='radio2']:checked").val();
+        //    alert(intHot);
+        //    $("input[name='radio2']").click(function () {
+        //        alert("123");
+        //    });
+        //});
+        //$(function () {
+
+        //    $('#coverImg input').click(function () {
+
+        //        alert("adasd");
+        //    });
+        //});
+        function checknext(obj) {
+            $(obj).next().click();
+        }
+        //初始化select2控件
+        var $selectReceivers = $('#select_receivers').select2({
+            placeholder: "搜索法院",
+            allowClear: true,
+            formatNoMatches: "没有匹配的法院"
+        });
+        $("#K_ProblemAndResources_LinkCase_BusinessFlowcode").change(function () {
+            var flowCode = $('#K_ProblemAndResources_LinkCase_BusinessFlowcode').val();
+            if (flowCode != null) {
+                $.ajax({
+                    type: 'post',
+                    url: '/kms/problem/GetFormList?businessFlow=' + flowCode + '',
+                    data: null,
+                    dataType: "json",
+                    cache: true,
+                    success: function (data) {
+                        $('#K_ProblemAndResources_LinkCase_Formcode').html('');
+                        var htmls = '';
+                        for (var i = 0; i < data.length; i++) {
+                            htmls += "<option value='" + data[i].F_Form_code + "'>" + data[i].F_Form_chineseName + "</option>";
+                        }
+                        $('#K_ProblemAndResources_LinkCase_Formcode').append(htmls);
+                    },
+                    error: function () {
+                        alert("网络错误，请稍后再试！");
+                    }
+                });
+            }
+        });
+        $('#K_Resources_Knowledge').change(function () {
+            var Knowledge_name = $('#K_Resources_Knowledge').find("option:selected").text();
+            if (Knowledge_name == "办案知识管理" || Knowledge_name == "典型案例") {
+                if ($('#court').hasClass('hidden')) {
+                    $('#court').removeClass('hidden');
+                }
+                if ($('#flowform').hasClass('hidden')) {
+                    $('#flowform').removeClass('hidden');
+                }
+                if ($('#businessflow').hasClass('hidden')) {
+                    $('#businessflow').removeClass('hidden');
+                }
+
+                $("#problemType").val('1');
+            }
+            else {
+                if (!$('#court').hasClass('hidden')) {
+                    $('#court').addClass('hidden');
+                }
+                if (!$('#flowform').hasClass('hidden')) {
+                    $('#flowform').addClass('hidden');
+                }
+                if (!$('#businessflow').hasClass('hidden')) {
+                    $('#businessflow').addClass('hidden');
+                }
+                $("#problemType").val('0');
+            }
+        });
+        $(function () {
+            var flow = '@flow';
+            if (flow != "" && flow != null) {
+                $('#problemType').val('1');
+                $('#court').removeClass('hidden');
+                $('#businessflow').removeClass('hidden');
+                $('#flowform').removeClass('hidden');
+                $("#K_Resources_Knowledge option").each(function () {
+                    if ($(this).text() == "办案知识管理" || $(this).text() == "典型案例") {
+                        $(this).attr("selected", "selected");
+                    }
+                })
+            }
+        })
+        $("#caseArea").change(function () {
+            var areaCode = $('#caseArea').val();
+            $("li").remove(".select2-search-choice");
+            if (areaCode != null) {
+                $.ajax({
+                    type: 'post',
+                    url: '/basedata/court/GetRegionList?region=' + areaCode + '',
+                    data: null,
+                    dataType: "json",
+                    cache: true,
+                    success: function (data) {
+                        $('#select_receivers').html('');
+                        var htmls = '';
+                        htmls += "<option value='all'>全部</option>";
+                        for (var i = 0; i < data.length; i++) {
+                            htmls += "<option value='" + data[i].C_Court_code + "'>" + data[i].C_Court_name + "</option>";
+                        }
+                        $('#select_receivers').append(htmls);
+                    },
+                    error: function () {
+                        alert("网络错误，请稍后再试！");
+                    }
+                });
+            }
+        });
+
+    </script>
+}
+
+
+
+

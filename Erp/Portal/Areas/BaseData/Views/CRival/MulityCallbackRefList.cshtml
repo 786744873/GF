@@ -1,0 +1,166 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_CRival>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithCallbackTemplate.cshtml";//包含回调方法的列表页面固定模板
+}
+@{
+    ViewBag.Title = "公司信息";
+}
+
+@{
+    C_CRival crConditon = ViewBag.CrConditon;//法律对手条件模型
+}
+@{
+    List<CommonService.Model.C_Parameters> CRivalftype = ViewBag.CRival_ftype;
+    List<CommonService.Model.C_Parameters> CRivalcorgan = ViewBag.CRival_corgan;
+    List<CommonService.Model.C_Parameters> CRivalsmodel = ViewBag.CRival_smodel;
+    string type1 = ViewBag.Type;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        $(function () {
+            $("#allChecked").click(function () {
+                if (this.checked) {
+                    $(".tablelist :checkbox").prop("checked", true);
+                } else {
+                    $(".tablelist :checkbox").prop("checked", false);
+                }
+            });
+            $("table.tablelist tr").slice(1).each(function () {//slice(1)表示排除第一行
+                var p = this;
+                $(this).children().slice(1).click(function () {
+                    $($(p).children()[0]).children().each(function () {//$(p).children()[0]表示第一列
+                        if (this.type == "checkbox") {
+                            if (!this.checked) this.checked = true;
+                            else this.checked = false;
+                        }
+                    });
+                });
+            });
+        })
+    </script>
+}
+<div class="callback_list_tool">
+    <div class="tools">
+        <ul class="toolbar">
+            <li><a target="ajaxtodo" mulityoperate="mulityoperate" href="javascript:window.parent.parent.mulityBringBack({callbackjson})"><span><img src="/theme/images/new_ok.png" /></span>确定</a></li>
+        </ul>
+        <ul class="seachform">
+            @using (Html.BeginForm("MulityCallbackRefList", "crival", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+            {
+                @Html.Hidden("type",type1)
+                <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+                <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+                <li><label>企业名称</label>@Html.TextBox("C_CRival_name", crConditon.C_CRival_name, new { @class = "scinput" })</li>
+                <li><label>&nbsp;</label><input type="submit" class="scbtn" value="查询" /></li>
+            }
+        </ul>
+    </div>
+</div>
+<table class="tablelist">
+    <thead>
+
+        @{
+            string callbackStr2 = "";
+    switch (type1)
+    {
+          
+        case "1":         
+            callbackStr2 = "{'mulitylookupgroup':'rivallookupParty','Code':'','Name':'','Type':'2'}";
+            break;
+        case "2":
+            callbackStr2 = "{'mulitylookupgroup':'rivallookupParty','Code':'','Name':'','Type':'4'}";
+            break;
+        case "3":
+            callbackStr2 = "{'mulitylookupgroup':'rivallookupParty','Code':'','Name':'','Type':'9'}";
+            break;
+        default:
+            callbackStr2 = "{'mulitylookupgroup':'rivallookupParty','Code':'','Name':'','Type':'0'}";
+            break;
+    }
+}
+        <tr callbackjson="@callbackStr2">
+            <th><input id="allChecked" type="checkbox" mulitycheck="mulitycheck" value=""></th>
+            <th>企业名称</th>
+            <th>工商注册地</th>
+            <th>实际经营地</th>
+            <th>企业类型</th>
+            <th>成立时间</th>
+            @*<th>注册资本</th>
+            <th>资本结构</th>
+            <th>资质情况</th>
+            <th>经营模式</th>
+            <th>主营项目</th>
+            <th>联系电话</th>*@
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string callbackStr = "";
+            switch (type1)
+            {
+                case "1":
+                    callbackStr = "{'mulitylookupgroup':'rivallookupParty','Code':'" + @item.C_CRival_code + "','Name':'" + @item.C_CRival_name.Trim() + "','Type':'2'}";
+                    break;
+                case "2":
+                    callbackStr = "{'mulitylookupgroup':'rivallookupBeexecuted','Code':'" + @item.C_CRival_code + "','Name':'" + @item.C_CRival_name.Trim() + "','Type':'4'}";
+                    break;
+                case "3":
+                    callbackStr = "{'mulitylookupgroup':'rivallookupdefendant','Code':'" + @item.C_CRival_code + "','Name':'" + @item.C_CRival_name.Trim() + "','Type':'9'}";
+                    break;
+                default:
+                    callbackStr = "{'mulitylookupgroup':'rivallookup','Code':'" + @item.C_CRival_code + "','Name':'" + @item.C_CRival_name.Trim() + "','Type':'0'}";
+                    break;
+            }
+            <tr target="sid_Iterm" rel="@item.C_CRival_code" callbackjson=@callbackStr>
+                @if (ViewBag.checkedRivalCode != null && ViewBag.checkedRivalCode.Contains(item.C_CRival_code.ToString()))
+                {
+                    <td style="width:35px;"><input operate="operate" type="checkbox" checked="checked" value=""></td>
+                }
+                else
+                {
+                    <td style="width:35px;"><input operate="operate" type="checkbox" value=""></td>
+                }
+                <td title="@item.C_CRival_name" >@Maticsoft.Common.Cutout.Cut(item.C_CRival_name, 20)</td>
+                <td title="@item.C_CRival_iland">@Maticsoft.Common.Cutout.Cut(item.C_CRival_iland,20)</td>
+                <td title="@item.C_CRival_aland">@Maticsoft.Common.Cutout.Cut(item.C_CRival_aland,20)</td>
+                @{
+                    var type = CRivalftype.Where(c => c.C_Parameters_id == item.C_CRival_ftype).FirstOrDefault();
+                }
+                @if (type != null)
+                {
+                    <td>@type.C_Parameters_name</td>
+                }else
+                {
+                    <td></td>
+                }
+                <td width="85px">@(item.C_CRival_fregtime==null ? "" : item.C_CRival_fregtime.Value.ToString("yyyy-MM-dd"))</td>
+               @*<td>@item.C_CRival_rassets</td>
+                @{
+                    var corgan = CRivalcorgan.Where(c => c.C_Parameters_id == item.C_CRival_corgan).FirstOrDefault();
+                }
+                @if (corgan != null)
+                {
+                    <td>@corgan.C_Parameters_name</td>
+                }else
+                {
+                    <td></td>
+                }
+                <td>@item.C_CRival_acase</td>
+                @{
+                    var smodel = CRivalsmodel.Where(c => c.C_Parameters_id == item.C_CRival_smodel).FirstOrDefault();
+                }
+                @if (smodel != null)
+                {
+                    <td>@smodel.C_Parameters_name</td>
+                }else
+                {
+                    <td></td>
+                }
+                <td>@item.C_CRival_mitem</td>
+                <td>@item.C_CRival_phone </td>*@
+            </tr>
+        }
+    </tbody>
+</table>

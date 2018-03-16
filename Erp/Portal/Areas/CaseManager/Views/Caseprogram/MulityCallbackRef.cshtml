@@ -1,0 +1,33 @@
+﻿@using CommonService.Model.CaseManager;
+@model IEnumerable<CommonService.Model.CaseManager.B_Case_plan_Litigation>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "诉讼请求列表";
+}
+
+@{
+    B_Case_plan_Litigation Conditon = ViewBag.Conditon;//诉讼请求条件模型
+}
+
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>诉讼请求名称</th>
+            <th>金额(元)</th>
+            <th>策略说明</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var caseLitigation in Model)
+        {
+            <tr target="sid_Iterm" rel="@caseLitigation.C_Parameterid">
+                <td>@caseLitigation.B_Case_plan_litigation_parameter_name</td>
+                <td>@caseLitigation.B_Case_plan_Litigation_Amount</td>
+                <td>@caseLitigation.B_Case_plan_Litigation_description</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,93 @@
+﻿@model CommonService.Model.MonitorManager.M_Entry
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "条目添加";
+}
+@section HeadScript
+{
+    <script type="text/javascript">
+        function changeType() {//动态扩展方法
+            var dur = document.getElementById("Duration").value;
+            if(dur=='')
+            {
+                
+            }else
+            {
+                
+            }
+        }
+
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+@{
+    List<CommonService.Model.C_Parameters> warningTypes=ViewBag.warningType;
+    List<CommonService.Model.C_Parameters> processTypes=ViewBag.processType;
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "Entry", FormMethod.Post, new { id = "formEntry", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("M_Entry_id", Model.M_Entry_id)
+            @Html.Hidden("M_Entry_code", Model.M_Entry_code)
+            @Html.Hidden("M_Entry_creator", Model.M_Entry_creator)
+            @Html.Hidden("M_Entry_createTime", Model.M_Entry_createTime)
+            @Html.Hidden("M_Entry_isDelete", Model.M_Entry_isDelete)
+            @Html.Hidden("M_Entry_parent", Model.M_Entry_parent)
+            <li><label>条目名称</label>@Html.TextBox("M_Entry_name", Model.M_Entry_name, new { @class = "dfinput", requiredInput = "请输入条目名称", maxlength = "50" })<i></i></li>
+            @*<li><label>进程类型</label>
+                @{
+                    IList<SelectListItem> processTypeItems = new List<SelectListItem>();
+                    foreach (var processType in processTypes)
+                    {
+                        SelectListItem selectItem = new SelectListItem();
+                        selectItem.Value = processType.C_Parameters_id.ToString();
+                        selectItem.Text = processType.C_Parameters_name;
+                        if (Model.M_Entry_processType!=null)
+                        {
+                            if(Model.M_Entry_processType==processType.C_Parameters_id)
+                            {
+                                selectItem.Selected = true;
+                            }
+                        }
+                        processTypeItems.Add(selectItem);
+                    }
+                }
+                @Html.DropDownList("M_Entry_processType", processTypeItems, new { @class = "dfselect", requiredInput = "请选择预警类型" })<i></i>
+            </li>*@
+            <li><label>起点时间</label>@Html.Hidden("sTimelookup.Code", Model.M_Entry_scodes, new { lookupgroup = "sTimelookup" })@Html.TextBox("sTimelookup.Name", Model.M_Entry_sname, new { maxlength = "50", @readonly = "readonly", requiredInput = "请选起点时间", selectdialog = "selectdialog", @class = "dfinputtextselect", title = "单选时间", switchurl = "/monitormanager/entry/defaultlayout?type=1", dialogwidth = "1010", dialogheight = "580", lookupgroup = "sTimelookup" })<i></i></li>
+            <li><label>结点时间</label>@Html.Hidden("eTimelookup.Code", Model.M_Entry_ecodes, new { lookupgroup = "eTimelookup" })@Html.TextBox("eTimelookup.Name", Model.M_Entry_ename, new { maxlength = "50", @readonly = "readonly", requiredInput = "请选结点时间", selectdialog = "selectdialog", @class = "dfinputtextselect", title = "单选时间", switchurl = "/monitormanager/entry/defaultlayout?type=2", dialogwidth = "1010", dialogheight = "580", lookupgroup = "eTimelookup" })<i></i></li>
+            <li><label>标准时间</label>@Html.TextBox("M_Entry_Duration", Model.M_Entry_Duration, new { id = "Duration", @class = "dfinput1", maxlength = "9", positiveInteger="请输入有效整数小时" })<span>小时</span><i></i></li>
+            <li><label>预警时间</label>
+                @{
+                    IList<SelectListItem> warningTypeItems = new List<SelectListItem>();
+                    foreach (var warningType in warningTypes)
+                    {
+                        SelectListItem selectItem = new SelectListItem();
+                        selectItem.Value = warningType.C_Parameters_id.ToString();
+                        selectItem.Text = warningType.C_Parameters_name;
+
+                        warningTypeItems.Add(selectItem);
+                    }
+                }
+                @Html.DropDownList("M_Entry_warningType", warningTypeItems, new { @class = "dfselect1", onfocus = "changeType()", requiredInput = "请选择预警类型" })
+                @Html.TextBox("M_Entry_warningDuration", Model.M_Entry_warningDuration, new { @class = "dfinput2", maxlength = "9", positiveInteger = "请输入有效整数小时" })<span>小时</span><i></i>
+            </li>
+            <li><label>选择法院</label>@Html.Hidden("courtlookup.Code",Model.M_Entry_court, new { mulitylookupgroup = "courtlookup" })@Html.TextBox("courtlookup.Name", Model.M_Entry_courtName, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择法院", requiredInput = "请选择法院", switchurl = "/basedata/court/MulityCallbackRefList?type=1", dialogwidth = "1010", dialogheight = "550", mulitylookupgroup = "courtlookup" })<i></i></li>
+            <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></li>
+        }
+    </ul>
+</div>

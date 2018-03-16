@@ -1,0 +1,12 @@
+﻿@{
+    Layout = "~/Views/Shared/_TreeTemplate.cshtml";//树形结构固定模板
+}
+@{
+    ViewBag.Title = "业务流程树";
+}
+<div class="treeinfo" frametype="iframe" target="iframe_flowForm,iframe_businessFlowForm">
+    <div class="tree">
+        @Html.Raw(ViewBag.SingleBusinessFlowTreeHtml)
+
+    </div>
+</div>

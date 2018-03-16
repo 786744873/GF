@@ -1,0 +1,61 @@
+﻿@using CommonService.Common;
+@model IEnumerable<CommonService.Model.C_Parameters>
+@{
+    CommonService.Model.CustomerForm.F_FormProperty formPropertyValue = ViewBag.FormPropertyValue;//表单属性值数据实体
+    string checkBoxId = String.Empty;
+    string checkBoxName = String.Empty;
+    string textBoxId = String.Empty;
+    string textBoxName = String.Empty;
+    string ssfyCheckboxTextClass = String.Empty;//出来"诉讼费用"属性文本框不显示
+}
+@if (String.IsNullOrEmpty(formPropertyValue.V_FormPropertyValue_Value))
+{
+    foreach (var checkboxItem in Model)
+    {
+        ssfyCheckboxTextClass = String.Empty;
+        if (checkboxItem.C_Parameters_id == Convert.ToInt32(SsQqEnum.诉讼费用))
+        {
+            ssfyCheckboxTextClass = " class=hide";
+        }
+        checkBoxId = "formproperty_" + formPropertyValue.V_FormPropertyValue_Code;
+        checkBoxName = "formproperty_" + formPropertyValue.F_FormProperty_uiType + "_" + formPropertyValue.V_FormPropertyValue_Code + "_checkbox";
+        textBoxName = "formproperty_" + formPropertyValue.F_FormProperty_uiType + "_" + formPropertyValue.V_FormPropertyValue_Code + "_checkbox_" + checkboxItem.C_Parameters_id;
+        <input type="checkbox" name="@checkBoxName" value="@checkboxItem.C_Parameters_id" ssqq="ssqq" /><span>@checkboxItem.C_Parameters_name</span><input name="@textBoxName" type="text" readonly="readonly" style="width:100px;" value="" @ssfyCheckboxTextClass /><span style="width:20px;">&nbsp;</span>
+    }
+}
+else
+{
+    //propertyValue值的格式为：700_10.20&701_201.23
+    string propertyValue = formPropertyValue.V_FormPropertyValue_Value;
+    string[] propertyValueGroup = propertyValue.Split('&');
+    bool isCheck = false;
+
+    foreach (var checkboxItem in Model)
+    {
+        ssfyCheckboxTextClass = String.Empty;
+        if (checkboxItem.C_Parameters_id == Convert.ToInt32(SsQqEnum.诉讼费用))
+        {
+            ssfyCheckboxTextClass = " class=hide";
+        }
+        isCheck = false;
+        checkBoxId = "formproperty_" + formPropertyValue.V_FormPropertyValue_Code;
+        checkBoxName = "formproperty_" + formPropertyValue.F_FormProperty_uiType + "_" + formPropertyValue.V_FormPropertyValue_Code + "_checkbox";
+        textBoxName = "formproperty_" + formPropertyValue.F_FormProperty_uiType + "_" + formPropertyValue.V_FormPropertyValue_Code + "_checkbox_" + checkboxItem.C_Parameters_id;
+        //根据属性值，处理checkbox是否选中以及对应文本框的值
+        for (int i = 0; i < propertyValueGroup.Length; i++)
+        {
+            string[] keyValue = propertyValueGroup[i].Split('_');
+            if (keyValue[0] == checkboxItem.C_Parameters_id.ToString())
+            {
+                isCheck = true;
+                <input type="checkbox" name="@checkBoxName" value="@checkboxItem.C_Parameters_id" checked="checked" ssqq="ssqq" /><span>@checkboxItem.C_Parameters_name</span><input  name="@textBoxName" type="text" style="width:100px;" value="@keyValue[1]" @ssfyCheckboxTextClass /><span style="width:20px;">&nbsp;</span>
+            }
+        }
+        if (!isCheck)
+        {
+            <input type="checkbox" name="@checkBoxName" value="@checkboxItem.C_Parameters_id" ssqq="ssqq" /><span>@checkboxItem.C_Parameters_name</span><input name="@textBoxName" type="text" readonly="readonly" style="width:100px;" value="" @ssfyCheckboxTextClass /><span style="width:20px;">&nbsp;</span>
+        } 
+    }
+}
+
+

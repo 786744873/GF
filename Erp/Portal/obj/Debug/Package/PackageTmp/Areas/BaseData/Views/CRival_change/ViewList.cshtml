@@ -1,0 +1,31 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_CRival_change>
+@{
+    Layout = "~/Views/Shared/_ListSearchTemplate.cshtml";//普通列表页面固定模板
+}
+@{
+    ViewBag.Title = "公司变更列表";
+}
+@{
+    C_CRival_change crConditon = ViewBag.CrChangeConditon;//对手公司变更条件模型
+}
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>变更事项</th>
+            <th>变更内容</th>
+            <th>变更时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_CRival_code">
+                <td>@item.C_CRival_change_matter</td>
+                <td>@item.C_CRival_change_content</td>
+                <td>@(item.C_CRival_change_date == null ? "" : item.C_CRival_change_date.Value.ToString("yyyy-MM-dd"))</td>
+            </tr>
+        }
+    </tbody>
+</table>    

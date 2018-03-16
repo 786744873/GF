@@ -1,0 +1,42 @@
+﻿@model CommonService.Model.C_Involved_project
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "涉案项目";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "Involved_project", FormMethod.Post, new { id = "formInvolved_project", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_Involved_project_id", Model.C_Involved_project_id)
+            @Html.Hidden("C_Involved_project_code", Model.C_Involved_project_code)
+            @Html.Hidden("C_Involved_project_number", Model.C_Involved_project_number)
+            @Html.Hidden("C_Involved_project_creator", Model.C_Involved_project_creator)
+            @Html.Hidden("C_Involved_project_createTime", Model.C_Involved_project_createTime)
+            @Html.Hidden("C_Involved_project_isDelete", Model.C_Involved_project_isDelete)
+            <li><label>工程名称</label>@Html.TextBox("C_Involved_project_name", Model.C_Involved_project_name, new { @class = "dfinput", requiredInput = "请输入工程名称", maxlength = "200" })<i></i></li>
+            <li><label>工程地点</label>@Html.TextBox("C_Involved_project_address", Model.C_Involved_project_address, new { @class = "dfinput", maxlength = "200" })<i></i></li>
+            <li><label>工程类别</label>@Html.TextBox("C_Involved_project_type", Model.C_Involved_project_type, new { @class = "dfinput", maxlength = "100" })<i></i></li>
+            <li><label>工程建设规模(㎡)</label>@Html.TextBox("C_Involved_project_scale", Model.C_Involved_project_scale, new { @class = "dfinput", money="请输入有效金额",maxlength = "100" })<i></i></li>
+            <li><label>工程建设投资</label>@Html.TextBox("C_Involved_project_Investment", Model.C_Involved_project_Investment, new { @class = "dfinput",  money = "请输入有效金额", maxlength = "100" })<i></i></li>
+           <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></li>
+        }
+    </ul>
+</div>
