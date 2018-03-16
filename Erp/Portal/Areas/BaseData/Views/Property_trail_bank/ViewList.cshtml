@@ -1,0 +1,46 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Property_trail_bank>
+@{
+    Layout = "~/Views/Shared/_ListSearchTemplate.cshtml";//普通列表页面固定模板
+}
+@{
+    ViewBag.Title = "财产线索银行列表";
+}
+@{
+    C_Property_trail_bank bankConditon = ViewBag.BankConditon;//财产线索银行条件模型
+}
+@{
+    List<CommonService.Model.C_Parameters> AccountType = ViewBag.AccountType;
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>银行名称</th>
+            <th>账号类型</th>
+            <th>账号</th>
+            <th>调取时间</th>
+            <th>金额</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Property_trail_bank_id">
+                <td>@item.C_Property_trail_bank_name</td>
+                @{
+                    var accounttype = AccountType.Where(a => a.C_Parameters_id == item.C_Property_trail_bank_AccountType).FirstOrDefault();
+                }
+                @if(accounttype!=null)
+                {
+                    <td>@accounttype.C_Parameters_name</td>
+                }else
+                {
+                    <td></td>
+                }
+                <td>@item.C_Property_trail_bank_accountNumber</td>
+                <td>@(item.C_Property_trail_bank_rTime == null ? "" : item.C_Property_trail_bank_rTime.Value.ToString("yyyy-MM-dd"))</td>
+                <td>@item.C_Property_trail_bank_money</td>
+            </tr>
+        }
+    </tbody>
+</table>    

@@ -1,0 +1,18 @@
+﻿@using CommonService.Model.SysManager;
+@model IEnumerable<CommonService.Model.SysManager.C_Userinfo>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "组织机构关联岗位列表";
+}
+<table class="tablelist">
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Userinfo_post">
+                <td>@item.C_Userinfo_Organization_name->@item.C_Userinfo_post_name</td>
+            </tr>
+        }
+    </tbody>
+</table>

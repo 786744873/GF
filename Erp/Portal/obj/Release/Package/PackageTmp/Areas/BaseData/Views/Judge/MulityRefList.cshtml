@@ -1,0 +1,104 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Contacts>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "法官信息";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        $(function () {
+            $("#allChecked").click(function () {
+                if (this.checked) {
+                    $(".tablelist :checkbox").prop("checked", true);
+                } else {
+                    $(".tablelist :checkbox").prop("checked", false);
+                }
+            });
+            $("table.tablelist tr").slice(1).each(function () {//slice(1)表示排除第一行
+                var p = this;
+                $(this).children().slice(1).click(function () {
+                    $($(p).children()[0]).children().each(function () {//$(p).children()[0]表示第一列
+                        if (this.type == "checkbox") {
+                            if (!this.checked) this.checked = true;
+                            else this.checked = false;
+                        }
+                    });
+                });
+            });
+        })
+    </script>
+ }
+@{
+    C_Contacts ConConditon = ViewBag.JudgeConditon;//法官条件模型
+}
+@{
+    List<CommonService.Model.C_Parameters> Contactspolitical = ViewBag.Contacts_political;
+}
+<div class="tools">
+    <ul class="toolbar">
+        <li><a target="ajaxtodo_owndefine" title="确认要添加选中数据吗?" mulityoperate="mulityoperate" href="/basedata/Judge/RelationJudge?judge_codes={sid_Iterm}&courtCode=@ViewBag.CourtCode&types=@ViewBag.Type&dutys=@ViewBag.Duty"><span><img src="/theme/images/new_ok.png" /></span>确定</a></li>
+    </ul>
+    @using (Html.BeginForm("MulityRefList", "Judge", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+    {
+        <ul class="seachform">
+            <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+            <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+            <input name="CourtCode" class="CourtCode" type="hidden" value="@ViewBag.CourtCode" />
+            <input name="Type" class="Type" type="hidden" value="@ViewBag.Type" />
+            <input name="Duty" class="Duty" type="hidden" value="@ViewBag.Duty" />
+            <li><label>法官姓名</label>@Html.TextBox("C_Contacts_name", ConConditon.C_Contacts_name, new { @class = "scinput" })</li>
+            <li><label>&nbsp;</label><input type="submit" class="scbtn" value="查询" /></li>
+        </ul>
+    }
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th><input id="allChecked" type="checkbox" mulitycheck="mulitycheck" value=""></th>
+            @*<th>法官编码</th>*@
+            <th>姓名</th>
+            <th>性别</th>
+            <th>政治面貌</th>
+            <th>住址</th>
+            <th>联系电话</th>
+            <th>性格特征</th>
+            <th>兴趣爱好</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Contacts_relationCode">
+                @if (ViewBag.JudgeCode!=null && ViewBag.JudgeCode.Contains(item.C_Contacts_relationCode.ToString()))
+                {
+                    <td><input operate="operate" type="checkbox" checked="checked" value=""></td>
+                }else
+                {
+                    <td><input operate="operate" type="checkbox" value=""></td>
+                }
+                
+                @*<td>@item.C_Contacts_number</td>*@
+                <td>@item.C_Contacts_name</td>
+                <td>@(item.C_Contacts_sex == 1 ? "男" : "女")</td>
+                @{
+                    var political = Contactspolitical.Where(p => p.C_Parameters_id == item.C_Contacts_political).FirstOrDefault();
+                }
+                @if (political != null)
+                {
+                    <td>@political.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                <td>@item.C_Contacts_address</td>
+                <td>@item.C_Contacts_contact_number</td>
+                <td>@item.C_Contacts_character</td>
+                <td>@item.C_Contacts_hobby</td>
+            </tr>
+        }
+    </tbody>
+</table>    

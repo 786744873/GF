@@ -1,0 +1,39 @@
+﻿@using CommonService.Model.SysManager;
+@model IEnumerable<CommonService.Model.SysManager.C_Role_menu>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "角色菜单列表";
+}
+
+@{
+    C_Role_menu roleConditon = ViewBag.RoleConditon;//角色条件模型
+}
+@*<div class="tools">
+    <ul class="toolbar">
+        <li><a target="popdialog" title="角色信息" dialogwidth="800" dialogheight="300" href="/sysmanager/roles/create"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+        <li><a target="popdialog" title="角色信息" dialogwidth="800" dialogheight="300" edit="edit" href="/sysmanager/roles/edit?Roles_id={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+        <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/sysmanager/roles/delete?Roles_id={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+        <li><a target="popdialog" title="关联区域信息" dialogwidth="1240" dialogheight="550" edit="edit" href="/sysmanager/Userinfo_area/list?roleId={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>关联区域</a></li>
+        <li><a target="popdialog" title="案件类型信息" dialogwidth="1240" dialogheight="550" edit="edit" href="/sysmanager/Role_case_type/list?roleId={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>案件类型</a></li>
+        <li><a target="popdialog" title="菜单按钮信息" dialogwidth="1240" dialogheight="550" edit="edit" href="/sysmanager/roles/DefaultLayout?roleId={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>关联菜单按钮</a></li>
+    </ul>
+</div>*@
+
+
+<table class="tablelist">
+    @*<thead>
+        <tr>
+            <th>角色名称</th>
+        </tr>
+    </thead>*@
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Roles_id">
+                <td>@item.C_Menu_name</td>
+            </tr>
+        }
+    </tbody>
+</table>    

@@ -1,0 +1,311 @@
+﻿@using Context;
+@{
+    Layout = "~/Views/Shared/_KMSLayout.cshtml";//KMS母版页
+}
+@{
+    List<CommonService.Model.C_Parameters> ResourcesState = ViewBag.ResourcesState;//资源状态
+    List<CommonService.Model.C_Parameters> ResourcesType = ViewBag.ResourcesType;//资源类型
+    int knowledgesCount = ViewBag.knowledgesCount;
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="tabbable tabbable-custom tabbable-noborder">
+            <input type="hidden" id="tabType" value="#tab_1" />
+            <ul class="nav nav-tabs" id="navTabs">
+                <li class="tab1">
+                    <a href="#tab_1" data-toggle="tab" aria-expanded="false">
+                        我的分享
+                    </a>
+                </li>
+                @if (knowledgesCount > 0 || UIContext.Current.IsPreSetManager)
+                {
+                    <li class="tab2">
+                        <a href="#tab_2" data-toggle="tab" aria-expanded="false">
+                            知识审核
+                        </a>
+                    </li>
+                }
+                @if (knowledgesCount > 0 || UIContext.Current.IsPreSetManager)
+                {
+                    <li class="tab3">
+                        <a href="#tab_3" data-toggle="tab" aria-expanded="false">
+                            知识维护
+                        </a>
+                    </li>
+                }
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane" id="tab_1">
+                    <!-- BEGIN FILTER -->
+                    @{Html.RenderAction("MyShareDocuments", "Resources", new { area = "KMS" });}
+                    <!-- END FILTER -->
+                </div>
+                <div class="tab-pane" id="tab_2">
+                    <!-- BEGIN FILTER -->
+                    @{Html.RenderAction("KnowledgeAudit", "Resources", new { area = "KMS" });}
+                    <!-- END FILTER -->
+                </div>
+                <div class="tab-pane" id="tab_3">
+                    <!-- BEGIN FILTER -->
+                    @{Html.RenderAction("KnowledgeMaintenance", "Resources", new { area = "KMS" });}
+                    <!-- END FILTER -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section HeadScript{
+    <script type="text/javascript" src="/theme/oajs/bar.js"></script>
+    <script>
+        var $nav_tabs = $(".nav-tabs");
+        $("a[data-toggle=tab]", $nav_tabs).each(function () {
+            $(this).click(function (event) {
+                event.preventDefault();
+                var $this = $(this);
+                var href = $this.attr("href");
+                var submitUrl = '';
+                if (href == '#tab_1') {
+                    submitUrl = '/kms/resources/MyShare?type=1';
+                } else if (href == '#tab_2') {
+                    submitUrl = '/kms/resources/MyShare?type=2';
+                } else {
+                    submitUrl = '/kms/resources/MyShare?type=3';
+                }
+                location.href = submitUrl;
+            });
+        })
+
+        var tabType = '@ViewBag.type';//$("#tabType").val();
+        if (tabType == 1) {//我的分享处理
+            //资源状态条件
+            var $myShareResourcesState = $("#myShareResourcesState");
+            $("li", $myShareResourcesState).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    var resourcesState = $this.attr("id");
+                    $("#shareResourcesState").val(resourcesState);
+                    $("#shareBtn").trigger("click");
+                    var stateId = $("#shareResourcesState").val();
+                    $('#myShareResourcesState li').each(function (index) {
+                        if ($(this).hasClass("active")) {
+                            $(this).removeClass('active');
+                        }
+                        if ($(this).attr("id") == stateId) {
+                            $(this).addClass('active');
+                        }
+                    })
+                });
+            })
+            //资源类型条件
+            var $myShareResourcesType = $("#myShareResourcesType");
+            $("li", $myShareResourcesType).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    var resourcesType = $this.attr("id");
+                    $("#shareResourcesType").val(resourcesType);
+                    $("#shareBtn").trigger("click");
+                    var typeId = $("#shareResourcesType").val();
+                    $('#myShareResourcesType li').each(function (index) {
+                        if ($(this).hasClass("active")) {
+                            $(this).removeClass('active');
+                        }
+                        if ($(this).attr("id") == typeId) {
+                            $(this).addClass('active');
+                        }
+                    })
+                });
+            })
+
+            //我的分享数据列表
+            var defaultColumns = [
+                     { "sName": "K_Resources_code", "bVisible": false },
+                     { "sName": "K_Resources_type", "bVisible": false },
+                     { "sName": "K_Resources_url", "bVisible": false },
+                     { "sName": "K_Resources_name", "render": function (data, type, full) { if (data.length > 20) { data = data.substring(0, 20) + "..." } return "<a href='' style='color:#5b9bd1'>" + data + "</a>"; } },
+                     { "sName": "K_Resources_typeName", "class": "text-center" },
+                     { "sName": "K_Resources_Knowledge_name", "class": "text-center" },
+                     { "sName": "K_Resources_stateName", "class": "text-center" },
+                     { "sName": "K_Resources_Situation", "class": "text-center" },
+                     { "sName": "K_Resources_state" }
+            ];//table 默认列扩展
+            var submitUrl = '/kms/Resources/AjaxMyShareDocumentslist';//数据获取地址
+            TableManaged.init('MyShareDocumentslist', "MyShareDocumentslist_search2", defaultColumns, submitUrl);//用table id,table search id,默认列 初始化table对象
+        } else if (tabType == 2) {//知识审核处理
+            //资源状态条件
+            var $auditResourcesState = $("#auditResourcesType");
+            $("li", $auditResourcesState).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    var resourcesState = $this.attr("id");
+                    $("#auditResourcesTypeId").val(resourcesState);
+                    $("#auditBtn").trigger("click");
+                    var typeId = $("#auditResourcesTypeId").val();
+                    $('#auditResourcesType li').each(function (index) {
+                        if ($(this).hasClass("active")) {
+                            $(this).removeClass('active');
+                        }
+                        if ($(this).attr("id") == typeId) {
+                            $(this).addClass('active');
+                        }
+                    })
+                });
+            })
+
+            //知识审核数据列表
+            var defaultColumns = [
+                     { "sName": "K_Resources_code", "bVisible": false },
+                     { "sName": "K_Resources_type", "bVisible": false },
+                     { "sName": "K_Resources_url", "bVisible": false },
+                     { "sName": "K_Resources_name", "render": function (data, type, full) { if (data.length > 20) { data = data.substring(0, 20) + "..." } return "<a href='' style='color:#5b9bd1'>" + data + "</a>"; } },
+                     { "sName": "K_Resources_typeName", "class": "text-center" },
+                     { "sName": "K_Resources_Knowledge_name", "class": "text-center" },
+                     { "sName": "K_Resources_stateName", "class": "text-center" },
+                     { "sName": "K_Resources_Permissions", "class": "text-center" },
+                     { "sName": "K_Resources_creatorName", "class": "text-center" },
+                     { "sName": "K_Resources_createTime", "class": "text-center" },
+                     { "sName": "K_Resources_state" }
+            ];//table 默认列扩展
+            var submitUrl = '/kms/Resources/AjaxKnowledgeAuditlist';//数据获取地址
+            TableManaged.init('KnowledgeAuditlist', "KnowledgeAuditlist_search2", defaultColumns, submitUrl);//用table id,table search id,默认列 初始化table对象
+            //去掉table-scrollable
+            $('.table-scrollable').removeClass('table-scrollable');
+        } else {//知识维护处理
+            //资源状态条件
+            var $maintenanceResourcesState = $("#maintenanceResourcesState");
+            $("li", $maintenanceResourcesState).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    var resourcesState = $this.attr("id");
+                    $("#maintenanceResourcesStateId").val(resourcesState);
+                    $("#maintenanceBtn").trigger("click");
+                    var stateId = $("#maintenanceResourcesStateId").val();
+                    $('#maintenanceResourcesState li').each(function (index) {
+                        if ($(this).hasClass("active")) {
+                            $(this).removeClass('active');
+                        }
+                        if ($(this).attr("id") == stateId) {
+                            $(this).addClass('active');
+                        }
+                    })
+                });
+            })
+
+            //资源类型条件
+            var $maintenanceResourcesType = $("#maintenanceResourcesType");
+            $("li", $maintenanceResourcesType).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    var resourcesType = $this.attr("id");
+                    $("#maintenanceResourcesTypeId").val(resourcesType);
+                    $("#maintenanceBtn").trigger("click");
+                    var typeId = $("#maintenanceResourcesTypeId").val();
+                    $('#maintenanceResourcesType li').each(function (index) {
+                        if ($(this).hasClass("active")) {
+                            $(this).removeClass('active');
+                        }
+                        if ($(this).attr("id") == typeId) {
+                            $(this).addClass('active');
+                        }
+                    })
+                });
+            })
+
+            //知识维护数据列表
+            var defaultColumns = [
+                    { "sName": "K_Resources_code", "bVisible": false },
+                    { "sName": "K_Resources_type", "bVisible": false },
+                    { "sName": "K_Resources_url", "bVisible": false },
+                    { "sName": "K_Resources_name", "render": function (data, type, full) { if (data.length > 20) { data = data.substring(0, 20) + "..." } return "<a href='' style='color:#5b9bd1'>" + data + "</a>"; } },
+                    { "sName": "K_Resources_typeName", "class": "text-center" },
+                    { "sName": "K_Resources_Knowledge_name", "class": "text-center" },
+                    { "sName": "K_Resources_stateName", "class": "text-center" },
+                    { "sName": "K_Resources_Situation", "class": "text-center" },
+                    { "sName": "K_Resources_creatorName", "class": "text-center" },
+                    { "sName": "K_Resources_createTime", "class": "text-center" },
+                    { "sName": "K_Resources_state" },
+                    { "sName": "knowledgeStr", "bVisible": false }
+            ];//table 默认列扩展
+            var submitUrl = '/kms/Resources/AjaxKnowledgeMaintenancelist';//数据获取地址
+            TableManaged.init('KnowledgeMaintenance', "KnowledgeMaintenance_search2", defaultColumns, submitUrl);//用table id,table search id,默认列 初始化table对象
+            //去掉table-scrollable
+            $('.table-scrollable').removeClass('table-scrollable');
+        }
+
+        //tab页签选中样式
+        if (tabType == 1) {
+            $('#navTabs .tab1').addClass("active");
+            $('a[href=#tab_1]').attr("aria-expanded", "true");
+            $('#tab_1').addClass("active");
+        } else if (tabType == 2) {
+            $('#navTabs .tab2').addClass("active");
+            $('a[href=#tab_2]').attr("aria-expanded", "true");
+            $('#tab_2').addClass("active");
+        } else {
+            $('#navTabs .tab3').addClass("active");
+            $('a[href=#tab_3]').attr("aria-expanded", "true");
+            $('#tab_3').addClass("active");
+        }
+
+        //删除资源
+        function deleteResource(resourcesCode, reflashType) {
+            var reflash = "";
+            if (reflashType == '1')
+                reflash = "MyShareDocumentslist";
+            else
+                reflash = "KnowledgeMaintenance";
+            var switchUrl = '/kms/resources/delete?redourcesCode=' + resourcesCode + '&reflash=' + reflash;
+            var confirmtip = '确认要删除所选知识吗？';//确认提示信息，如果无此属性，则为直接操作
+            if (confirmtip) {
+                $('#alertConfirmWarning').find('.modal-footer').children().first().attr('url', switchUrl);//设置确定按钮url
+                $('#alertConfirmWarning').find('.modal-body').html(confirmtip);//重新设置确认提示信息
+                $('#alertConfirmWarning').modal('show');//打开确认信息框
+            }
+        }
+        //资源审核
+        function auditResource(resourceCode, type) {
+            var switchUrl = '/kms/resources/ResourcesAudit?resourcesCode=' + resourceCode + '&state=' + type + '&reflash=KnowledgeAuditlist';
+            var checkStr = '';
+            if (type == '833')
+                checkStr = '不通过';
+            if (type == '834')
+                checkStr = '通过';
+            var confirmtip = '确认要【' + checkStr + '】审核吗？';//确认提示信息，如果无此属性，则为直接操作
+            if (confirmtip) {
+                $('#alertConfirmWarning').find('.modal-footer').children().first().attr('url', switchUrl);//设置确定按钮url
+                $('#alertConfirmWarning').find('.modal-body').html(confirmtip);//重新设置确认提示信息
+                $('#alertConfirmWarning').modal('show');//打开确认信息框
+            }
+        }
+        //下载权限
+        function downLoadResource(resourceCode, type) {
+            var switchUrl = '/kms/resources/ResourcesPermissions?resourcesCode=' + resourceCode + '&permissions=' + type + '&reflash=KnowledgeAuditlist';
+            var checkStr = '';
+            if (type == '1')
+                checkStr = '允许';
+            if (type == '0')
+                checkStr = '不允许';
+            var confirmtip = '确认要【' + checkStr + '】审核吗？';//确认提示信息，如果无此属性，则为直接操作
+            if (confirmtip) {
+                $('#alertConfirmWarning').find('.modal-footer').children().first().attr('url', switchUrl);//设置确定按钮url
+                $('#alertConfirmWarning').find('.modal-body').html(confirmtip);//重新设置确认提示信息
+                $('#alertConfirmWarning').modal('show');//打开确认信息框
+            }
+        }
+        //移动资源到。。。
+        function MobileResource(knowledgeCode, resourcesCode) {
+            var switchUrl = '/kms/knowledge/MobileResource?knowledgeCode=' + knowledgeCode + '&resourcesCode=' + resourcesCode;
+            var confirmtip = '确认要移动所选知识吗？';//确认提示信息，如果无此属性，则为直接操作
+            if (confirmtip) {
+                $('#alertConfirmWarning').find('.modal-footer').children().first().attr('url', switchUrl);//设置确定按钮url
+                $('#alertConfirmWarning').find('.modal-body').html(confirmtip);//重新设置确认提示信息
+                $('#alertConfirmWarning').modal('show');//打开确认信息框
+            }
+        }
+    </script>
+}
+

@@ -1,0 +1,75 @@
+﻿@{
+    Layout = null;
+}
+<!-- BEGIN PAGE HEADER-->
+@{Html.RenderAction("OAContentPageHead");}
+<!-- END PAGE HEADER-->
+<!-- BEGIN PAGE CONTENT-->
+<div class="row">
+    <div class="col-md-12">
+        <!-- BEGIN EXAMPLE TABLE PORTLET-->
+        <div class="portlet box green-meadow">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>表单管理
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="myTaskList_search" class="row">
+                    @Html.Hidden("isExecutedSearch", "0")
+                    <div class="col-md-12">
+                        <div class="col-md-9"></div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                表单名称：<input name="s_title" id="s_title" type="text" class="form-control input-small input-inline">
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="btn-group pull-right">
+                                <div class="btn-group">
+                                    <button class="btn green" onclick="executeSearch('myTaskList', 'myTaskList_search')">
+                                        查询<i class="fa fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <table class="table table-striped table-bordered table-hover" id="myTaskList">
+                    <thead>
+                        <tr>
+                            <th>表单Guid</th>
+                            <th>所属流程Guid</th>
+                            <th>表单名称</th>
+                            <th>所属流程</th>
+                            <th>申请人</th>
+                            <th>申请时间</th>
+                            <th>申请状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!--数据行在这里-->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- END EXAMPLE TABLE PORTLET-->
+    </div>
+</div>
+<!-- END PAGE CONTENT-->
+<!-- BEGIN MAIN JS -->
+<script>
+    var defaultColumns = [
+         { "sName": "O_Form_code", "bVisible": false },
+         { "sName": "O_Form_flow", "bVisible": false },
+         { "sName": "O_Form_f_form_name", "render": function (data, type, full) { return "<a href='' style='color:#5b9bd1' class='ajaxify'>" + data + "</a>"; } },
+         { "sName": "O_Form_flow_name" },
+         { "sName": "O_Form_applyPerson_name" },
+         { "sName": "O_Form_applyTime" },
+         { "sName": "O_Form_applyStatus_name" }
+    ];//table 默认列扩展
+    var submitUrl = '/oa/mytask/ajaxlist';//数据获取地址
+    TableManaged.init('myTaskList', "myTaskList_search", defaultColumns, submitUrl);//用table id,table search id,默认列 初始化table对象
+</script>
+<!-- END MAIN JS -->

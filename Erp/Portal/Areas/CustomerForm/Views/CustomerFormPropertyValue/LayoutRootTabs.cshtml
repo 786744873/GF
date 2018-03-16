@@ -1,0 +1,599 @@
+﻿@using CommonService.Model.FlowManager;
+@using CommonService.Common;
+@using Context;
+@using CommonService.Model.CustomerForm;
+@model IEnumerable<CommonService.Model.FlowManager.P_Business_flow_form>
+@{
+    Layout = null;
+}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>客户生命周期表单</title>
+    <link href="/theme/css/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <link href="/theme/css/style.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="/theme/js/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="/theme/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="/theme/js/jquery.dialogextend.1_0_1.js"></script>
+    <script type="text/javascript" src="/theme/js/basedialog.js"></script>
+    <script type="text/javascript" src="/theme/js/tab.js"></script>
+    <script type="text/javascript" src="/theme/js/alertMsg.js"></script>
+    <script type="text/javascript" src="/theme/js/alertDialog.js"></script>
+    <script type="text/javascript" src="/theme/js/ajaxdone.js"></script>
+
+    <style type="text/css">
+        .greygreen {
+            display: block;
+            margin-top: 5px;
+            width: 84px;
+            height: 30px;
+            color: #fff;
+            background: #76d17f;
+            font-weight: bold;
+            border-radius: 2px;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+        }
+            .greygreen:hover {
+                color: #fff;
+                background: #d98c1d;
+            }
+
+        .itab ul li {
+            margin-bottom: 1px;
+        }
+
+            .itab ul li a.noSubmitTabFontColor {
+                color: #000;
+                font-weight: bold;
+            }
+
+            .itab ul li a.no_1SubmitTabFontColor {
+                color: #AC240D;
+                font-weight: bold;
+            }
+
+            /*未提交*/
+            .itab ul li a.hasCheckPassTabFontColor {
+                color: #037bb3;
+                font-weight: bold;
+            }
+            /*已审核通过*/
+            .itab ul li a.hasSubmitCheckTabFontColor {
+                color: #186a30;
+                font-weight: bold;
+            }
+            /*已提交审核*/
+            .itab ul li.myJob {
+                background: #d7f3f9;
+            }
+
+        .tableDetails {
+            width: 240px;
+            /*height: 240px;*/
+            margin-top: 0px;
+            margin-left: 0px;
+            display: none;
+            border: 1px solid silver;
+            background: #e9f8f8;
+        }
+
+        .flowDetails {
+            width: 250px;
+            /*height: 240px;*/
+            margin-top: -232px;
+            margin-left: 60px;
+            display: none;
+            border: 1px solid silver;
+            background: #e9f8f8;
+        }
+
+        .DescDetails {
+            width: 240px;
+            height: 240px;
+            margin-top: -240px;
+            margin-left: 60px;
+            display: none;
+            border: 1px solid silver;
+            background: #e9f8f8;
+        }
+
+        .tjjyDetails {
+            width: 400px;
+            height: 180px;
+            display: none;
+            border: 1px solid silver;
+            background: #e9f8f8;
+        }
+
+        .submitsummarylist {
+            width: 300px;
+            height: 180px;
+            margin-top: -190px;
+            margin-left: 60px;
+            display: none;
+            border: 1px solid silver;
+            background: silver;
+        }
+
+        .auditsummarylist {
+            width: 300px;
+            height: 180px;
+            margin-top: -190px;
+            margin-left: 60px;
+            display: none;
+            border: 1px solid silver;
+            background: silver;
+        }
+
+        .divDetails {
+            width: 240px;
+            height: 180px;
+            margin-top: -190px;
+            margin-left: 60px;
+            display: none;
+            border: 1px solid silver;
+            background: #e9f8f8;
+        }
+
+        .formbody {
+            padding-top: 0px;
+            padding-right: 0px;
+            padding-left: 10px;
+        }
+
+        .imgNav {
+            margin-bottom: 5px;
+        }
+
+            .imgNav img {
+                width: 30px;
+                height: 30px;
+                margin-right: 5px;
+                border: none;
+            }
+
+            .imgNav span {
+                color: #999999;
+                cursor: pointer;
+            }
+
+            .imgNav img, span {
+                vertical-align: middle;
+            }
+
+        .complex_btn_operate li img {
+            height: 20px;
+            line-height: 20px;
+            float: right;
+        }
+    </style>
+</head>
+@{    
+    string fkType = ViewBag.fkType;//业务流程类型,客户=901
+    string pkCode = ViewBag.PkCode;//主业务Guid,客户Guid
+    string businessFlowCode = ViewBag.BusinessFlowCode;//当前业务流程Guid
+    bool isFromReDoneFormNav = ViewBag.IsFromReDoneFormNav;//是否来自重做表单调用标识
+    string reDoneBusinessFormCode = ViewBag.ReDoneBusinessFormCode;//重做业务流程表单Guid    
+    CommonService.Model.FlowManager.P_Business_flow businessFlow = ViewBag.BusinessFlow;//业务流程数据模型
+}
+<body>
+    <div class="formbody" style="overflow-y:auto;">
+        <div class="fr imgNav">
+            <span id="divform" onmouseover="omover_div('divDetails')" onmouseout="omout_div('divDetails')">&nbsp;&nbsp;&nbsp;图例说明</span>
+        </div>
+        <div class="usual clear">
+            <div class="itab">
+                <ul>
+                    @{
+                        int count = 0;//自定义表单索引
+                        string classStyle = String.Empty;
+                        /**操作按钮显示权限标识**/                        
+                        bool isHasSubmitFormPower = ViewBag.IsHasSubmitFormPower;//是否有提交表单的权限
+                        bool isHasCheckFormPower = ViewBag.IsHasCheckFormPower;//是否有审核表单的权限
+                        bool isHasConfigureFormPower = ViewBag.IsHasConfigureFormPower;//是否有配置表单的权限
+                        string thisTabFontClass = String.Empty;
+                        string isMyJobClass = String.Empty;
+                        string selectedClass = String.Empty;
+                        string Flow_form_Code = "";
+                    }
+                    @foreach (var item in Model)
+                    {
+                        //检查当前表单是否为我的表单 css class
+                        if (isFromReDoneFormNav)
+                        {//从表单重做导航而来
+                            if (item.ResponsiblePersonGuids.ToLower().Contains(UIContext.Current.UserCode.Value.ToString().ToLower()))
+                            {
+                                isMyJobClass = "class=myJob";
+                                if (item.P_Business_flow_form_code.Value.ToString().ToLower() == reDoneBusinessFormCode.ToLower())
+                                {
+                                    Flow_form_Code = item.P_Business_flow_form_code.Value.ToString();
+                                    classStyle = " selected2";
+                                }
+                                else { classStyle = ""; }
+                                selectedClass = "selected2";
+                            }
+                            else
+                            {
+                                isMyJobClass = String.Empty;
+                                if (item.P_Business_flow_form_code.Value.ToString().ToLower() == reDoneBusinessFormCode.ToLower())
+                                {
+                                    Flow_form_Code = item.P_Business_flow_form_code.Value.ToString();
+                                    classStyle = " selected";
+                                }
+                                else { classStyle = ""; }
+                                selectedClass = "selected";
+                            }
+                        }
+                        else
+                        {
+                            if (item.ResponsiblePersonGuids.ToLower().Contains(UIContext.Current.UserCode.Value.ToString().ToLower()))
+                            {
+                                isMyJobClass = "class=myJob";
+                                if (count == 0)
+                                {
+                                    Flow_form_Code = item.P_Business_flow_form_code.Value.ToString();
+                                    classStyle = " selected2";
+                                }
+                                else { classStyle = ""; }
+                                selectedClass = "selected2";
+                            }
+                            else
+                            {
+                                isMyJobClass = String.Empty;
+                                if (count == 0)
+                                {
+                                    Flow_form_Code = item.P_Business_flow_form_code.Value.ToString();
+                                    classStyle = " selected";
+                                }
+                                else { classStyle = ""; }
+                                selectedClass = "selected";
+                            }
+                        }
+
+                        //根据表单状态，设置表单名称 css class
+                        if (item.P_Business_flow_form_status == Convert.ToInt32(FormStatusEnum.未提交))
+                        {
+                            thisTabFontClass = "noSubmitTabFontColor" + classStyle;
+                        }
+                        else if (item.P_Business_flow_form_status == Convert.ToInt32(FormStatusEnum.已通过))
+                        {
+                            thisTabFontClass = "hasCheckPassTabFontColor" + classStyle;
+                        }
+                        else if (item.P_Business_flow_form_status == Convert.ToInt32(FormStatusEnum.已提交))
+                        {
+                            thisTabFontClass = "hasSubmitCheckTabFontColor" + classStyle;
+                        }
+                        else
+                        {
+                            thisTabFontClass = "no_1SubmitTabFontColor" + classStyle;
+                        }
+                     
+                        switch (item.P_Business_flow_form_type.Value)
+                        {
+                            case 1://普通编辑表单
+                                <li @isMyJobClass onmouseover="omover_Tab(this, 'tabDetails')" formcode="@item.F_Form_code" businessflowformcode="@item.P_Business_flow_form_code" onmouseout=" omout_Tab(this, 'tabDetails')"><a onclick="setform_fromCode('@item.P_Business_flow_form_code')" selectedclass="@selectedClass" class="@thisTabFontClass" href="/CustomerForm/FormPropertyValue/GenerateSingleEidt?formCode=@item.F_Form_code&businessFlowFormCode=@item.P_Business_flow_form_code&businessFlowCode=@businessFlowCode&fkType=@fkType&pkCode=@pkCode" tabpanelwidth="100%" tabpanelheight="600" title="@item.F_Form_chineseName">@item.F_Form_chineseName</a></li>
+                                break;
+                            case 2://tab容器
+                            <li @isMyJobClass onmouseover="omover_Tab(this, 'tabDetails')" formcode="@item.F_Form_code" businessflowformcode="@item.P_Business_flow_form_code" onmouseout=" omout_Tab(this, 'tabDetails')"><a onclick="setform_fromCode('@item.P_Business_flow_form_code')" selectedclass="@selectedClass" class="@thisTabFontClass" href="/CustomerForm/FormPropertyValue/LayoutChildrenTabs?formCode=@item.F_Form_code&businessFlowFormCode=@item.P_Business_flow_form_code&formPropertyCode=@item.P_Business_flow_form_propertyCode&businessFlowCode=@businessFlowCode&fkType=@fkType&pkCode=@pkCode" tabpanelwidth="100%" tabpanelheight="600">@item.F_Form_chineseName</a></li>
+                                break;
+                            case 3://含有主子结构的表单
+                            <li @isMyJobClass onmouseover="omover_Tab(this, 'tabDetails')" formcode="@item.F_Form_code" businessflowformcode="@item.P_Business_flow_form_code" onmouseout=" omout_Tab(this, 'tabDetails')"><a onclick="setform_fromCode('@item.P_Business_flow_form_code')" selectedclass="@selectedClass" class="@thisTabFontClass" href="/CustomerForm/FormPropertyValue/LayoutHeadAndMulityItems?formCode=@item.F_Form_code&businessFlowFormCode=@item.P_Business_flow_form_code&businessFlowCode=@businessFlowCode&fkType=@fkType&pkCode=@pkCode" tabpanelwidth="100%" tabpanelheight="600">@item.F_Form_chineseName</a></li>
+                                break;
+                            case 4://含有子明细表单(暂时没有实现)
+                            <li @isMyJobClass><a selectedclass="@selectedClass" onclick="setform_fromCode('@item.P_Business_flow_form_code')" class="@thisTabFontClass" href="/CustomerForm/FormPropertyValue/LayoutHeadAndMulityItems" tabpanelwidth="100%" tabpanelheight="650">@item.F_Form_chineseName</a></li>
+                                break;
+                        }
+                        count++;
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <table businessperatetoolbar="businessperatetoolbar" border="0" width="100%" height="40" align="right">
+            <tr>
+                <td>
+                    <div class="fr margin_left8" onclick="omover(this, 'flowDetails')" onmouseout="omout(this, 'flowDetails')" style="color:blue;float:left;margin-left:45px; cursor:pointer;">流程详情</div>
+                    <div class="fr margin_left8" onmouseout="omout_Tj(this, 'tjjyDetails')" onclick="    omover_Tj(this, 'tjjyDetails')" style="color:blue;float:left;margin-left:45px; cursor:pointer;">提交纪要</div>
+                    <div class="fr margin_left8" onmouseout="omout_Tj(this, 'shjyDetails')" onclick="    omover_Tj(this, 'shjyDetails')" style="color: blue; float: left; margin-left: 45px; cursor: pointer;">审核记录</div>       
+                    @if (isHasConfigureFormPower)
+                    {
+                       <div class="fr margin_left8"><a style="padding-left:10px;padding-right:10px;" class="greygreen" target="popdialog" title="配置表单" dialogwidth="1200" dialogheight="720" closedialog="refreshPageAfterClose()" href="/flowmanager/businessflow/customerdefaultlayout_brief?fkCode=@pkCode&flowCode=@businessFlowCode">配置表单</a></div>
+                    }                     
+                    @if (isHasCheckFormPower)
+                    {
+                        <div class="fr margin_left8"><a class="enter" target="popdialog" title="审核表单" dialogwidth="1200" dialogheight="650" href="/customerform/customerformcheck/layoutcheck?businessFlowCode=@businessFlowCode&fkType=@fkType">审核</a></div>
+                    }
+                    @if (isHasSubmitFormPower)
+                    {
+                        <div class="fr margin_left8"><a class="enter" target="popdialog" title="提交表单" dialogwidth="1200" dialogheight="650" href="/customerform/customerformcheck/layoutsubmit?businessFlowCode=@businessFlowCode&fkType=@fkType">提交</a></div>
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="flowDetails" id="flowDetails" style="position:absolute; left:0px; top:671px;" onmousemove="omover(this, 'flowDetails')" onmouseout="omout(this, 'flowDetails')">
+        <table border="1" cellpadding="5" cellspacing="5" style=" margin-left:10px;">
+            <thead>
+                <tr style="height:30px;">
+                    <th style="width:39%;">流程详情</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="height:30px;">
+                    <td>计划开始日期：</td>
+                    <td>@businessFlow.P_Business_flow_planStartTime</td>
+                </tr>
+                <tr style="height:30px;">
+                    <td>计划结束日期：</td>
+                    <td>@businessFlow.P_Business_flow_planEndTime</td>
+                </tr>
+                <tr style="height:30px;">
+                    <td>实际开始日期：</td>
+                    <td>@businessFlow.P_Business_flow_factStartTime</td>
+                </tr>
+                <tr style="height:30px;">
+                    <td>实际结束日期：</td>
+                    <td>@businessFlow.P_Business_flow_factEndTime</td>
+                </tr>
+                <tr style="height:30px;">
+                    <td>启动人：</td>
+                    <td>@businessFlow.P_Business_startPerson_name</td>
+                </tr>
+                <tr style="height:30px;">
+                    <td>专业顾问：</td>
+                    <td>@businessFlow.P_Business_person_name</td>
+                </tr>
+                <tr style="height:30px;">
+                    <td>流程需求：</td>
+                    <td>@businessFlow.P_Business_flow_require</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="tabDetails" class="tableDetails" style="position:absolute; left:0px; top:260px;height:180px;">
+        <table border="1" cellpadding="5" cellspacing="5" style=" margin-left:10px;">
+            <tr style="height:30px;">
+                <th>表单情况</th>
+                <th></th>
+            </tr>
+            <tr style="height:30px;">
+                <td>计划开始日期：</td>
+                <td><span id="planStartTime"></span></td>
+            </tr>
+            <tr style="height:30px;">
+                <td>计划结束日期：</td>
+                <td><span id="planEndTime"></span></td>
+            </tr>
+            <tr style="height:30px;">
+                <td>实际开始日期：</td>
+                <td><span id="factStartTime"></span></td>
+            </tr>
+            <tr style="height:30px;">
+                <td>实际结束日期：</td>
+                <td><span id="factEndTime"></span></td>
+            </tr>
+            <tr style="height:30px;">
+                <td>承办律师：</td>
+                <td><span id="cb_Person"></span></td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="divDetails" class="DescDetails" style="position:absolute; left:0px; top:200px; ">
+        <table border="1" cellpadding="5" cellspacing="5" style=" margin-left: 40px; text-align: center;">
+            <tr>
+                <td colspan="2" style="font-size: 22px; font-weight: bold;">图例</td>
+            </tr>
+            <tr style="height:30px;">
+                <td><div style=" width: 45px; background-color: #99FFFF; height: 16px;"></div></td>
+                <td>我的任务</td>
+            </tr>
+            <tr style="height:30px;">
+                <td><div style="width: 45px; background-color: #FFFFFF; height: 16px; "></div></td>
+                <td>他人的任务</td>
+            </tr>
+            <tr style="height:30px;">
+                <td><span style="font-size: 25px; font-weight: bold;">●</span></td>
+                <td>未提交的任务</td>
+            </tr>
+            <tr style="height:30px;">
+                <td><span style="font-size: 25px; font-weight: bold; color: #33CCFF; ">●</span></td>
+                <td>已审核通过的任务</td>
+            </tr>
+            <tr style="height:30px;">
+                <td><span style="font-size: 25px; font-weight: bold; color: #009933;">●</span></td>
+                <td>已提交审核的任务</td>
+            </tr>
+            <tr style="height:30px;">
+                <td><span style="font-size: 25px; font-weight: bold; color:#AC240D; ">●</span></td>
+                <td>已驳回的任务</td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="tjjyDetails" class="tjjyDetails" style="overflow: auto; border: 1px solid #000000; height:180px;" onmouseout="omout_Tj(this, 'tjjyDetails')" onmouseover="omover_Tj(this, 'tjjyDetails')">
+        <table border="1" cellpadding="5" cellspacing="5" style=" margin-left: 10px; ">
+            <tr style="height:30px;">
+                <th width="80px;">提交人</th>
+                <th>表单名称</th>
+                <th width="100px;">日期</th>
+                <th width="100px">纪要</th>
+            </tr>
+            @{
+                var List = ViewBag.F_FormCheckList as List<CommonService.Model.CustomerForm.F_FormCheck>;
+                foreach (var item in List)
+                {
+                    <tr style="height:30px;">
+                        <td align="center">@item.F_FormCheck_creator_name</td>
+                        <td align="center">@item.F_FormCheck_business_flow_form_name</td>
+                        <td align="center">@item.F_FormCheck_createTime.Value.ToString("yyyy-MM-dd")</td>
+                        <td align="center">@item.F_FormCheck_submitInfo</td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+
+    <div id="shjyDetails" class="tjjyDetails" style="overflow: auto; border: 1px solid #000000; height:180px;" onmouseout="omout_Tj(this, 'shjyDetails')" onmouseover="    omover_Tj(this, 'shjyDetails')">
+        <table border="1" cellpadding="5" cellspacing="5" style=" margin-left: 10px; ">
+            <tr style="height:30px;">
+                <th width="80px;">审核人</th>
+                <th>表单名称</th>
+                <th width="100px;">日期</th>
+                <th width="100px">审核内容</th>
+            </tr>
+            @{
+                var List_sh = ViewBag.F_FormCheckList_Audt as List<CommonService.Model.CustomerForm.F_FormCheck>;
+                foreach (var item in List_sh)
+                {
+                    <tr style="height:30px;">
+                        <td align="center">@item.F_FormCheck_checkPerson_name</td>
+                        <td align="center">@item.F_FormCheck_business_flow_form_name</td>
+                        <td align="center">@item.F_FormCheck_checkDate.Value.ToString("yyyy-MM-dd")</td>
+                        <td align="center">@item.F_FormCheck_content</td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+</body>
+
+<script type="text/javascript">
+    $(function () {
+        var $businessoperatetoolbar = $("table[businessperatetoolbar=businessperatetoolbar]");
+        $("a[target=popdialog]", $businessoperatetoolbar).each(function () {
+            $(this).click(function (event) {
+                event.preventDefault();
+                var $this = $(this);
+
+                //替换url参数
+                var switchUrl = $this.attr("href");
+                if ($this.attr('closedialog')) {//含有关闭事件的打开
+                    _openDialogHaveCloseEvent($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"), $this.attr('closedialog'));
+                } else {//普通打开
+                    _openDialog($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"));
+                }
+            });
+        });
+
+        $("a[target=ajaxtodo]", $businessoperatetoolbar).each(function () {
+            $(this).click(function (event) {
+                event.preventDefault();
+                var $this = $(this);
+
+                //替换url参数
+                var switchUrl = $this.attr("href");
+                //_openDialog($(this).attr("title"), switchUrl, $(this).attr("dialogwidth"), $(this).attr("dialogheight"));
+                alertMsg.confirm($this.attr('title'), {
+                    okCall: function () {
+                        $.ajax({
+                            type: 'POST',
+                            url: switchUrl,
+                            data: null,
+                            dataType: "json",
+                            cache: false,
+                            success: navAjaxDone,
+                            error: function () {
+                                alert('网络错误，请稍后再试!');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    });
+    //关闭配置表单页面时，刷新当前页面
+    function refreshPageAfterClose() {
+        window.location.reload();
+    }
+
+    function omover(obj, id) {
+        var objDiv = $("#" + id + "");
+        $(objDiv).css("display", "block");
+    }
+    function omout(obj, id) {
+        var objDiv = $("#" + id + "");
+        $(objDiv).css("display", "none");
+    }
+    var status = 0;
+    function omover_Tj(obj, id) {
+        //初始化
+        $("#shjyDetails").css("display", "none");
+        $("#tjjyDetails").css("display", "none");
+        var objDiv = $("#" + id + "");
+        var xPoint = window.event.clientX;
+        objDiv.attr("style", "position:absolute; left:80px; top:500px; overflow: auto; border: 1px solid #000000; height:180px;");
+        $(objDiv).css("display", "block");
+    }
+    function omout_Tj(obj, id) {
+        var objDiv = $("#" + id + "");
+        $(objDiv).css("display", "none");
+    }
+    function omover_Tab(obj, id) {
+        var formcode = $(obj).attr("formcode");
+        var businessflowformcode = $(obj).attr("businessflowformcode");
+        var objDiv = $("#" + id + "");
+
+        var xPoint = window.event.clientX;
+        var yPoint = window.event.clientY;
+        var pageWidth = $(window).width();//页面总宽度
+        var tabDvWidth = 250;//打开弹出Div宽度
+        if ((pageWidth - xPoint) < tabDvWidth) {
+            xPoint = xPoint - (tabDvWidth - (pageWidth - xPoint));
+        }
+
+        objDiv.attr("style", "position:absolute; left:" + xPoint + "px; top:" + yPoint + "px;");
+        $(objDiv).css("display", "block");
+
+        //ajax异步调用
+        $.ajax({
+            type: "POST",
+            async: true,
+            url: "/FormPropertyValue/GetSingleForm",
+            data: { formcode: formcode, businessflowformcode: businessflowformcode },
+            dataType: "json",
+            success: function (result) {
+                $("#planStartTime").html(result[0]);
+                $("#planEndTime").html(result[1]);
+                $("#factStartTime").html(result[2]);
+                $("#factEndTime").html(result[3]);
+                $("#cb_Person").html(result[4]);
+            }
+        })
+    }
+
+    function omout_Tab(obj, id) {
+        var objDiv = $("#" + id + "");
+        var xPoint = window.event.clientX;
+
+        objDiv.attr("style", "position:absolute; left:" + (xPoint - 60) + "px; top:260px;");
+        $(objDiv).css("display", "none");
+    }
+
+    function omover_div(id) {
+        var objDiv = $("#" + id + "");
+        var xPoint = window.event.clientX;
+        objDiv.attr("style", "position:absolute; left:" + (xPoint - 300) + "px; top:260px;");
+
+        $(objDiv).css("display", "block");
+    }
+    function omout_div(id) {
+        var objDiv = $("#" + id + "");
+        var xPoint = window.event.clientX;
+
+        objDiv.attr("style", "position:absolute; left:" + (xPoint - 300) + "px; top:260px;");
+        $(objDiv).css("display", "none");
+    }
+    var Form_formCode = "@Flow_form_Code";
+    function setform_fromCode(val) {
+        Form_formCode = val;
+    }
+</script>
+
+</html>

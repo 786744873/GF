@@ -1,0 +1,60 @@
+﻿@using CommonService.Model;
+
+@model CommonService.Model.C_Property_trail_bank
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "银行信息";
+}
+@{
+    List<CommonService.Model.C_Parameters> AccountType = ViewBag.AccountType;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "Property_trail_bank", FormMethod.Post, new { id = "formProperty_trail_bank", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_Property_trail_bank_id", Model.C_Property_trail_bank_id)
+            @Html.Hidden("C_Property_trail_bank_type", Model.C_Property_trail_bank_type)
+            @Html.Hidden("C_Property_trail_bank_belongs", Model.C_Property_trail_bank_belongs)
+            @Html.Hidden("C_Property_trail_bank_code", Model.C_Property_trail_bank_code)
+            @Html.Hidden("C_Property_trail_bank_isDelete", Model.C_Property_trail_bank_isDelete)
+            @Html.Hidden("C_Property_trail_bank_creator", Model.C_Property_trail_bank_creator)
+            @Html.Hidden("C_Property_trail_bank_createTime", Model.C_Property_trail_bank_createTime)
+            <li><label>银行名称</label>@Html.TextBox("C_Property_trail_bank_name", Model.C_Property_trail_bank_name, new { @class = "dfinput", requiredInput = "请输入银行名称", maxlength = "100" })<i></i></li>
+            <li><label>账号类型</label>
+                @{
+                IList<SelectListItem> accountTypeItems = new List<SelectListItem>();
+                foreach (var accountType in AccountType)
+                {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = accountType.C_Parameters_id.ToString();
+                    selectItem.Text = accountType.C_Parameters_name;
+
+                    accountTypeItems.Add(selectItem);
+                }
+                }
+                @Html.DropDownList("C_Property_trail_bank_AccountType", accountTypeItems, new { @class = "dfselect" })<i></i></li>
+            <li><label>账号</label>@Html.TextBox("C_Property_trail_bank_accountNumber", Model.C_Property_trail_bank_accountNumber, new { @class = "dfinput", requiredInput = "请输入账号", maxlength = "50" })<i></i></li>
+            <li><label>调取时间</label>@Html.TextBox("C_Property_trail_bank_rTime", Model.C_Property_trail_bank_rTime == null ? "" : Model.C_Property_trail_bank_rTime.Value.ToString("yyyy-MM-dd"), new { date = "date", maxlength = "20", @readonly = "readonly", @class = "dfinput", dateformat = "yyyy-MM-dd" })<i></i></li>
+            <li><label>金额</label>@Html.TextBox("C_Property_trail_bank_money", Model.C_Property_trail_bank_money, new { @class = "dfinput",  money = "请输入有效金额", maxlength = "50" })<i></i></li>
+              <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></li>
+        }
+    </ul>
+</div>

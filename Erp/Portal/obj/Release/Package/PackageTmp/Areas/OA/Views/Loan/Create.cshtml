@@ -1,0 +1,162 @@
+﻿@{
+    Layout = null;
+}
+@{
+    string applyperson = ViewBag.applyperson;//申请人
+    string formPropertyValueGroup = ViewBag.formPropertyValueGroup;//列
+    string applytime = ViewBag.applyTime;//申请时间
+    string applyOrg = ViewBag.applyOrg;//部门
+    string mony = ViewBag.monyS;//金额
+}
+<div class="modal-header">
+    @*<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>*@
+    <h2 class="modal-title">生成单据</h2>
+</div>
+<div class="modal-body">
+    <div class="portlet-body">
+
+        @using (Html.BeginForm("Save", "Loan", FormMethod.Post, new { id = "formloan", @class = "form-horizontal", role = "form" }))
+        {
+            <div class="alert alert-danger display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+            </div>
+            <div class="alert alert-success display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据验证通过，数据处理中..."></span>
+            </div>
+            <div class="row" id="printconent">
+                <div class="col-md-8"><div class="col-md-7"></div><div class="col-md-1 pull-right"><span id="number"></span></div></div>
+                <div class="col-md-8">
+                    @Html.Hidden("O_Form_applyPerson", applyperson)
+                    @Html.Hidden("formPropertyValueGroup", formPropertyValueGroup)
+                    @Html.Hidden("applytime", applytime)
+                    @Html.Hidden("applyOrg", applyOrg)
+                    @Html.Hidden("mony", mony)
+
+                    <table id="user" class="table table-bordered table-striped table_style">
+                        <tbody>
+                            <tr><td style="width:100%; text-align:center" colspan="6"><h2>借款单</h2></td></tr>
+                            <tr>
+                                <td style="width: 100%; text-align: center" colspan="6">
+                                    @ViewBag.date
+                                </td>
+                            </tr>
+                            <tr style="height:70px;">
+                                <td align="center" style=" vertical-align:middle; width:16%">
+                                    申请人
+                                </td>
+                                <td align="center" style=" vertical-align: middle; width: 16%">
+                                    @ViewBag.applypersonname
+                                </td>
+                                <td align="center" style=" vertical-align: middle; width: 16%">
+                                    所属部门
+                                </td>
+                                <td align="center" style=" vertical-align: middle; width: 16%">
+                                    @ViewBag.applyOrgname
+                                </td>
+                                <td align="center" style=" vertical-align: middle; width: 16%">
+                                    付款方式
+                                </td>
+                                <td style=" vertical-align: middle; width: 20%">
+                                    @Html.RadioButton("paymentMethod", 517, true) 现金
+                                    @Html.RadioButton("paymentMethod", 518) 支票
+                                    @Html.RadioButton("paymentMethod", 519) 汇款
+                                </td>
+                            </tr>
+                            <tr style=" height:70px;">
+                                <td align="center" style=" vertical-align:middle;width:16%">
+                                    摘要
+                                </td>
+                                <td colspan="5" style=" vertical-align: middle; width: 84%">
+                                    @ViewBag.zy
+                                </td>
+                            </tr>
+                            <tr style=" height:70px;">
+                                <td align="center" style=" vertical-align:middle;width:16%">
+                                    金额(大写)
+                                </td>
+                                <td colspan="2" align="center" style=" vertical-align: middle; width: 32%">
+                                    @ViewBag.monyL
+                                </td>
+                                <td align="center" style=" vertical-align:middle;width:16%">
+                                    小写
+                                </td>
+                                <td colspan="2" align="center" style="vertical-align: middle; width: 36%; ">
+                                    @ViewBag.monyS
+                                </td>
+                            </tr>
+                            <tr style=" height:70px;">
+                                <td align="center" style=" vertical-align:middle;width:16%">
+                                    部门经理
+                                </td>
+                                <td style="width: 16%"></td>
+                                <td align="center" style="vertical-align: middle; width: 16%; ">
+                                    财务审核
+                                </td>
+                                <td style="width: 16%"></td>
+                                <td align="center" style=" vertical-align:middle;width:16%">
+                                    集团财务审核
+                                </td>
+                                <td style="width: 20%"></td>
+                            </tr>
+                            <tr style=" height:70px;">
+                                <td align="center" style=" vertical-align:middle;width:16%">
+                                    公司总经理
+                                </td>
+                                <td style=" width:16%"></td>
+                                <td align="center" style=" vertical-align:middle;width:16%">
+                                    集团总裁
+                                </td>
+                                <td style=" width:16%"></td>
+                                <td align="center" style=" vertical-align:middle;width:16%">
+                                    领款人签字
+                                </td>
+                                <td style=" width:20%"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 modal-footer">
+        @*<button type="button" class="btn blue" id="btnSave" onclick="confirmProcedure('formreim')">确认生成</button>*@
+        <a id="btnSave" class="btn blue" onclick="confirmProcedure('formloan')">确认生成</a>
+        <a class="btn ajaxify" href="/oa/loan/list">
+            返回
+        </a>
+    </div>
+</div>
+@Html.Partial("_OAHidePartial")@*引入页面中用到的一些关联触发*@
+@*<script src="~/Theme/js/jquery-1.4.4.min.js"></script>*@
+<script src="~/Theme/js/jquery.jqprint-0.3.js"></script>
+<script type="text/javascript">
+    FormValidation.init('formloan', formNavAjaxDone);//用表单Id和表单回调函数，初始化表单
+    function confirmProcedure(form) {
+        saveForm(form);
+        $("#btnSave").html("打印");
+        $("#btnSave").attr("onclick", "onPrint()");
+        setTimeout(st, 1000);
+    }
+
+    function st() {
+        $.ajax({
+            type: 'POST',
+            url: "/FinanceManager/Voucher/GetNewestModel",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (number) {
+                $("#number").html(number);
+            },
+            error: function () {
+                alert('网络错误，请稍后再试!');
+            }
+        });
+    }
+    function onPrint() {
+        $('#printconent').jqprint();
+    }
+</script>

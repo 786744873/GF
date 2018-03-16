@@ -1,0 +1,96 @@
+﻿@using CommonService.Model;
+
+@model CommonService.Model.C_PRival
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "个人信息";
+}
+@{
+    List<CommonService.Model.C_Parameters> Nation = ViewBag.Nation;
+    List<CommonService.Model.C_Parameters> Pa = ViewBag.Pa;
+}
+@section HeadCss{
+    <style type="text/css">
+        b {
+            color: red;
+            float: left;
+            margin-left: -10px;
+            margin-top: 5px;
+        }
+    </style>
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "Spouse", FormMethod.Post, new { id = "formPRival", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_PRival_id", Model.C_PRival_id)
+            @Html.Hidden("C_PRival_code", Model.C_PRival_code)
+            @Html.Hidden("C_PRival_pcode", Model.C_PRival_pcode)
+            @Html.Hidden("C_PRival_number", Model.C_PRival_number)
+            @Html.Hidden("C_PRival_type", Model.C_PRival_type)
+            @Html.Hidden("C_PRival_isDelete", Model.C_PRival_isDelete)
+            @Html.Hidden("C_PRival_createTime", Model.C_PRival_createTime)
+            @Html.Hidden("C_PRival_creator", Model.C_PRival_creator)
+            <div class="mulitytext"><b>*</b><label>姓名</label>@Html.TextBox("C_PRival_name", Model.C_PRival_name, new { @class = "dfinput", requiredInput = "请输入姓名", maxlength = "100" })<i></i></div>
+            <div class="mulitytext"><label>性别</label>@Html.RadioButtonFor(m => m.C_PRival_sex, "1", new { @class="dfradio"})<span>男</span>
+                                                       @Html.RadioButtonFor(m => m.C_PRival_sex, "0", new { @class="dfradio"})<span>女</span></div>
+            <div class="mulitytext"><label>出生年月</label>@Html.TextBox("C_PRival_birthday", Model.C_PRival_birthday == null ? "" : Model.C_PRival_birthday.Value.ToString("yyyy-MM-dd"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd" })<i></i></div>
+            <div class="mulitytext">
+                <label>民族</label>
+                @{
+            IList<SelectListItem> nationItems = new List<SelectListItem>();
+            foreach (var nation in Nation)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = nation.C_Parameters_id.ToString();
+                selectItem.Text = nation.C_Parameters_name;
+
+                nationItems.Add(selectItem);
+            }
+                }
+                @Html.DropDownList("C_PRival_nation", nationItems, new { })<i></i>
+            </div>
+            <div class="mulitytext"><label>籍贯</label>@Html.TextBox("C_PRival_hometown", Model.C_PRival_hometown, new { @class = "dfinput", maxlength = "200" })<i></i></div>
+            <div class="mulitytext">
+                <label>政治面貌</label>
+                @{
+            IList<SelectListItem> paItems = new List<SelectListItem>();
+            foreach (var pa in Pa)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = pa.C_Parameters_id.ToString();
+                selectItem.Text = pa.C_Parameters_name;
+
+                paItems.Add(selectItem);
+            }
+                }
+                @Html.DropDownList("C_PRival_pa", paItems, new { })<i></i>
+            </div>
+            <div class="mulitytext"><label>住址</label>@Html.TextBox("C_PRival_address", Model.C_PRival_address, new { @class = "dfinput", maxlength = "200" })<i></i></div>
+            <div class="mulitytext"><label>身份证号</label>@Html.TextBox("C_PRival_cnumber", Model.C_PRival_cnumber, new { @class = "dfinput", maxlength = "100" })<i></i></div>
+            <div class="mulitytext"><label>联系电话</label>@Html.TextBox("C_PRival_phone", Model.C_PRival_phone, new { @class = "dfinput", positiveInteger = "请输入有效数字", maxlength = "50" })<i></i></div>
+            <div class="mulitytext"><label>性格特征</label>@Html.TextBox("C_PRival_traits", Model.C_PRival_traits, new { @class = "dfinput", maxlength = "200" })<i></i></div>
+            <div class="mulitytext"><label>兴趣爱好</label>@Html.TextBox("C_PRival_hobby", Model.C_PRival_hobby, new { @class = "dfinput", maxlength = "200" })<i></i></div>
+            <div class="mulitytext"><label>区域</label>@Html.Hidden("regionlookup.Code", Model.C_PRival_region_code, new { mulitylookupgroup = "regionlookup" })@Html.TextBox("regionlookup.Name", Model.C_PRival_region_name, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择区域", switchurl = "/baseData/region/MulityCallbackRefList?selectedRegionCode=" + Model.C_PRival_region_code, dialogwidth = "300", dialogheight = "400", mulitylookupgroup = "regionlookup" })<i></i></div>
+            <div class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></div>
+        }
+    </ul>
+</div>

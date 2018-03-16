@@ -1,0 +1,50 @@
+﻿@using Context;
+
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "客户Tab";
+}
+@{
+    string caseLink = String.Empty;
+
+    List<V_User_Org_Post> OrgPosts = UIContext.Current.UserOrgPosts;
+    int count = 0;
+    string regionOrgInfo = String.Empty;
+}
+<div class="itab">
+    <ul>
+        @foreach (V_User_Org_Post orgPost in OrgPosts)
+        {
+            count++;
+            if (String.IsNullOrEmpty(orgPost.OrgRegionName))
+            {//部门不存在区域的情况
+                regionOrgInfo = orgPost.OrgName;
+            }
+            else
+            {//部门存在区域的情况
+                regionOrgInfo = orgPost.OrgRegionName + "->" + orgPost.OrgName;
+            }
+
+            caseLink = "/basedata/Customer/list";
+            if (caseLink.Contains("?"))
+            {
+                caseLink += "&orgCode=" + orgPost.OrgCode.Value + "&postCode=" + orgPost.PostCode.Value + "&postGroupCode=" + orgPost.PostGroupCode.Value;
+            }
+            else
+            {
+                caseLink += "?orgCode=" + orgPost.OrgCode.Value + "&postCode=" + orgPost.PostCode.Value + "&postGroupCode=" + orgPost.PostGroupCode.Value;
+            }
+            if (count == 1)
+            {
+                <li class="special"><a href="@caseLink" tabpanelwidth="100%" tabpanelheight="860" class="selected">@orgPost.PostName<p>@regionOrgInfo</p></a></li>
+            }
+            else
+            {
+                <li class="special"><a href="@caseLink" tabpanelwidth="100%" tabpanelheight="860">@orgPost.PostName<p>@regionOrgInfo</p></a></li>
+            }
+        }
+
+    </ul>
+</div>

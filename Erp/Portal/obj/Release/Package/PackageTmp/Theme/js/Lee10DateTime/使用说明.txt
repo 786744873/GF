@@ -1,0 +1,14 @@
+创作完成于2013年10月15号  作者：杨良伟第一版
+创作完成于2014年1月15号  作者：李金友
+暂时不适用JS生成的对象上使用  定义好文本对象  写上c_type="date" 即可使用本产品  
+但是需要自己引用一个JQUERY文件  同时引用这个文件夹下面的Lee10DateJS.js  即可
+本产品输出的字符格式为  yyyy-MM-dd hh:mm:ss/yyyy-MM-dd hh:mm
+写成以下即是最常规的使用
+<input type="text" c_type="date" />
+
+再以下的看后面文字说明即可
+<input type="text" c_time="1" c_type="date" />选分钟00或30【c_time=1】
+<input type="text" s_type="1" c_type="date" />只能选择日期【s_type=1】
+<input type="text" s_type="2" c_type="date" />时间不显示秒【s_type=2】
+<input type="text" s_type="3" c_type="date" />时间显示当前时分秒的【s_type=3】
+<input type="text" s_type="4" c_type="date" />默认加载显示当前时分秒【s_type=4】

@@ -1,0 +1,53 @@
+﻿@using CommonService.Common;
+@using CommonService.Model.SysManager;
+@using Context;
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "案件信息";
+}
+@{
+    List<C_Role_Role_Power> roleRolePowers = ViewBag.RoleRolePowers;//权限
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+    int type = ViewBag.Type;
+}
+<div class="itab">
+    <ul>
+        @if (UIContext.Current.IsPreSetManager)
+        {
+            if (type == 1)
+            {
+                <li><a href="/CaseManager/case/edit?B_Case_code=@ViewBag.CaseCode" tabpanelwidth="100%" tabpanelheight="800" class="selected">案件内容</a></li>
+            }
+            else
+            {
+                <li><a href="/casemanager/case/details?caseCode=@ViewBag.CaseCode" tabpanelwidth="100%" tabpanelheight="800" class="selected">案件内容</a></li>
+            }
+            <li><a href="/casemanager/clientagreement/tabdetails?caseCode=@ViewBag.CaseCode&type=1" tabpanelwidth="100%" tabpanelheight="800">客户约定</a></li>
+            <li><a href="/AttachmentCaseUpload/attachment_Caselayout?relationCode=@ViewBag.CaseCode&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.案件)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.案件)" tabpanelwidth="100%" tabpanelheight="800">收案材料清单</a></li>
+            <li><a href="/casemanager/rdetail/list?caseCode=@ViewBag.CaseCode&type=1" tabpanelwidth="100%" tabpanelheight="800">收款明细</a></li>
+        }else
+        {
+            if (type == 1)
+            {
+                if (RoleButtons.Where(r => r.C_Menu_buttons_id == 75).Count() != 0)
+                {
+                    <li><a href="/CaseManager/case/edit?B_Case_code=@ViewBag.CaseCode" tabpanelwidth="100%" tabpanelheight="800" class="selected">案件内容</a></li>
+                }
+            }else
+            {
+                <li><a href="/casemanager/case/details?caseCode=@ViewBag.CaseCode" tabpanelwidth="100%" tabpanelheight="800" class="selected">案件内容</a></li>
+            }
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 78).Count() != 0)
+            {
+                 <li><a href="/casemanager/clientagreement/tabdetails?caseCode=@ViewBag.CaseCode&type=1" tabpanelwidth="100%" tabpanelheight="800">客户约定</a></li>
+            }
+             <li><a href="/AttachmentCaseUpload/attachment_Caselayout?relationCode=@ViewBag.CaseCode&targetDirectory=@BaseEnumHelper.GetUploadAttachmentFolder(FileBelongTypeEnum.案件)&fileBelongType=@Convert.ToInt32(FileBelongTypeEnum.案件)" tabpanelwidth="100%" tabpanelheight="800">收案材料清单</a></li>
+            if (RoleButtons.Where(r => r.C_Menu_buttons_id == 79).Count() != 0)
+            {
+                <li><a href="/casemanager/rdetail/list?caseCode=@ViewBag.CaseCode&type=1" tabpanelwidth="100%" tabpanelheight="800">收款明细</a></li>
+            }
+        }
+    </ul>
+</div>

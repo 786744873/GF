@@ -1,0 +1,88 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Court>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithCallbackTemplate.cshtml";//包含回调方法的列表页面固定模板
+}
+@{
+    ViewBag.Title = "法院列表";
+}
+
+@{
+    C_Court couConditon = ViewBag.CouConditon;//法院条件模型
+    string lookupGroup = ViewBag.Lookupgroup;
+    string propertyValueCode = ViewBag.PropertyValueCode;
+    string mappingField = ViewBag.MappingField;//暂时不做处理
+    string mappingFieldName = ViewBag.MappingFieldName;//暂时不做处理
+    string code = "Code_formproperty_" + propertyValueCode;
+    string name = "Name_formproperty_" + propertyValueCode;
+    List<CommonService.Model.C_Region> RegionLists = ViewBag.RegionList;
+}
+<div class="callback_list_tool">
+    <div class="tools">
+        <ul class="toolbar">
+            <li><a target="ajaxtodo" singleoperate="singleoperate" href="javascript:window.parent.bringBack({callbackjson})"><span><img src="/theme/images/new_ok.png" /></span>确定</a></li>
+        </ul>
+        @using (Html.BeginForm("SingleCallbackRefList_CustomerForm", "Court", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+        {
+            <ul class="seachform">
+                <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+                <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />  
+                <input type="hidden" name="lookupgroup" value="@lookupGroup" /> 
+                <input type="hidden" name="propertyValueCode" value="@propertyValueCode" />
+                <li>
+                    <label>区域</label>
+                    @{
+            IList<SelectListItem> regionItems = new List<SelectListItem>();
+            SelectListItem selectItemone = new SelectListItem();
+            selectItemone.Value = null;
+            selectItemone.Text = "全部";
+            regionItems.Add(selectItemone);
+            foreach (var item in RegionLists)
+            {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Value = item.C_Region_code.ToString();
+                selectItem.Text = item.C_Region_name;
+                if (couConditon.C_Court_area != null)
+                {
+                    if (couConditon.C_Court_area.ToString() == item.C_Region_code.ToString())
+                    {
+                        selectItem.Selected = true;
+                    }
+                }
+
+                regionItems.Add(selectItem);
+            }
+                    }
+                    @Html.DropDownList("C_Region_code", regionItems, new { @class = "scinput" })
+                    <i></i>
+                </li>
+                <li><label>法院名称</label>@Html.TextBox("C_Court_name", couConditon.C_Court_name, new { @class = "scinput" })</li>
+                <li><label>&nbsp;</label><input type="submit" class="scbtn" value="查询" /></li>
+            </ul>
+        }
+    </div>
+</div>
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>法院名称</th>
+            <th width="8%">法院区域</th>
+            <th>法院网址</th>
+            <th>法院地址</th>
+            <th>备注</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string callbackStr = "{'lookupgroup':'" + lookupGroup + "','" + code + "':'" + @item.C_Court_code + "','" + name + "':'" + @item.C_Court_name + "'}";
+            <tr target="sid_Iterm" rel="@item.C_Court_code" callbackjson="@callbackStr">
+                <td>@item.C_Court_name</td>
+                <td>@item.C_Court_area_name</td>
+                <td>@item.C_Court_url</td>
+                <td>@item.C_Court_address</td>
+                <td>@item.C_Court_remark</td>
+            </tr>
+        }
+    </tbody>
+</table>

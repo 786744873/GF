@@ -1,0 +1,121 @@
+﻿@model CommonService.Model.OA.O_Email
+@{
+    Layout = null;
+}
+<div class="modal-header">
+    @*<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>*@
+    <h1 class="modal-title">邮件详细</h1>
+
+</div>
+<div class="modal-body">
+    <div class="portlet-body">
+        @if (ViewBag.type == "1")
+        {
+            <div class="inbox-view-info">
+                <div class="row">
+                    <div class="col-md-7">
+                        <span class="text-muted">
+                            来自
+                        </span>
+                        <span class="bold" style="color: #4d82a3">
+                            @Model.O_Email_sendername
+                        </span>
+                        <span class="text-muted">
+                            的邮件
+                        </span>
+                        @Model.O_Email_createTime
+                    </div>
+                    <div class="col-md-5 inbox-info-btn">
+                        <div class="btn-group">
+                            <button class="btn blue dropdown-toggle" data-toggle="dropdown">
+                                操作<i class="fa fa-angle-down"></i>
+                            </button>
+                            <ul class="dropdown-menu pull-right list_tool_dialog_toolbar">
+                                <li>
+                                    <a href="/oa/email/create?userCode=@ViewBag.sendCode" data-messageid="23" class="ajaxify_part">
+                                        <i class="fa fa-reply"></i> 回复
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/oa/email/delete?emailCode=@ViewBag.emailCode" operatetargettype="ajaxtodo" singleoperate="singleoperate" nodatatip="请选中信息！" confirmtip="确认要删除所选数据吗？">
+                                        <i class="fa fa-trash-o"></i> 删除
+                                    </a>
+                                </li>
+                                <li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="row static-info">
+            @*<div class="col-md-1 name">
+                    邮件标题:
+                </div>*@
+            <div class="col-md-12">
+                <h2>@Model.O_Email_title</h2>
+            </div>
+        </div>
+        <div class="row static-info">
+            <div class="col-md-1 name">
+                <small class="text-muted"> 发送人:</small>
+            </div>
+            <div class="col-md-11">
+                <small class="text-muted">@Model.O_Email_sendername</small>
+            </div>
+        </div>
+        <div class="row static-info">
+            <div class="col-md-1 name">
+                <small class="text-muted">时  间:</small>
+            </div>
+            <div class="col-md-11">
+                <small class="text-muted">@Model.O_Email_createTime</small>
+            </div>
+        </div>
+        <div class="row static-info">
+            <div class="col-md-1 name">
+                <small class="text-muted">收件人:</small>
+            </div>
+            <div class="col-md-11">
+                @if (string.IsNullOrEmpty(Model.O_Email_userListname))
+                {
+                    <small></small>
+                }
+                else
+                {
+                    <small class="text-muted"> @Model.O_Email_userListname.Substring(0, Model.O_Email_userListname.Length - 1)</small>
+                }
+
+            </div>
+        </div>
+        <div class="row static-info">
+            @*<div class="col-md-1 name">
+                    邮件内容:
+                </div>*@
+            <div class="col-md-12">
+                @Html.Raw(Model.O_Email_content)
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    @*<button type="button" class="btn default" data-dismiss="modal">返回</button>*@
+    @if (ViewBag.skipType == "2")
+    {
+        <a class="btn ajaxify" href="/oa/dashboard/defaultlayout">
+            返回
+        </a>
+    }
+    else
+    {
+        <a class="btn ajaxify" href="/oa/email/List?type=@ViewBag.type">
+            返回
+        </a>
+    }
+
+</div>
+@Html.Partial("_OAHidePartial")@*引入页面中用到的一些关联触发*@
+<script type="text/javascript" src="/theme/oajs/bar.js"></script>
+<script type="text/javascript">
+    commonListData.uniqueId = 'suiji';
+</script>

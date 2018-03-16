@@ -1,0 +1,68 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Involved_project_CU>
+@{
+    Layout = "~/Views/Shared/_ListSearchTemplate.cshtml";//普通列表页面固定模板
+}
+@{
+    ViewBag.Title = "建设单位信息";
+}
+
+@{
+    C_Involved_project_CU ConConditon = ViewBag.ConConditon;//条件模型
+}
+@{
+    List<CommonService.Model.C_Parameters> Situation = ViewBag.situation;
+    List<CommonService.Model.C_Parameters> BagStyle = ViewBag.bagStyle;
+    List<CommonService.Model.C_Parameters> FundsSource = ViewBag.fundsSource;
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>单位名称</th>
+            <th>报建情况</th>
+            <th>发包形式</th>
+            <th>建设资金来源</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Involved_project_CU_id">
+                <td>@item.Rival_name</td>
+                @{
+                    var situation = Situation.Where(s => s.C_Parameters_id == item.C_Involved_project_CU_situation).FirstOrDefault();
+                }
+                @if (situation != null)
+                {
+                    <td>@situation.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+                    var bagStyle = BagStyle.Where(s => s.C_Parameters_id == item.C_Involved_project_CU_bagStyle).FirstOrDefault();
+                }
+                @if (bagStyle != null)
+                {
+                    <td>@bagStyle.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+                    var fundsSource = FundsSource.Where(s => s.C_Parameters_id == item.C_Involved_project_CU_fundsSource).FirstOrDefault();
+                }
+                @if (fundsSource != null)
+                {
+                    <td>@fundsSource.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>    

@@ -1,0 +1,54 @@
+﻿@model IEnumerable<CommonService.Model.C_Parameters>
+@{
+    CommonService.Model.CustomerForm.F_FormProperty formPropertyValue = ViewBag.FormPropertyValue;//表单属性值数据实体
+}
+@if (String.IsNullOrEmpty(formPropertyValue.V_FormPropertyValue_Value))
+{
+  <div class="col-md-6">
+    <div class="form-group">
+        <label class="control-label col-md-3">@formPropertyValue.F_FormProperty_showName</label>
+        <div class="col-md-9">
+            <div class="input-group">
+                <div class="icheck-inline">
+                    @foreach (var checkboxItem in Model)
+                    {
+                        <label><input class="icheck" name="formproperty_@formPropertyValue.V_FormPropertyValue_Id" value="@checkboxItem.C_Parameters_id" type="checkbox" />@checkboxItem.C_Parameters_name</label>
+                    }                    
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+}
+else
+{
+   <div class="col-md-6">
+    <div class="form-group">
+        <label class="control-label col-md-3">@formPropertyValue.F_FormProperty_showName</label>
+        <div class="col-md-9">
+            <div class="input-group">
+                <div class="icheck-inline">
+                    @{
+                        string propertyValue = formPropertyValue.V_FormPropertyValue_Value;
+                        if (propertyValue.Substring(propertyValue.Length-1,1)!=",")
+                        {
+                           propertyValue = propertyValue + ",";
+                        }
+                    }
+                    @foreach (var checkboxItem in Model)
+                    {
+                        if (propertyValue.Contains(checkboxItem.C_Parameters_id + ","))
+                        {
+                            <label><input class="icheck" name="formproperty_@formPropertyValue.V_FormPropertyValue_Id" value="@checkboxItem.C_Parameters_id" type="checkbox" checked="checked" />@checkboxItem.C_Parameters_name</label>
+                        }
+                        else
+                        {
+                            <label><input class="icheck" name="formproperty_@formPropertyValue.V_FormPropertyValue_Id" value="@checkboxItem.C_Parameters_id" type="checkbox" />@checkboxItem.C_Parameters_name</label>
+                        }                        
+                    }                    
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+}

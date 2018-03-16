@@ -1,0 +1,53 @@
+﻿@model CommonService.Model.OA.O_Form_AuditFlow
+@{
+    Layout = null;
+}
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+    <h4 class="modal-title">提交申请</h4>
+</div>
+<div class="modal-body">
+    @using (Html.BeginForm("SaveEndFlow", "FreeFormAudit", FormMethod.Post, new { id = "formendFreeFlow", @class = "form-horizontal", role = "form" }))
+    {
+        <div class="form-body">
+            <div class="alert alert-danger display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+            </div>
+            <div class="alert alert-success display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据验证通过，数据处理中..."></span>
+            </div>
+            @Html.Hidden("hd_receivers")
+            @Html.Hidden("O_Form_AuditFlow_code", Model.O_Form_AuditFlow_code)
+            @Html.Hidden("O_Form_AuditFlow_o_form", Model.O_Form_AuditFlow_o_form)
+            @Html.Hidden("O_Form_AuditFlow_flowSet_order", Model.O_Form_AuditFlow_flowSet_order)
+            @Html.Hidden("O_Form_AuditFlow_flowSet_auditType", Model.O_Form_AuditFlow_flowSet_auditType)
+            @Html.Hidden("O_Form_AuditFlow_flowSet_rule", Model.O_Form_AuditFlow_flowSet_rule)
+            @Html.Hidden("O_Form_AuditFlow_auditStatus", Model.O_Form_AuditFlow_auditStatus)
+            @Html.Hidden("O_Form_AuditFlow_auditTime", Model.O_Form_AuditFlow_auditTime)
+            @Html.Hidden("O_Form_AuditFlow_isDelete", Model.O_Form_AuditFlow_isDelete)
+            @Html.Hidden("O_Form_AuditFlow_creator", Model.O_Form_AuditFlow_creator)
+            @Html.Hidden("O_Form_AuditFlow_createTime", Model.O_Form_AuditFlow_createTime)
+            @Html.Hidden("O_Form_applyPerson", Model.O_Form_applyPerson)
+            @Html.Hidden("O_Form_Type", Model.O_Form_Type)
+            <div class="form-group">
+                <label class="control-label col-md-3">审核内容<span class="required">*</span></label>
+                <div class="col-md-9">
+                    <div class="input-icon right">
+                        <i class="fa"></i>
+                        @Html.TextArea("O_Form_AuditPerson_content", Model.O_Form_AuditPerson_content, new { @class = "form-control", rows = "3", validateType = "{required:true}", validateMessage = "{required:'审批内容不能为空'}" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn blue" onclick="saveForm('formendFreeFlow')">提交</button>
+    <button type="button" class="btn default" data-dismiss="modal">关闭</button>
+</div>
+<script>
+    FormValidation.init('formendFreeFlow', formDialogAjaxDone);//用表单Id和表单回调函数，初始化表单
+</script>

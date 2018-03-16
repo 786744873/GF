@@ -1,0 +1,111 @@
+﻿@using CommonService.Model;
+
+@model CommonService.Model.C_CRival_legal_management_level
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "法律管理水平信息";
+}
+@{
+    List<CommonService.Model.C_Parameters> Tf = ViewBag.Tf;
+    List<CommonService.Model.C_Parameters> Ms = ViewBag.Ms;
+    List<CommonService.Model.C_Parameters> Habit = ViewBag.Habit;
+    List<CommonService.Model.C_Parameters> Am = ViewBag.Am;
+    List<CommonService.Model.C_Parameters> Sduty = ViewBag.Sduty;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "CRival_legal_management_level", FormMethod.Post, new { id = "formCRival_legal_management_level", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("C_CRival_legal_management_level_id", Model.C_CRival_legal_management_level_id)
+            @Html.Hidden("C_CRival_code", Model.C_CRival_code)
+            @Html.Hidden("C_CRival_legal_management_level_isDelete", Model.C_CRival_legal_management_level_isDelete)
+            @Html.Hidden("C_CRival_legal_management_level_creator", Model.C_CRival_legal_management_level_creator)
+            @Html.Hidden("C_CRival_legal_management_level_craeteTime", Model.C_CRival_legal_management_level_craeteTime)
+            <div class="mulitytext"><label>格式文本</label>
+                @{
+                IList<SelectListItem> tfItems = new List<SelectListItem>();
+                foreach (var tf in Tf)
+                {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = tf.C_Parameters_id.ToString();
+                    selectItem.Text = tf.C_Parameters_name;
+
+                    tfItems.Add(selectItem);
+                }
+                }
+                @Html.DropDownList("C_CRival_legal_management_level_tf", tfItems, new { })<i></i></div>
+            <div class="mulitytext"><label>协商文本</label>@Html.TextBox("C_CRival_legal_management_level_nt", Model.C_CRival_legal_management_level_nt, new { @class = "dfinput", requiredInput = "请输入协商文本", maxlength = "100" })<i></i></div>
+            <div class="mulitytext"><label>管理风格</label>
+                @{
+                IList<SelectListItem> msItems = new List<SelectListItem>();
+                foreach (var ms in Ms)
+                {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = ms.C_Parameters_id.ToString();
+                    selectItem.Text = ms.C_Parameters_name;
+
+                    msItems.Add(selectItem);
+                }
+                }
+                @Html.DropDownList("C_CRival_legal_management_level_ms", msItems, new { })<i></i></div>
+            <div class="mulitytext"><label>使用习惯</label>
+                @{
+                IList<SelectListItem> habitItems = new List<SelectListItem>();
+                foreach (var habit in Habit)
+                {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = habit.C_Parameters_id.ToString();
+                    selectItem.Text = habit.C_Parameters_name;
+
+                    habitItems.Add(selectItem);
+                }
+                }
+                @Html.DropDownList("C_CRival_legal_management_level_habit", habitItems, new { })<i></i></div>
+            <div class="mulitytext"><label>印章责任规避</label>
+                @{
+                IList<SelectListItem> sdutyItems = new List<SelectListItem>();
+                foreach (var sduty in Sduty)
+                {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = sduty.C_Parameters_id.ToString();
+                    selectItem.Text = sduty.C_Parameters_name;
+
+                    sdutyItems.Add(selectItem);
+                }
+                }
+                @Html.DropDownList("C_CRival_legal_management_level_sduty", sdutyItems, new { })<i></i></div>
+            <div class="mulitytext"><label>诉讼管理</label>
+                @{
+                IList<SelectListItem> amItems = new List<SelectListItem>();
+                foreach (var am in Am)
+                {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = am.C_Parameters_id.ToString();
+                    selectItem.Text = am.C_Parameters_name;
+
+                    amItems.Add(selectItem);
+                }
+                }
+                @Html.DropDownList("C_CRival_legal_management_level_am", amItems)<i></i></div>
+            <div class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></div>
+        }
+    </ul>
+</div>

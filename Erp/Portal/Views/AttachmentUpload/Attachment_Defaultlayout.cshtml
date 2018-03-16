@@ -1,0 +1,44 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Files>
+@{
+    Layout = "~/Views/Shared/_AttachmentTemplate.cshtml";//附件页面固定模板
+}
+@{
+    ViewBag.Title = "附件列表";
+}
+@{
+    string relationCode = ViewBag.RelationCode;
+    string targetDirectory = ViewBag.TargetDirectory;
+    string fileBelongType = ViewBag.FileBelongType;   
+}
+<div class="attachment">
+    <input id="fileUpload" type="file" 
+           uploaderoption = "{
+             swf:'/uploadify/scripts/uploadify.swf',
+             uploader:'/attachmentupload/uploadattachment?relationCode=@relationCode&targetDirectory=@targetDirectory&fileBelongType=@fileBelongType',
+             formData:{PHPSESSID:'xxx', ajax:1},
+             queueID:'fileQueue',
+             buttonImage:'/uploadify/img/add.png',
+             buttonClass:'my-uploadify-button',
+             width:87,
+             height:26,
+             'sizeLimit':104857600, 
+             auto:false,          
+             onQueueComplete:uploadifyAllComplete
+     }" />
+    <div id="fileQueue" class="fileQueue"></div>
+    <div class="attachment_bottom">
+        <input type="image" src="/uploadify/img/upload.png" onclick="$('#fileUpload').uploadify('upload', '*');" />
+        <input type="image" src="/uploadify/img/cancel.png" onclick="$('#fileUpload').uploadify('cancel', '*');" />
+    </div>
+</div>
+<div class="iframe_list_tool">
+    <div class="tools">
+        <ul class="toolbar">
+            <li><a  target="ajaxtodo" title="确认要删除选中附件吗?" notice="请选中附件信息！" singleoperate="singleoperate" frametype="iframe" frametarget="iframe_attachment" frameuitype="list" href="/attachmentupload/delete?fileCode={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+        </ul>
+    </div>
+</div>
+<div class="attachment_body">
+    <iframe name="iframe_attachment" width="100%" height="100%" frameborder="0" src="/attachmentupload/attachmentlist?relationCode=@relationCode&targetDirectory=@targetDirectory&fileBelongType=@fileBelongType" scrolling="auto"></iframe>
+</div> 

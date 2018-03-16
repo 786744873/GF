@@ -1,0 +1,118 @@
+﻿@model CommonService.Model.C_Customer
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "客户计划";
+}
+
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+        $(function () {
+            var editPagePropertyType = '@ViewBag.EditPagePropertyType';//修改页面元素类型(控制可编辑项)
+            if (editPagePropertyType == '0') {
+                $('#C_Customer_chiefResponsiblePerson').attr('disabled', 'true');
+                $('#C_Customer_responsiblePerson').attr('disabled', 'true');
+                $('#C_Customer_planStartTime').attr('disabled', 'true');
+                $('#C_Customer_planEndTime').attr('disabled', 'true');
+            } else if (editPagePropertyType == '2') {
+                $('#C_Customer_chiefResponsiblePerson').attr('disabled', 'true');
+                $('#C_Customer_responsiblePerson').attr('disabled', 'true');
+            }
+
+        })
+    </script>
+}
+@section HeadCss
+{
+    <style type="text/css">
+        .formbody {
+            padding: 10px 5px;
+        }
+        .forminfo {
+            padding-left: 0px;
+        }
+        .mulitytext {
+            width: auto;
+        }
+        .mulitytext label {
+            width: 100px;
+        }
+        .mulitytext a {
+            line-height: 21px;
+        }
+        .mulitytext i {
+            margin-left: 0px;
+        }
+    </style>
+}
+@{
+    List<CommonService.Model.SysManager.C_Userinfo> ciefResponsiblePersons = ViewBag.CiefResponsiblePersons;//首席负责人集合
+    List<CommonService.Model.SysManager.C_Userinfo> responsiblePersons = ViewBag.ResponsiblePersons;//负责人集合    
+    bool isShowSaveBtn = ViewBag.IsShowSaveBtn;//是否显示"保存"按钮
+}
+<div class="formbody">
+    <ul class="forminfo">
+        @using (Html.BeginForm("SetCustomerPlan", "CustomerExecute", FormMethod.Post, new { id = "customerPlanForm", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {          
+            @Html.Hidden("C_Customer_code", Model.C_Customer_code) 
+            <div class="mulitytext">
+                <label>首席专家：</label>
+                @{
+                   IList<SelectListItem> auserItems = new List<SelectListItem>();
+                   SelectListItem selectItemone = new SelectListItem();
+                   selectItemone.Value = null;
+                   selectItemone.Text = "请选择";
+                   auserItems.Add(selectItemone);
+                   foreach (var firstUser in ciefResponsiblePersons)
+                   {
+                      SelectListItem selectItem = new SelectListItem();
+                      selectItem.Value = firstUser.C_Userinfo_code.ToString();
+                      selectItem.Text = firstUser.C_Userinfo_name;
+                      if (Model.C_Customer_chiefResponsiblePerson != null)
+                      {
+                          if (Model.C_Customer_chiefResponsiblePerson.ToString() == selectItem.Value.ToString())
+                         {
+                            selectItem.Selected = true;
+                         }
+                      }
+                      auserItems.Add(selectItem);
+                   }
+                }
+                @Html.DropDownList("C_Customer_chiefResponsiblePerson", auserItems, new { requiredInput = "请选择负责人" })<i></i>
+            </div>
+            <div class="mulitytext">
+                <label>部长：</label>
+                @{
+                    IList<SelectListItem> userItems = new List<SelectListItem>();
+                    userItems.Add(selectItemone);
+                    foreach (var user in responsiblePersons)
+                    {
+                      SelectListItem selectItem = new SelectListItem();
+                      selectItem.Value = user.C_Userinfo_code.ToString();
+                      selectItem.Text = user.C_Userinfo_Organization_name + "->" + user.C_Userinfo_name;
+
+                      userItems.Add(selectItem);
+                    }
+                }
+                @Html.DropDownList("C_Customer_responsiblePerson", userItems, new { requiredInput = "请选择负责人" })<i></i>
+            </div>
+            <div class="mulitytext"><label>计划开始时间：</label>@Html.TextBox("C_Customer_planStartTime", Model.C_Customer_planStartTime == null ? "" : Model.C_Customer_planStartTime.Value.ToString("yyyy-MM-dd HH:mm:ss"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss", @class = "dfinput", requiredinput = "请选择日期" })<i></i></div>
+            <div class="mulitytext"><label>计划结束时间：</label>@Html.TextBox("C_Customer_planEndTime", Model.C_Customer_planEndTime == null ? "" : Model.C_Customer_planEndTime.Value.ToString("yyyy-MM-dd HH:mm:ss"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss", @class = "dfinput", requiredinput = "请选择日期" })<i></i></div>
+            if (isShowSaveBtn)
+            {
+                <div class="mulitytext"><a id="btnSave" class="tablelink" onclick="onlySaveForm(this)" href="javascript:void(0);">保存</a></div>
+            }
+        }
+    </ul>
+</div>

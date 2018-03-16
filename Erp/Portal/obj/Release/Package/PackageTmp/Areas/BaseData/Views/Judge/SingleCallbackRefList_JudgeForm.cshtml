@@ -1,0 +1,78 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Contacts>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithCallbackTemplate.cshtml";//包含回调方法的列表页面固定模板
+}
+@{
+    ViewBag.Title = "法官信息";
+}
+@{
+    List<CommonService.Model.C_Parameters> Contactspolitical = ViewBag.Contacts_political;
+}
+@{
+    C_Contacts ConConditon = ViewBag.JudgeConditon;//法官条件模型
+    string lookupGroup = ViewBag.Lookupgroup;
+    string propertyValueCode = ViewBag.PropertyValueCode;
+    string mappingField = ViewBag.MappingField;//暂时不做处理
+    string mappingFieldName = ViewBag.MappingFieldName;//暂时不做处理
+    string code = "Code_formproperty_" + propertyValueCode;
+    string name = "Name_formproperty_" + propertyValueCode;
+}
+<div class="callback_list_tool">
+    <div class="tools">
+        <ul class="toolbar">
+            <li><a target="ajaxtodo" singleoperate="singleoperate" href="javascript:window.parent.bringBack({callbackjson})"><span><img src="/theme/images/new_ok.png" /></span>确定</a></li>
+        </ul>
+        @using (Html.BeginForm("SingleCallbackRefList_JudgeForm", "Judge", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+        {
+            <ul class="seachform">
+                <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+                <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+                <input type="hidden" name="lookupgroup" value="@lookupGroup" />
+                <input type="hidden" name="propertyValueCode" value="@propertyValueCode" />
+                <li><label>法官姓名</label>@Html.TextBox("C_Contacts_name", ConConditon.C_Contacts_name, new { @class = "scinput" })</li>
+                <li><label>&nbsp;</label><input type="submit" class="scbtn" value="查询" /></li>
+            </ul>
+        }
+    </div>
+</div>
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>法官编码</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>政治面貌</th>
+            <th>住址</th>
+            <th>联系电话</th>
+            <th>性格特征</th>
+            <th>兴趣爱好</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string callbackStr = "{'lookupgroup':'" + lookupGroup + "','" + code + "':'" + @item.C_Contacts_relationCode + "','" + name + "':'" + @item.C_Contacts_name + "'}";
+            <tr target="sid_Iterm" rel="@item.C_Contacts_relationCode" callbackjson="@callbackStr">
+                <td>@item.C_Contacts_number</td>
+                <td>@item.C_Contacts_name</td>
+                <td>@(item.C_Contacts_sex == 1 ? "男" : "女")</td>
+                @{
+                    var political = Contactspolitical.Where(p => p.C_Parameters_id == item.C_Contacts_political).FirstOrDefault();
+                }
+                @if (political != null)
+                {
+                    <td>@political.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                <td>@item.C_Contacts_address</td>
+                <td>@item.C_Contacts_contact_number</td>
+                <td>@item.C_Contacts_character</td>
+                <td>@item.C_Contacts_hobby</td>
+            </tr>
+        }
+    </tbody>
+</table>

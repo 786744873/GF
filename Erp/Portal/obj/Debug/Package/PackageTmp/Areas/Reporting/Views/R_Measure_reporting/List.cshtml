@@ -1,0 +1,246 @@
+﻿@{
+    Layout = null;
+}
+<!-- BEGIN PAGE HEADER-->
+@{Html.RenderAction("ReportingContentPageHead");}
+<!-- END PAGE HEADER-->
+<!-- BEGIN PAGE CONTENT-->
+@{
+    List<CommonService.Model.C_Region> AreaList = ViewBag.AreaList;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <!-- BEGIN EXAMPLE TABLE PORTLET-->
+        <div class="portlet box green-meadow">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>执行措施实施报表
+                </div>
+
+            </div>
+            <div class="portlet-body">
+                <form action='/Reporting/R_Measure_reporting/ExportList' id='loan_export' method='post' onsubmit="return isAllowSubmitExport();">
+                    <div id="loan_search" class="row">
+                        @Html.Hidden("isExecutedSearch", "0")
+
+
+                        <div class="col-md-12">
+                            <div class="col-md-1">
+                                <div class="btn-group pull-left">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn green" onclick="executeExport('loan_search', 'loan_export')">导出</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-1" style="margin-bottom:8px">
+                                <button type="button" class="btn green" onclick="TbService()"><span id="tbmsg">同步数据</span></button>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    地区：
+                                    <select id="i_area" name="i_area" class="table-group-action-input form-control input-inline input-small">
+                                        <option value="-1">请选择...</option>
+                                        @foreach (var area in AreaList)
+                                        {
+                                        <option value="@area.C_Region_name">@area.C_Region_name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    部门：<input name="i_organ" id="i_organ" type="text" class="form-control input-small input-inline">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    主办律师：<input name="i_layyer" id="i_layyer" type="text" class="form-control input-small input-inline">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    案件编码：<input name="i_number" id="i_number" type="text" class="form-control input-small input-inline">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    项目名称：<input name="i_project" id="i_project" type="text" class="form-control input-small input-inline">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    管辖法院：<input name="i_court" id="i_court" type="text" class="form-control input-small input-inline">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    委托人：<input name="i_deleg" id="i_deleg" type="text" class="form-control input-small input-inline">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    对方当事人：<input name="i_rival" id="i_rival" type="text" class="form-control input-small input-inline">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    移交标的：<input name="i_yjbd" id="i_yjbd" type="text" class="form-control input-small input-inline">
+                                </div>
+
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    至：<input name="i_yjbdz" id="i_yjbdz" type="text" class="form-control input-small input-inline">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    预期收入：<input name="i_yqsr" id="i_yqsr" type="text" class="form-control input-small input-inline">
+                                </div>
+
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    至：<input name="i_yqsrz" id="i_yqsrz" type="text" class="form-control input-small input-inline">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+
+                                <div class="form-group">
+                                    <span style="float:left; margin-top:9px;">收案时间</span>
+                                    <div class="input-group date date-picker input-icon right" data-date-format="yyyy-mm-dd" style="width:180px">
+                                        <i class="fa"></i>
+                                        <input class="form-control" type="text" name="i_time" id="i_time" />
+                                        <span class="input-group-btn">
+                                            <button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-2">
+
+                                <div class="form-group">
+                                    <span>
+                                        <span style="float:left; margin-top:9px;">至：</span>
+                                    </span>
+                                    <div class="input-group date date-picker input-icon right" data-date-format="yyyy-mm-dd" style="width:180px;">
+                                        <i class="fa"></i>
+                                        <input class="form-control" type="text" name="i_timez" id="i_timez" />
+                                        <span class="input-group-btn">
+                                            <button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-1">
+                                <div class="btn-group pull-right">
+                                    <div class="btn-group">
+                                        <button class="btn green" onclick="executeSearch('loanList', 'loan_search')">
+                                            查询<i class="fa fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+
+                    </div>
+                </form>
+            </div>
+            <table class="table table-striped table-bordered table-hover" id="loanList">
+
+
+                <thead>
+
+                    <tr>
+
+
+                        <th>区域</th>
+                        <th>部门</th>
+                        <th>主办/独立律师</th>
+                        <th>协办/助理律师</th>
+                        <th>执行管辖法院</th>
+                        <th>案号</th>
+                        <th>原告</th>
+                        <th>被告</th>
+                        <th>项目</th>
+                        <th>收案时间</th>
+                        <th>移交标的</th>
+                        <th>文书收入</th>
+                        <th>逾期收入</th>
+                        <th>执行开始时间</th>
+                        <th>是否申请延期</th>
+                        <th>申请延期时长</th>
+                        <th>实际完成时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--数据行在这里-->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- END EXAMPLE TABLE PORTLET-->
+</div>
+<!-- END PAGE CONTENT-->
+<script type="text/javascript" src="/theme/oajs/bar.js"></script>
+<!-- BEGIN MAIN JS -->
+<script>
+    ComponentsPickers.init();
+
+    var defaultColumns = [
+         { "sName": "R_Measure_reporting_area" },
+         { "sName": "R_Measure_reporting_organName" },
+         { "sName": "R_Measure_reporting_host" },
+         { "sName": "R_Measure_reporting_co" },
+         { "sName": "R_Measure_reporting_firstCourt" },
+         { "sName": "R_Measure_reporting_caseNumber" },
+         { "sName": "R_Measure_reporting_plaintiff" },
+         { "sName": "R_Measure_reporting_otherParty" },
+         { "sName": "R_Measure_reporting_project" },
+         { "sName": "R_Measure_reporting_closedDate" },
+         { "sName": "R_Measure_reporting_transferTarget" },
+         { "sName": "R_Measure_reporting_wenshu" },
+         { "sName": "R_Measure_reporting_expectedReturn" },
+         { "sName": "R_Measure_reporting_exDate" },
+         { "sName": "R_Measure_reporting_isExtension" },
+         { "sName": "R_Measure_reporting_extensionTime" },
+         { "sName": "R_Measure_reporting_finishedTime" },
+
+    ];//table 默认列扩展
+    var submitUrl = '/Reporting/R_Measure_reporting/ajaxlist';//数据获取地址
+    TableManaged.init('loanList', "loan_search", defaultColumns, submitUrl);//用table id,table search id,默认列 初始化table对象
+
+    function TbService() {
+        if ($("#tbmsg").text() != "同步数据") {
+            alert("数据同步中，请勿重复点击...");
+            return;
+        }
+
+        $("#tbmsg").text("同步中...");
+
+        $.ajax({
+            type: 'POST',
+            url: "/Reporting/R_Measure_reporting/TbService",
+            cache: false,
+            success: function (result) {
+                alert(result);
+                $("#tbmsg").text("同步数据");
+            }
+        });
+    }
+
+    function downExl() {
+        window.location.href = '/Reporting/R_Measure_reporting/ExportList';
+
+    }
+</script>
+<!-- END MAIN JS -->

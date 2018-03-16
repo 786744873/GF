@@ -1,0 +1,29 @@
+﻿@using CommonService.Model.FlowManager;
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormCheck>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "业务流程表单提交记录";
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th width="140">表单名称</th>
+            <th width="60">提交人</th>
+            <th width="140">提交时间</th>
+            <th>纪要内容</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.F_FormCheck_code">
+                <td>@item.F_Form_chineseName</td>
+                <td>@item.F_FormCheck_creator_name</td>
+                <td>@item.F_FormCheck_createTime.Value.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td style="WORD-BREAK: break-all; WORD-WRAP: break-word;">@item.F_FormCheck_submitInfo</td>
+            </tr>
+        }
+    </tbody>
+</table>

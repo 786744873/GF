@@ -1,0 +1,269 @@
+﻿@using CommonService.Model.CaseManager;
+@using CommonService.Common;
+@using CommonService.Model.SysManager;
+@using Context;
+@model  List<CommonService.Model.CaseManager.B_Case>
+@{
+    B_Case caseConditon = ViewBag.CaseConditon;//案件条件模型
+}
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "分解任务";
+}
+@section HeadScript{
+<script type="text/javascript" src="/theme/js/ajaxdone.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("a[target=popdialog_owndefine]").each(function () {
+                $(this).click(function (event) {
+                    $("[target=sid_Iterm]").rel;
+
+                    alert($("[target=sid_Iterm]").rel);
+                });
+            });
+        })
+
+        function openCaseExecuteView(buttonPower, title, dialogwidth, dialogheight, switchUrl, isPreSetManager, roleButtonIds) {//双击打开详细页面
+            var isAllowOpen = false;//是否允许打开
+            if (isPreSetManager == '1') {
+                isAllowOpen = true;
+            } else {
+                if (roleButtonIds.indexOf(buttonPower) >= 0) {
+                    isAllowOpen = true;
+                }
+            }
+            if (isAllowOpen) {
+                _openDialog(title, switchUrl, dialogwidth, dialogheight);
+            }
+        }
+
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+
+    </script>
+}@section HeadCss{
+    <style type="text/css">
+        .aaa:link {
+            color: #000;
+        }
+
+        .aaa:hover {
+            color: #006030;
+        }
+
+        .aaa:visited {
+            color: #000;
+        }
+
+        .seachform{
+            float:left;
+        }
+         .textarea_bod {
+            border-top: solid 1px #a7b5bc;
+            border-left: solid 1px #a7b5bc;
+            border-right: solid 1px #ced9df;
+            border-bottom: solid 1px #ced9df;
+            background: url(../images/inputbg.gif) repeat-x;
+            background-color:white;
+            text-indent: 5px;
+        }
+        #btnSaveAndNewNext {
+            margin-top: 20px;
+        }
+        #btnSave{
+            margin-top:20px;
+        }
+    </style>
+}
+@{
+    string fkCode = ViewBag.FkCode;
+    List<C_Role_Role_Power> roleRolePowers = ViewBag.RoleRolePowers;//权限
+    List<C_Role_button> RoleButtons = ViewBag.RoleButtons;//按钮权限
+}
+@{
+     string fcasecode = "";
+     string flowcode="";
+     string fccfcode="";
+    CommonService.Model.CaseManager.B_CaseMaintain ModelB_case = ViewBag.B_CaseMain;
+    List<CommonService.Model.C_Parameters> Casetype = ViewBag.Case_type;
+    List<CommonService.Model.C_Parameters> Casenature = ViewBag.Case_nature;
+    List<CommonService.Model.C_Parameters> CasecustomerType = ViewBag.Case_customerType;
+    List<CommonService.Model.C_Parameters> Case_state = ViewBag.Case_state;
+    List<CommonService.Model.C_Parameters> Casesta = ViewBag.casesta;
+    List<CommonService.Model.FlowManager.P_Flow> casestage = ViewBag.casestage;
+
+}
+<div class="tools">
+    <ul class ="seachform">
+        @using (Html.BeginForm("Create", "CaseMaintain", FormMethod.Post, new { id = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+        {
+            <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+            <input name="ThisPageIndex" class="ThisPageIndex" type="hidden" value="@ViewBag.ThisPageIndex" />
+            <input name="IsExcutedFormSearch" class="IsExcutedFormSearch" type="hidden" value="@ViewBag.IsExcutedFormSearch" />
+                    <li><label>原告被告：</label>@Html.TextBox("B_Case_name", caseConditon.B_Case_name, new { @class = "scinput" })</li>
+                    <li><label>案件编码</label>@Html.TextBox("B_Case_number", caseConditon.B_Case_number, new { @class = "scinput" })</li>
+                    <li>
+                        <label>案件状态</label>
+                        @{
+                            IList<SelectListItem> CasestaItems = new List<SelectListItem>();
+                            SelectListItem selectItemone = new SelectListItem();
+                            selectItemone.Value = null;
+                            selectItemone.Text = "全部";
+                            CasestaItems.Add(selectItemone);
+                            foreach (var item in Casesta)
+                            {
+                                SelectListItem selectItem = new SelectListItem();
+                                selectItem.Value = item.C_Parameters_id.ToString();
+                                selectItem.Text = item.C_Parameters_name;
+                                if (caseConditon.B_Case_state != null)
+                                {
+                                    if (caseConditon.B_Case_state.Value == item.C_Parameters_id)
+                                    {
+                                        selectItem.Selected = true;
+                                    }
+                                }
+                                CasestaItems.Add(selectItem);
+                            }
+                        }
+                        @Html.DropDownList("B_Case_state", CasestaItems, new { @class = "scinput" })<i></i></li>
+                    <li>
+                        <label>案件类型</label>
+                        @{
+                            IList<SelectListItem> casetypeTypeItems = new List<SelectListItem>();
+                            casetypeTypeItems.Add(selectItemone);
+                            foreach (var casetypeType in Casetype)
+                            {
+                                SelectListItem selectItem = new SelectListItem();
+                                selectItem.Value = casetypeType.C_Parameters_id.ToString();
+                                selectItem.Text = casetypeType.C_Parameters_name;
+                                if (caseConditon.B_Case_type != null)
+                                {
+                                    if (caseConditon.B_Case_type.Value == casetypeType.C_Parameters_id)
+                                    {
+                                        selectItem.Selected = true;
+                                    }
+                                }
+                                casetypeTypeItems.Add(selectItem);
+                            }
+                        }
+                        @Html.DropDownList("B_Case_type", casetypeTypeItems, new { @class = "scinput" })<i></i></li>
+                    <li><label>&nbsp;</label><input type="submit" class="scbtn" value="查询" /></li>
+        }
+    </ul>
+    
+</div>
+<table class="table_tree_mulitylist">
+    <tr>
+        <td class="rightborder" width="30%" valign="top">
+            <table class="table_noborder">
+                <tr class="bottomborder">
+                    <td height="44" align="center"><b class="fontsize14">所有案件</b></td>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="tablelist">
+                            <thead>
+                                <tr>
+                                    <th>委托人_业务类型_对方当事人</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr target="sid_Iterm" rel="@item.B_Case_code" relname="@item.B_Case_name">
+                                        <td><a class="aaa" title="案件执行" onclick="HqTask('@item.B_Case_code')">@Maticsoft.Common.Cutout.Cut(item.B_Case_name, 20)</a></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td class="rightborder" width="40%" height="450" valign="top">
+            <iframe id="iframe_tree" name="iframe_tree" style="width:470px; height:100%;"  frameborder="0" scrolling="no" onclick="ontext()"></iframe>
+        </td>
+        <td valign="top" width="30%">
+            @using (Html.BeginForm("Save", "CaseMaintain", FormMethod.Post, new { id = "formUserinfo", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+            {
+                @Html.Hidden("formOperateType");//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+
+                @Html.Hidden("B_Flow_code", flowcode);
+                @Html.Hidden("B_Case_code", fcasecode);
+                @Html.Hidden("F_Form_code", fccfcode);
+                <table>
+
+                    <tr>
+                        <td align="center"><label>沟通时间:</label></td>
+                        <td align="center"><div class="mulitytext_1">@Html.Label("B_CaseCost_createTime", (ModelB_case.B_CaseCost_createTime == null ? DateTime.Now.ToString() : ModelB_case.B_CaseCost_createTime.Value.ToString("yyyy-MM-dd")))</div></td>
+                    </tr>
+                    <tr>
+                        <td align="center"><label>沟通对象:</label></td>
+                        <td align="center"><div class="mulitytext_1">@Html.TextBox("B_CaseMaintain_Name", ModelB_case.B_CaseMaintain_Name == null ? "" : ModelB_case.B_CaseMaintain_Name)</div></td>
+                    </tr>
+                    <tr>
+                        <td align="center"><label>沟通纪要:</label></td>
+                        <td align="center">@Html.TextArea("B_CaseMaintain_Content", ModelB_case.B_CaseMaintain_Content, new { maxlength = "500", rows = "8", cols = "28", @class = "textarea_bod" })</td>
+                    </tr>
+                    <tr>
+                        <td align="center"><label>意见建议:</label></td>
+                        <td align="center"><br/>@Html.TextArea("B_CaseMaintain_Suggest", ModelB_case.B_CaseMaintain_Suggest, new { maxlength = "500", rows = "8", cols = "28", @class = "textarea_bod" })</td>
+                    </tr>
+                    <tr>
+                        <td align="center" >
+                            <input name="" type="button" id="btnSave" class="btn btnmr fl" onfocus="GetSb()" onclick="onlySaveForm(this)" value="确认保存"/>
+                        </td>
+                        <td align="center">
+                            <input name="" id="btnSaveAndNewNext" type="button" onfocus="GetSb()" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" />
+                        </td>
+
+                    </tr>
+                </table>
+
+            }
+
+        </td>
+
+
+    </tr>
+</table>
+<script>
+    var flowcode11;
+    function HqTask(val) {
+        $("#B_Case_code").val(val);
+        $("#iframe_tree").attr("src", "/CaseManager/CaseMaintain/MaintainLayout?fkCode=" + val);
+    }
+    function GetSb() {
+       
+        $("#B_Flow_code").val(window.frames["iframe_tree"].frames["iframe_tree"].commonTreeData.uniqueId);
+
+        $("#F_Form_code").val(window.frames["iframe_tree"].frames["iframe_businessFlowForm"].uniqueId);
+
+    }
+    $("#btnSave").click(function () {
+     
+        $("#B_Flow_code").val(window.frames["iframe_tree"].frames["iframe_tree"].commonTreeData.uniqueId);
+    
+        $("#F_Form_code").val(window.frames["iframe_tree"].frames["iframe_businessFlowForm"].uniqueId);
+ 
+    })
+    $('#btnSaveAndNewNext').click(function () {
+
+        $("#B_Flow_code").val(window.frames["iframe_tree"].frames["iframe_tree"].commonTreeData.uniqueId);
+
+        $("#F_Form_code").val(window.frames["iframe_tree"].frames["iframe_businessFlowForm"].uniqueId);
+    })
+    
+   
+</script>

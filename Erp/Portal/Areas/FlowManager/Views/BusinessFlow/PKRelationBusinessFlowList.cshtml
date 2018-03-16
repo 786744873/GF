@@ -1,0 +1,214 @@
+﻿@using CommonService.Common;
+
+@{
+    Layout = "../Shared/_NoPageBusinessFlowListTemplate.cshtml";//无分页业务流程列表页面固定模板
+}
+@{
+    ViewBag.Title = "案件或商机关联业务流程递归列表";
+}
+<style type="text/css">
+    /*
+     * 重置CSS
+     **/
+    .tablelist th
+    {
+       text-indent:1px;
+    }
+    .tablelist td 
+    {
+        text-indent:1px;
+        padding-left:2px;
+    }
+    .grey {
+        background: #e0dfdf;
+    }
+    .yellow {
+        background: #ffcd99;
+    }
+    .blue {
+        background: #85b4f2;
+    }
+    .nooperate_tablelist{
+        border:0px;
+    }
+    .nooperate_tablelist td{
+        border-right:0px solid;
+    }
+    .operate{
+
+    }
+    .operate a{margin-right:5px;}
+    .applyhistory_btn_wrap {
+        clear: both;
+        width: 100%;
+        border-bottom: solid 1px #d0dee5;
+        line-height: 30px;
+        height: 30px;
+        padding-top: 30px;
+    }
+   .applyhistory_btn_wrap a {
+        font-weight: bold;
+        font-size: 12px;
+        border-bottom: solid 3px #66c9f3;
+        background: #7ccafe;
+        float: left;
+        padding: 0 3px;
+        height: 28px;
+        line-height: 30px;
+        cursor: pointer;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-right: 10px;
+        margin-left:10px;
+        color: #fff;
+        border-radius: 2px;
+    }
+    /*重写执行页面，选中行背景色*/
+    .tablelist tbody tr.selected {
+        background: #cbfff3;
+    }
+</style>
+
+@{
+    int fkType = ViewBag.fkType;//流程类型
+    string pkCode = ViewBag.pkCode;//案件Guid或商机Guid
+}
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th></th>
+            <th>序号</th>
+            <th>任务名称</th>
+            <th>任务类型</th>
+            <th>预计开始时间</th>
+            <th>预计结束时间</th>
+            <th>任务表单</th>            
+            @if (fkType == Convert.ToInt32(FlowTypeEnum.案件))
+            {
+                <th>定价</th>
+            }
+            <th>状态</th>
+            @if (fkType == Convert.ToInt32(FlowTypeEnum.商机) || fkType == Convert.ToInt32(FlowTypeEnum.客户))
+            {
+                <th>申请状态</th>
+            }         
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @Html.Raw(ViewBag.BusinessFlowListHtml)
+    </tbody>
+</table>
+
+@if (fkType == Convert.ToInt32(FlowTypeEnum.商机) || fkType == Convert.ToInt32(FlowTypeEnum.客户))
+{//如果为商机或者客户，则显示业务流程申请记录列表
+    Html.RenderAction("BusinesFlowApplyRecord", new { fkType = fkType, fkCode = pkCode });
+}
+
+@{
+    string flowTypeName=String.Empty;//流程类型名称
+    if (fkType == Convert.ToInt32(FlowTypeEnum.案件))
+    {
+        flowTypeName = "案件";
+    }
+    else if (fkType == Convert.ToInt32(FlowTypeEnum.商机))
+    {
+        flowTypeName = "商机";
+    }
+    else if (fkType == Convert.ToInt32(FlowTypeEnum.客户))
+    {
+        flowTypeName = "客户";
+    }
+    if (ViewBag.Fstate == 199)
+    {
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label  style="font-size: 18px; color: #5B5B5B;">@(flowTypeName)未开始</label></span>
+    }
+}
+<div id="tjjyDetails" trlabid="" trid="" trclient_url="" onmouseout="omout_Tj(this)" onmouseover="omover2(this)" class="tjjyDetails" style="overflow: auto; border: 1px solid #000000; display:none; background-color:white;width:600px; height:180px;">
+    <table border="1" cellpadding="5" cellspacing="5" style=" margin-left: 10px; width: 800px;">
+        <tr style="height:180px; width:800px;">
+            <td align="center" width="800">
+                <img src="/Theme/assets/global/plugins/slider-revolution-slider/rs-plugin/assets/loader2.gif" /> 加载中...
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    var status = 0;
+    function omover_Tj2(obj, id, client_url) {
+        $.ajax({
+            type: "POST",
+            async: true,
+            url: client_url,
+            success: function (result) {               
+                $("#" + id).html(result);
+            }
+        })
+
+        var toplab = getAbsoluteTop(obj);
+        var leftlab = getAbsoluteLeft(obj);
+
+        //初始化
+        $("#tjjyDetails").css("display", "none");
+        $("#tjjyDetails").attr("trid", id);
+        $("#tjjyDetails").attr("client_url", client_url);
+
+        var objDiv = $("#" + id + "");
+        var xPoint = window.event.clientX;
+        objDiv.attr("style", "position:absolute; left:" + (leftlab-40) + "px; top:" + (toplab + 15) + "px; overflow: auto;background-color:white; border: 1px solid #000000;height:180px;");
+        $(objDiv).css("display", "block");
+    }
+    function omover2(val) {
+        var objDiv = $("#" + $(val).attr("trid"));
+        $(objDiv).css("display", "block");
+    }
+    function omout_Tj(val) {
+        var objDiv = $("#" + $(val).attr("trid"));
+        $(objDiv).css("display", "none");
+    }
+    function omout_Tj2() {
+        $("#tjjyDetails").hide();
+    }
+
+    //获取控件左绝对位置
+    function getAbsoluteLeft(objectId) {
+        var lo = document.getElementById(objectId)
+        oLeft = lo.offsetLeft
+        while (lo.offsetParent != null) {
+            oParent = lo.offsetParent
+            oLeft += oParent.offsetLeft
+            lo = oParent
+        }
+        return oLeft
+    }
+    //获取控件上绝对位置
+    function getAbsoluteTop(objectId) {
+
+        var o = document.getElementById(objectId);
+        oTop = o.offsetTop;
+        while (o.offsetParent != null) {
+            oParent = o.offsetParent
+            oTop += oParent.offsetTop  // Add parent top position
+            o = oParent
+        }
+        return oTop
+    }
+    //查看业务流程申请历史记录
+    function viewHistoryBusinessApply() {
+        //切换业务流程申请历史记录显示与影藏
+        if ($('#applyhistory_record_wrap').is(":hidden")) {
+            $('#applyhistory_record_wrap').show();
+        } else {
+            $('#applyhistory_record_wrap').hide();
+        }
+    }
+
+</script>

@@ -1,0 +1,34 @@
+﻿@using CommonService.Model.SysManager;
+@model IEnumerable<CommonService.Model.SysManager.C_Organization_post>
+
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "组织机构关联岗位列表";
+}
+@*<div class="formbody">*@
+    @*<div class="frameset_tree_tool">
+        <div class="tools">
+            <ul class="toolbar">
+                <li><a target="popdialog" title="岗位" notice="请选中组织机构！" frametype="frameset" frametarget="leftTreeFrame" frameuitype="tree" dialogwidth="600" dialogheight="600" edit="edit" href="/sysmanager/post/MulityRefList?organizationCode={sid_Iterm}"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+                <li><a target="ajaxtodo" title="确认要删除选中数据吗?" notice="请选择岗位！" frametype="frameset" frametarget="rightContentFrame" frameuitype="list" singleoperate="singleoperate" href="/sysmanager/organizationpost/delete?Organization_post_id={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+            </ul>
+        </div>
+    </div>*@
+    <table class="tablelist">
+        <thead>
+            <tr>
+                <th>岗位名称</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr target="sid_Iterm" rel="@item.C_Organization_post_id">
+                    <td>@item.C_Post_name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+@*</div>*@

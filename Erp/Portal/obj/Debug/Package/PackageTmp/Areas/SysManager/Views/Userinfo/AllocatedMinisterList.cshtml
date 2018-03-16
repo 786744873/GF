@@ -1,0 +1,36 @@
+﻿@using CommonService.Model;
+@using CommonService.Common;
+@using CommonService.Model.SysManager;
+@using Context;
+@model IEnumerable<CommonService.Model.SysManager.C_Userinfo>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "已分配部长列表";
+}
+@{
+    //C_Court couConditon = ViewBag.CouConditon;//法院条件模型
+}
+@section HeadScript{
+    <script type="text/javascript">
+        $(function () {
+
+        })
+    </script>
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>用户名称</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Userinfo_code">
+                <td>@item.C_Userinfo_name</td>
+            </tr>
+        }
+    </tbody>
+</table>    

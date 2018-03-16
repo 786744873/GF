@@ -1,0 +1,119 @@
+﻿@using Context
+@{
+    Layout = "~/Areas/KMS/Views/Study/DefaultLayout.cshtml";//KMS母版页
+}
+@{
+    List<CommonService.Model.C_Parameters> ResourcesType = ViewBag.ResourcesType;//资源类型
+}
+@section HeadCss{
+    <style type="text/css">
+    </style>
+}
+@section HeadScript{
+    <script type="text/javascript" src="/theme/oajs/bar.js"></script>
+    <script>
+        //左侧菜单选择样式
+        //$("#MyCollection").addClass('active');
+        var defaultColumns = [
+             { "sName": "K_Resources_code", "bVisible": false },
+             { "sName": "K_Resources_type", "bVisible": false },
+             { "sName": "K_Resources_url", "bVisible": false },
+             { "sName": "K_study_code", "bVisible": false },
+             { "sName": "K_Resources_name", "render": function (data, type, full) { if (data != null && data.length > 20) { data = data.substring(0, 20) + "..." } return "<a href='' target='_blank' style='color:#5b9bd1'>" + data + "</a>"; } },
+             { "sName": "K_study_createTime" }
+        ];//table 默认列扩展
+        var submitUrl = '/kms/study/AjaxMyCollectionlist';//数据获取地址
+        TableManaged.init('myCollectionList', "myCollectionList_search2", defaultColumns, submitUrl);//用table id,table search id,默认列 初始化table对象
+
+        //资源类型条件
+        var $myCollectionResourcesType = $("#myCollectionResourcesType");
+        $("li", $myCollectionResourcesType).each(function () {
+            $(this).click(function (event) {
+                event.preventDefault();
+                var $this = $(this);
+                var resourcesType = $this.attr("id");
+                $("#collectionResourcesType").val(resourcesType);
+                $("#collectionBen").trigger("click");
+                var typeId = $("#collectionResourcesType").val();
+                $('#myCollectionResourcesType li').each(function (index) {
+                    if ($(this).hasClass("active")) {
+                        $(this).removeClass('active');
+                    }
+                    if ($(this).attr("id") == typeId) {
+                        $(this).addClass('active');
+                    }
+                })
+            });
+        })
+    </script>
+}
+<!-- BEGIN PAGE CONTENT INNER -->
+<div class="portlet box ">
+    <div class="portlet-title">
+        <div class="list_tool_dialog_toolbar actions">
+            <div class="btn-group">
+                <a class="btn btn-primary btn-sm" href="javascript:;" data-toggle="dropdown">
+                    <i class="fa fa-cogs"></i> 工具栏 <i class="fa fa-angle-down"></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li>
+                        <a href="/kms/study/delete?studyCode={sid_Iterm}" operatetargettype="ajaxtodo" singleoperate="singleoperate" nodatatip="请选中信息！" confirmtip="确认要删除所选数据吗？">
+                            <i class="fa fa-trash-o"></i> 删除
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="portlet-body">
+        <div class="row" style="padding-left:30px;">
+            <ul class="mix-filter col-md-7" id="myCollectionResourcesType">
+                类型：
+                <li class="filter active" id="">
+                    不限
+                </li>
+                <li class="filter" id="1">
+                    文档
+                </li>
+                @foreach (var item in ResourcesType)
+                {
+                    if (item.C_Parameters_id == 825 || item.C_Parameters_id == 827 || item.C_Parameters_id == 829)
+                    {
+                        <li class="filter" id="@item.C_Parameters_id">
+                            @item.C_Parameters_name
+                        </li>
+                    }
+                }
+            </ul>
+            <div class="col-md-5">
+                <div id="myCollectionList_search2" class="row">
+                    @Html.Hidden("isExecutedSearch", "0")
+                    @Html.Hidden("collectionResourcesType")
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <input name="s_title" id="s_title" type="text" style="float:right;margin-left:10px;" class="form-control" placeholder="资源名称">
+                            <span class="input-group-btn">
+                                <button id="collectionBen" class="btn blue" type="button" onclick="executeSearch('myCollectionList', 'myCollectionList_search2')"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped table-bordered table-hover margin-top-10" id="myCollectionList">
+            <thead>
+                <tr>
+                    <th>资源Guid</th>
+                    <th>资源类型</th>
+                    <th>资源Url</th>
+                    <th>studyGuid</th>
+                    <th>标题</th>
+                    <th>收藏时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!--数据行在这里-->
+            </tbody>
+        </table>
+    </div>
+</div>

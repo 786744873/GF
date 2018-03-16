@@ -1,0 +1,28 @@
+﻿@using CommonService.Model.SysManager;
+@model IEnumerable<CommonService.Model.SysManager.C_Role_button>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "角色按钮列表";
+}
+
+@{
+    C_Role_button roleConditon = ViewBag.RoleConditon;//角色条件模型
+}
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>按钮名称</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Menu_buttons_id">
+                <td>@item.C_Menu_buttons_name</td>
+            </tr>
+        }
+    </tbody>
+</table>    

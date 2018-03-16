@@ -1,0 +1,135 @@
+﻿@{
+    Layout = "~/Views/Shared/_MulityListIframeWithCallbackTemplate.cshtml";//多个列表Iframe Callback 页面固定模板
+}
+@{
+    ViewBag.Title = "业务流程分配负责人";
+}
+@{
+    CommonService.Model.SysManager.C_Userinfo prConditon = ViewBag.PrConditon;
+}
+@{
+    string flowCode = ViewBag.FlowCode;//关联流程Guid
+    string fkCode = ViewBag.fkCode;//业务流程关联Guid
+    string type = ViewBag.type;
+    string postcode = ViewBag.postcode;
+    //string businessFlowCode = ViewBag.BusinessFlowCode;//关联业务流程Guid
+
+}
+<script>
+    var globalCheckLocalArea=1;//是否已选中"仅查看本区域人员"checkbox
+    function ock2() {
+        //iframe_posts
+        var aa = $("#allChecked");//.attr("checked");
+        var isChecked = "";
+        if (aa.is(':checked')) {
+            isChecked = 1;
+
+        } else {
+            isChecked = 0;
+
+
+        }
+        globalCheckLocalArea = isChecked;
+        var name = $("#C_Userinfo_name").val();
+        var $thisPrivateFrame = $(window.document).find("iframe[name='iframe_posts']");
+        var thisPrivateFrameSrc = $thisPrivateFrame.attr('baseurl');//目标链接地址
+        thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{userName}", name);//
+        thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{isChecked}", isChecked);
+        $thisPrivateFrame.attr('src', thisPrivateFrameSrc);//导航到目标链接地址
+
+
+
+        var aa = $("#allChecked");//.attr("checked");
+        var isChecked = "";
+        if (aa.is(':checked')) {
+            isChecked = 1;
+            
+        } else {
+            isChecked = 0;
+          
+           
+        }
+        globalCheckLocalArea = isChecked;
+        var name = $("#C_Userinfo_name").val();
+        var $thisPrivateFrame = $(window.document).find("iframe[name='iframe_users']");
+        var thisPrivateFrameSrc = $thisPrivateFrame.attr('baseurl');//目标链接地址
+        thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{userName}", name);//
+        thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{isChecked}", isChecked);
+        $thisPrivateFrame.attr('src', thisPrivateFrameSrc);//导航到目标链接地址
+       
+    }
+    function ock() {
+        var aa = $("#allChecked");//.attr("checked");
+        var isChecked = "";
+        if (aa.is(':checked')) {
+            isChecked = 1;
+        } else {
+            isChecked = 0;
+        }
+        var name = $("#C_Userinfo_name").val();
+        var $thisPrivateFrame = $(window.document).find("iframe[name='iframe_users']");
+        var thisPrivateFrameSrc = $thisPrivateFrame.attr('baseurl');//目标链接地址
+        thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{userName}", name);//
+        thisPrivateFrameSrc = thisPrivateFrameSrc.replace("{isChecked}", isChecked);
+        $thisPrivateFrame.attr('src', thisPrivateFrameSrc);//导航到目标链接地址
+
+    }
+    document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+        if (e == null) { // ie  
+            _key = event.keyCode;
+        } else { // firefox              //获取你按下键的keyCode  
+            _key = e.which;          //每个键的keyCode是不一样的  
+        }
+        if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+            ock();
+        }
+    }
+</script>
+<div class="iframe_callback_list_tool">
+    <div class="tools" style="width:670px;">
+        <ul style="float:left;height:35px;line-height:35px;">
+            <li><input id="allChecked" type="checkbox" checked="checked" onclick="ock2()" value="" /><label style="margin-left:5px;">仅查看本区域人员</label> </li>
+        </ul>
+        <ul class="toolbar">
+            <li><a target="ajaxtodo" notice="请选中人员信息！" singleoperate="singleoperate" frametype="iframe" frametarget="iframe_users" frameuitype="list" href="javascript:window.parent.bringBack({callbackjson})"><span></span>确定</a></li>
+        </ul>
+        <ul class="seachform">
+            @using (Html.BeginForm("BusinessFlow_DefaultLayout", "DistributionPerson", FormMethod.Post, new { id = "Oformsub", flowCode = ViewBag.SearchFormID, onsubmit = "return clickSearch(this);" }))
+            {
+                <input type="hidden" name="FlowCode" value="@ViewBag.FlowCode" />
+                <input type="hidden" name="fkCode" value="@fkCode" />
+                <input type="hidden" name="type" value="@type" />
+                <input type="hidden" name="postcode" id="postcode" value="@postcode" />
+
+                <li><label>姓名</label>@Html.TextBox("C_Userinfo_name", prConditon.C_Userinfo_name, new { @class = "scinput" })</li>
+                <li><label></label><input type="button" class="scbtn" onclick="ock()" value="查询" /></li>
+
+                @*<li><a target="ajaxtodo" title="确认要分配选中负责人吗?" notice="请选中人员信息！" singleoperate="singleoperate" frametype="iframe" frametarget="iframe_users" frameuitype="list" href="/flowmanager/distributionperson/confirmbusinessflowperson?businessFlowCode=@businessFlowCode&userCode={sid_Iterm}"><span></span>确定</a></li>*@
+            }
+        </ul>
+    </div>
+</div>
+<table class="table_tree_mulitylist" style="width:665px;">
+    <tr>
+        <td class="rightborder" width="50%" height="490">
+            <table class="table_noborder" height="100%">
+                <tr class="bottomborder">
+                    <td height="44" align="center"><b class="fontsize14">岗位</b></td>
+                </tr>
+                <tr>             
+                    <td height="100%"><iframe name="iframe_posts" id="iframe_posts" width="100%" height="100%" frameborder="0" baseurl="/flowmanager/flowpost/flowrelationpostlist?flowCode=@flowCode&type=@type&PCd2=@postcode&isChecked={isChecked}" src="/flowmanager/flowpost/flowrelationpostlist?flowCode=@flowCode&type=@type&PCd2=@postcode&isChecked={isChecked}" scrolling="auto"></iframe></td>
+                </tr>
+            </table>
+        </td>
+        <td width="*" height="490">
+            <table class="table_noborder" height="100%">
+                <tr class="bottomborder">
+                    <td height="44" align="center"><b class="fontsize14">人员</b></td>
+                </tr>
+                <tr>
+                    <td height="100%"><iframe name="iframe_users" width="100%" height="100%" frameborder="0" baseurl="/sysmanager/userinfo/flowandpostrelationuserlist?flowCode=@flowCode&postCode={postCode}&PCd2=@postcode&C_Userinfo_name={userName}&fkCode=@fkCode&type=@type&isChecked={isChecked}" src="/sysmanager/userinfo/flowandpostrelationuserlist?flowCode=@flowCode&postCode={postCode}&PCd2=@postcode&C_Userinfo_name={userName}&fkCode=@fkCode&type=@type&isChecked={isChecked}" scrolling="auto"></iframe></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

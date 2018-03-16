@@ -1,0 +1,359 @@
+﻿@{
+    Layout = null;
+}
+<!-- BEGIN PAGE HEADER-->
+@{Html.RenderAction("ReportingContentPageHead");}
+<!-- END PAGE HEADER-->
+<!-- BEGIN PAGE CONTENT-->
+
+<div class="row">
+    <div class="col-md-12">
+        <!-- BEGIN EXAMPLE TABLE PORTLET-->
+        <div class="portlet box green-meadow">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>案件报表
+                </div>
+
+            </div>
+            <div class="portlet-body">
+                <div id="loan_search" class="row">
+                    @Html.Hidden("isExecutedSearch", "0")
+
+
+                    <div class="col-md-12">
+                        <div class="col-md-1">
+                            <div class="btn-group pull-left">
+                                <div class="btn-group">
+                                    <button type="button" class="btn green" onclick="DownExil()">导出</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1" style="margin-bottom:8px">
+                            <button type="button" class="btn green" onclick="TbService()"><span id="tbmsg">同步数据</span></button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12" id="D2_1">
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                案号：<input name="s_number" id="s_number" type="text" class="form-control input-small input-inline">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                项目名称：<input name="s_project" id="s_project" type="text" class="form-control input-small input-inline">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                案件类型：
+                                <select id="i_state" name="i_state" class="table-group-action-input form-control input-inline input-small">
+                                    <option value="-1">全部</option>
+                                    <option value="钢材">钢材</option>
+                                    <option value="架管">架管</option>
+                                    <option value="混疑土">混疑土</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                当前阶段：
+                                @{
+                                    List<CommonService.Model.FlowManager.P_Flow> casestage = ViewBag.casestage;
+                                    IList<SelectListItem> CasestaItems = new List<SelectListItem>();
+                                    SelectListItem selectItemone = new SelectListItem();
+                                    selectItemone.Value = "-1";
+                                    selectItemone.Text = "全部";
+
+                                    IList<SelectListItem> caseStageItems = new List<SelectListItem>();
+                                    caseStageItems.Add(selectItemone);
+                                    foreach (var item in casestage)
+                                    {
+                                        SelectListItem selectItem = new SelectListItem();
+                                        selectItem.Value = item.P_Flow_name.ToString();
+                                        selectItem.Text = item.P_Flow_name;
+
+                                        caseStageItems.Add(selectItem);
+                                    }
+                                }
+                                @Html.DropDownList("B_Case_Stage", caseStageItems, new { @class = "table-group-action-input form-control input-inline input-small" })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                是否预警：
+                                <select id="" name="" class="table-group-action-input form-control input-inline input-small">
+                                    <option value="-1">全部</option>
+                                    <option value="是">是</option>
+                                    <option value="否">否</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                是否结案：
+                                <select id="i_state_type" name="i_state_type" class="table-group-action-input form-control input-inline input-small">
+                                    <option value="-1">全部</option>
+                                    <option value="进行中">进行中</option>
+                                    <option value="未开始">未开始</option>
+                                    <option value="已结案">已结案</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                移交时间：
+                                <input name="B_TransferTime_1" id="B_TransferTime_1" type="text" class="form-control input-small input-inline">
+                                至
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+
+                                <input name="B_TransferTime_2" id="B_TransferTime_2" type="text" class="form-control input-small input-inline">
+
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                移交金额：<input name="B_TransferPrice_b" id="B_TransferPrice_b" type="text" class="form-control input-small input-inline">    至
+                            </div>
+
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <input name="B_TransferPrice_e" id="B_TransferPrice_e" type="text" class="form-control input-small input-inline">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                案件区域：
+                                <select id="B_AreaName" name="B_AreaName" class="table-group-action-input form-control input-inline input-small">
+                                    @if (ViewBag.AreaName != null)
+                                    {
+                                        <option value="@ViewBag.AreaName">@ViewBag.AreaName</option>
+
+                                    }
+                                    else
+                                    {
+                                        <option value="-1">全部</option>
+                                        <option value="长沙市">长沙市</option>
+                                        <option value="成都市">成都市</option>
+                                        <option value="重庆市">重庆市</option>
+                                        <option value="北京市">北京市</option>
+                                    }
+                                </select>
+                                @if (ViewBag.AreaName != null)
+                                {
+                                    <script>
+                                        document.getElementById("B_AreaName").value = "@ViewBag.AreaName";
+                                    </script>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="btn-group pull-right">
+                                <div class="btn-group">
+                                    <button class="btn green" onclick="executeSearch('loanList', 'loan_search')">
+                                        查询<i class="fa fa-search"></i>
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="btn-group pull-right">
+                                <div class="btn-group">
+                                    <button class="btn green" onclick="rst()">
+                                        清除
+                                    </button>
+                                    <script>
+                                        function rst() {
+                                            $("#s_number").val("");
+                                            $("#s_project").val("");
+
+                                            $("#B_TransferTime_1").val("");
+                                            $("#B_TransferTime_2").val("");
+                                            $("#B_TransferPrice_b").val("");
+                                            $("#B_TransferPrice_e").val("");
+
+
+                                            document.getElementById("i_state").value = "-1";
+                                            document.getElementById("B_Case_Stage").value = "-1";
+                                            document.getElementById("i_state_type").value = "-1";
+                                            document.getElementById("B_AreaName").value = "-1";
+
+                                        }
+                                    </script>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <table class="table table-striped table-bordered table-hover" id="loanList">
+
+
+                <thead>
+                    <tr>
+                        <th colspan="15"><hr style="margin:0px;margin-top:8px;" /></th>
+
+                        <th colspan="10" valign="bottom" style="text-align:center;">代垫款<hr style="margin: 0px; margin-top: 8px;" /></th>
+                        <th colspan="10"><hr style="margin:0px;margin-top:8px;" /></th>
+                    </tr>
+                    <tr>
+
+
+                        <th>序号</th>
+                        <th>区域</th>
+                        <th>部门</th>
+                        <th>专业顾问</th>
+                        <th>案号</th>
+                        <th>原告</th>
+                        <th>被告</th>
+                        <th>项目名称</th>
+                        <th>案件类型</th>
+                        <th>移交时间</th>
+                        <th>移交金额</th>
+                        <th>案件当前阶段</th>
+                        <th>案件所有阶段</th>
+
+                        <th>预期收入</th>
+                        <th>文书收入</th>
+                        <th>逾期收入</th>
+                        <th>实际收入</th>
+                        <th>应收代垫款总额</th>
+
+
+
+                        <th>受理费</th>
+                        <th>保全费</th>
+                        <th>担保费</th>
+                        <th>保证金</th>
+
+                        <th>差旅费</th>
+                        <th>公告费</th>
+                        <th>法院执行费</th>
+                        <th>应收法院退费</th>
+                        <th>已收法院退费</th>
+                        <th>未收法院退费</th>
+                        <th>实收代垫款总额</th>
+                        <th>合计应收款</th>
+                        <th>合计实收款</th>
+
+                        <th>应收款余额</th>
+                        <th>案件支出</th>
+                        <th>案件收益</th>
+                        <th>案件收益率</th>
+                        <th>是否结案</th>
+
+                        <th>是否预警</th>
+                        <th>备注</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--数据行在这里-->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- END EXAMPLE TABLE PORTLET-->
+</div>
+
+<!-- END PAGE CONTENT-->
+<script type="text/javascript" src="/theme/oajs/bar.js"></script>
+<!-- BEGIN MAIN JS -->
+<script>
+
+
+    var defaultColumns = [
+         { "sName": "ID" },
+         { "sName": "B_AreaName" },
+         { "sName": "B_Case_organ" },
+         { "sName": "B_Case_cons" },
+         { "sName": "B_Case_number" },
+         { "sName": "B_Plaintiff_Name" },
+         { "sName": "B_Defendant_Name" },
+         { "sName": "B_Project_Name" },
+         { "sName": "B_Case_Type" },
+         { "sName": "B_TransferTime" },
+         { "sName": "B_TransferPrice" },
+         { "sName": "B_Case_CurrentStage" },
+         { "sName": "B_Case_AllStage" },
+         { "sName": "B_ExpectedPrice" },
+         { "sName": "B_DocumentPrice" },
+         { "sName": "B_OverduePrice" },
+         { "sName": "B_RealPrice" },
+         { "sName": "B_TotalDisbursementPrice" },
+         { "sName": "B_AcceptancePrice" },
+         { "sName": "B_MaintenancePrice" },
+         { "sName": "B_GuaranteePrice" },
+         { "sName": "B_BondPrice" },
+         { "sName": "B_TravelPrice" },
+         { "sName": "B_AnnouncementPrice" },
+         { "sName": "B_CourtExecutivePrice" },
+         { "sName": "B_RefundReceivablePrice" },
+         { "sName": "B_CourtReceivablePrice" },
+         { "sName": "B_NotReceivablePrice" },
+         { "sName": "B_DisbursementPrice" },
+         { "sName": "B_TotalReceivablesPrice" },
+         { "sName": "B_TotalRealPrice" },
+         { "sName": "B_ReceivablePrice" },
+         { "sName": "B_CaseExpensesPrice" },
+         { "sName": "B_CaseProceedsPrice" },
+         { "sName": "B_CaseYieldPrice" },
+         { "sName": "B_CaseStatus" },
+         { "sName": "B_EarlyWarning" },
+         { "sName": "B_Remark" },
+
+
+    ];//table 默认列扩展
+    var submitUrl = '/Reporting/B_Case/ajaxlist';//数据获取地址
+    TableManaged.init('loanList', "loan_search", defaultColumns, submitUrl);//用table id,table search id,默认列 初始化table对象
+
+    function TbService() {
+        if ($("#tbmsg").text() != "同步数据") {
+            alert("数据同步中，请勿重复点击...");
+            return;
+        }
+
+        $("#tbmsg").text("同步中...");
+
+        $.ajax({
+            type: 'POST',
+            url: "/Reporting/B_Case/TbService",
+            cache: false,
+            success: function (result) {
+                $("#tbmsg").text("同步数据");
+            }
+        });
+    }
+
+    function DownExil() {
+
+        window.location.href = '/Reporting/B_Case/Export?s_number=' + $("#s_number").val() + "&s_project=" + $("#s_project").val() + "&i_state=" + $("#i_state").val() + "&B_Case_Stage=" + $("#i_state_type").val() + "&B_CaseStatus=" + $("#i_state_type").val() + "&B_TransferTime_1=" + $("#B_TransferTime_1").val() + "&B_TransferTime_2=" + $("#B_TransferTime_2").val() + "&B_TransferPrice_b=" + $("#B_TransferPrice_b").val() + "&B_TransferPrice_e=" + $("#B_TransferPrice_e").val() + "&B_AreaName=" + $("#B_AreaName").val();
+    }
+</script>
+
+
+<script type="text/javascript" language=JavaScript charset="UTF-8">
+    document.onkeydown = function (event) {
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && e.keyCode == 27) { // 按 Esc
+
+            rst();
+        }
+        if (e && e.keyCode == 13) { // enter 键
+            executeSearch('loanList', 'loan_search');
+        }
+    }; </script>
+<!-- END MAIN JS -->

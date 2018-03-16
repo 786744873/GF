@@ -1,0 +1,42 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Company>
+@{
+    Layout = "~/Views/Shared/_ListSearchTemplate.cshtml";//普通列表页面固定模板
+}
+@{
+    ViewBag.Title = "客户公司列表";
+}
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>公司名称</th>
+            <th>公司性质</th>
+            <th>企业法人</th>
+            <th>成立时间</th>
+            <th>注册资金</th>
+            <th>营业执照注册号</th>
+            <th>组织机构代码</th>
+            <th>纳税号</th>
+            <th>注册地址</th>
+            <th>是否默认</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Company_code">
+                <td>@item.C_Company_name</td>
+                <td>@item.C_Company_property_name</td>
+                <td>@item.C_Company_legalPerson</td>
+                <td>@(item.C_Company_establishmentDate == null ? "" : item.C_Company_establishmentDate.Value.ToString("yyyy-MM-dd"))</td>
+                <td>@item.C_Company_registeredCapital</td>
+                <td>@item.C_Company_licenseCode</td>
+                <td>@item.C_Company_organizationCode</td>
+                <td>@item.C_Company_taxCode</td>
+                <td>@item.C_Company_address</td>
+                <td>@(item.C_Company_isDefault == true ? "是" : "否")</td>
+            </tr>
+        }
+    </tbody>
+</table>    

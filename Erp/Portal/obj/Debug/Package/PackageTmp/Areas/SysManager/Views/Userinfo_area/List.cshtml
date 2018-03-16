@@ -1,0 +1,100 @@
+﻿@using CommonService.Model;
+@section HeadScript
+{
+    <script type="text/javascript">
+        $(function () {
+            var $businessflowoperatetoolbar = $("div[businessflowoperatetoolbar=businessflowoperatetoolbar]");
+            //单个操作
+            $("a[target=ajaxtodo]", $businessflowoperatetoolbar).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+
+                    //点击了操作按钮
+                    var singleoperate = $this.attr("singleoperate");
+                    if (!singleoperate) {
+                        return;
+                    }
+
+                    //所示Iframe框架，目的是取对应选中列表的唯一标识
+                    var iframeName = $this.attr("iframename");
+                    if (window.frames[iframeName].commonListData.uniqueId == '') {
+                        if (iframeName == 'iframe_flowForm') {
+                            alertMsg.warn('请选中左侧办案阶段所需表单！');
+                        } else if (iframeName == 'iframe_businessFlowForm') {
+                            alertMsg.warn('请选中右侧已配置表单！');
+                        }
+                        return;
+                    }
+
+                    var switchUrl = $this.attr("href");//转化url
+
+                    switchUrl = switchUrl.replace("{sid_Iterm}", window.frames[iframeName].commonListData.uniqueId);//替换唯一标识Guid参数
+
+                    $.ajax({
+                        type: 'POST',
+                        url: switchUrl,
+                        data: null,
+                        dataType: "json",
+                        cache: false,
+                        success: navAjaxDone,
+                        error: function () {
+                            alert('网络错误，请稍后再试!');
+                        }
+                    });
+                });
+            });
+        })
+    </script>
+}
+@*@model IEnumerable<CommonService.Model.C_Region>*@
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "角色关联区域列表";
+}
+
+<div class="formbody">
+    <ul class="forminfo" style=" width:100%">
+            <li>
+                <table style="border: solid 1px #cbcbcb; clear: both;">
+                    <tr>
+                        <td class="rightborder" width="200px" height="450" style="border-right: dotted 1px #c7c7c7;">
+                            <table class="table_noborder" height="100%">
+                                <tr style="border-bottom: dotted 1px #c7c7c7;">
+                                    <td height="44" align="center"><font style="font-size:14px;font-weight:bold;">所有区域</font></td>
+                                </tr>
+                                <tr>
+                                    <td height="100%"><iframe name="iframe_flowForm" width="100%" height="100%" frameborder="0" baseurl="/BaseData/Region/MulityCallbackRefNoPageList?role=" src="/BaseData/Region/MulityCallbackRefNoPageList?role=" scrolling="auto"></iframe></td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td class="rightborder" width="100px" style="border-right: dotted 1px #c7c7c7;">
+                            <table class="table_noborder" height="100%">
+                                <tr>
+                                    <td align="center">
+                                        <div businessflowoperatetoolbar="businessflowoperatetoolbar">
+                                            <a class="enter" target="ajaxtodo" title="" iframename="iframe_flowForm" singleoperate="singleoperate" href="/BaseData/Region/Add_region?userCode=@ViewBag.rrConditon&regioncode={sid_Iterm}&type=1">>></a>
+                                            <a class="enter" target="ajaxtodo" title="确认要删除已选中分配区域吗?" iframename="iframe_businessFlowForm" singleoperate="singleoperate" href="/BaseData/Region/Add_region?userCode=@ViewBag.rrConditon&regioncode={sid_Iterm}&type=2">删除</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="200px" height="450" style="border-right: dotted 1px #c7c7c7;">
+                            <table class="table_noborder" height="100%">
+                                <tr style="border-bottom: dotted 1px #c7c7c7;">
+                                    <td height="44" align="center"><font style="font-size:14px;font-weight:bold;">已分配区域</font></td>
+                                </tr>
+                                <tr>
+                                    <td height="100%"><iframe name="iframe_businessFlowForm" width="100%" height="100%" frameborder="0" baseurl="/BaseData/Region/MulityCallbackRefNoPageList?userCode=@ViewBag.rrConditon" src="/BaseData/Region/MulityCallbackRefNoPageList?userCode=@ViewBag.rrConditon" scrolling="auto"></iframe></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </li>
+    </ul>
+
+</div>

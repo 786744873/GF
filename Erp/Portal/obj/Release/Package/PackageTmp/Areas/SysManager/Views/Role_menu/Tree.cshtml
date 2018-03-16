@@ -1,0 +1,11 @@
+﻿@{
+    Layout = "~/Views/Shared/_TreeTemplate.cshtml";//树形结构固定模板
+}
+@{
+    ViewBag.Title = "菜单树";
+}
+<div class="treeinfo" frametype="iframe" target="iframe_allocatedBtnList,iframe_allBtnList">
+    <div class="tree">
+        @Html.Raw(ViewBag.SingleRoleMenuTreeHtml)
+    </div>
+</div>

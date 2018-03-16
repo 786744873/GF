@@ -1,0 +1,632 @@
+﻿@using System.Data;
+@using CommonService.Common;
+@{
+    Layout = null;
+}
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormProperty>
+<!-- BEGIN PAGE HEADER-->
+@{Html.RenderAction("OAContentPageHead");}
+<!-- END PAGE HEADER-->
+<!-- BEGIN PAGE CONTENT-->
+@{
+    string formName = ViewBag.FormName;//表单名称
+    bool isFreeFlow = ViewBag.IsFreeFlow;//是否自由流程
+    string isFreeFlowStr = isFreeFlow ? "1" : "0";
+    string fFormCode = ViewBag.FFormCode;//ERP表单Guid
+    string oFormCode = ViewBag.OFormCode;//协同办公表单Guid
+    int applyStatus = ViewBag.ApplyStatus;//申请状态
+    List<CommonService.Model.CustomerForm.F_FormProperty> EditFormPropertys = ViewBag.EditFormPropertys;//表单头编辑属性及其属性值
+    DataSet DynamicItemFormPropertyValues = ViewBag.DynamicItemFormPropertyValues;//动态明细表单属性值
+}
+@{
+    var itemGourp = Model.Where(p => p.F_FormProperty_uiType == Convert.ToInt32(UiControlType.普通子表));//明细组(有多少个明细子表)
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-shopping-cart"></i>我的表单
+                </div>
+                <div class="actions btn-set">
+                    <button type="button" name="back" class="btn default"><i class="fa fa-angle-left"></i>返回</button>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="tabbable">
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#tab_form" data-toggle="tab">
+                                @formName
+                            </a>
+                        </li>
+                        @if (applyStatus != Convert.ToInt32(FormApplyTypeEnum.未提交))
+                        {
+                            <li>
+                                <a href="#tab_audit" data-toggle="tab">
+                                    审批流程
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                    <div class="tab-content no-space">
+                        <div class="tab-pane active" id="tab_form">
+                            <div class="light bg-inverse">
+                                <div class="portlet-body form">
+                                    <!-- BEGIN FORM-->
+                                    <form id="customerHeadItemsForm" action="/oa/form/saveheaditem" class="form-horizontal" method="post">
+                                        <div class="form-body">
+                                            <div class="alert alert-danger display-hide">
+                                                <button class="close" data-close="alert"></button>
+                                                <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+                                            </div>
+                                            <div class="alert alert-success display-hide">
+                                                <button class="close" data-close="alert"></button>
+                                                <span defaulttext="表单数据验证通过，数据处理中..."></span>
+                                            </div>
+                                            <input type="hidden" name="fFormCode" value="@fFormCode" />
+                                            <input type="hidden" name="oFormCode" value="@oFormCode" />
+                                            <input type="hidden" name="isFreeFlow" value="@isFreeFlowStr" />
+                                            <input type="hidden" name="operateType" value="1" />
+                                            @foreach (var group in itemGourp)
+                                            {
+                                                int childItemNum = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code).Count();//子属性数量
+                                                string itemGroupValue = group.F_FormProperty_id + "_" + childItemNum;
+                                                <input type="hidden" name="itemGroup_@group.F_FormProperty_id" value="@itemGroupValue" />
+                                            }
+                                            @{
+                                                int rowCount = 0;
+                                                int rowSum = EditFormPropertys.Where(p => p.F_FormProperty_isShow).Count();
+                                                string relname = String.Empty;
+                                                string name = String.Empty;
+                                                string propertyValue = String.Empty;//属性值
+                                                string propertyId = String.Empty;//属性id
+                                                string tempPropertyValue = String.Empty;//临时属性值
+                                                string propertyTime = String.Empty;
+                                                string htmlAttributes = String.Empty;
+                                                string validateType = String.Empty;
+                                                string validateMessage = String.Empty;
+                                                string isOnlyRead = "0";//是否只读属性
+                                                string isRequireValidate = "0";//是否要求验证
+                                            }
+                                            @foreach (var item in EditFormPropertys)
+                                            {
+                                                if (!item.F_FormProperty_isShow)
+                                                {
+                                                    <input type="hidden" id="formproperty_@item.V_FormPropertyValue_Id" name="formproperty_@item.V_FormPropertyValue_Id" value="@item.V_FormPropertyValue_Value" />
+                                                    continue;
+                                                }
+                                                rowCount++;
+                                                htmlAttributes = String.Empty;
+                                                validateType = String.Empty;
+                                                validateMessage = String.Empty;
+                                                propertyTime = String.Empty;                                                
+                                                if (item.F_FormProperty_isRequire)
+                                                {
+                                                    validateType += "required:true,";
+                                                    validateMessage += "required:'请输入" + item.F_FormProperty_showName + "',";
+                                                }
+                                                if (item.F_FormProperty_isOnlyRead)
+                                                {
+                                                    htmlAttributes += "readonly=readonly ";
+                                                }
+                                                //处理其它验证
+                                                string otherValidateStr = item.F_FormProperty_validationMessage;
+                                                if (!String.IsNullOrEmpty(otherValidateStr))
+                                                {
+                                                    string[] validateMessageGroup = otherValidateStr.Split('|');
+                                                    for (int i = 0; i < validateMessageGroup.Length; i++)
+                                                    {
+                                                        // htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                                                    }
+                                                }
+                                                htmlAttributes += "maxlength=" + item.F_FormProperty_fieldLength + " ";
+                                                if (!String.IsNullOrEmpty(validateType))
+                                                {
+                                                    validateType = validateType.Substring(0, validateType.Length - 1);
+                                                    validateType = "validateType={" + validateType + "}";
+                                                }
+                                                if (!String.IsNullOrEmpty(validateMessage))
+                                                {
+                                                    validateMessage = validateMessage.Substring(0, validateMessage.Length - 1);
+                                                    validateMessage = "validateMessage={" + validateMessage + "}";
+                                                }
+                                                if (rowCount % 2 == 1)
+                                                {
+                                                    @Html.Raw("<div class=row>");
+                                                }
+                                                switch (item.F_FormProperty_uiType.Value)
+                                                {
+                                                    case 129://单行文本框
+                                                        if (item.F_FormProperty_isRequire)
+                                                        {
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label class="control-label col-md-3">@item.F_FormProperty_showName<span class="required">*</span></label>
+                                                                    <div class="col-md-9">
+                                                                        <div class="input-icon right">
+                                                                            <i class="fa"></i>
+                                                                            <input id="formproperty_@item.V_FormPropertyValue_Id" name="formproperty_@item.V_FormPropertyValue_Id" type="text" class="form-control" @htmlAttributes @validateType @validateMessage value="@item.V_FormPropertyValue_Value">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label class="control-label col-md-3">@item.F_FormProperty_showName</label>
+                                                                    <div class="col-md-9">
+                                                                        <input id="formproperty_@item.V_FormPropertyValue_Id" name="formproperty_@item.V_FormPropertyValue_Id" type="text" class="form-control" @htmlAttributes @validateType @validateMessage value="@item.V_FormPropertyValue_Value">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        break;
+                                                    case 130://多行文本框
+                                                        if (item.F_FormProperty_isRequire)
+                                                        {
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label class="control-label col-md-3">@item.F_FormProperty_showName<span class="required">*</span></label>
+                                                                    <div class="col-md-9">
+                                                                        <div class="input-icon right">
+                                                                            <i class="fa"></i>
+                                                                            <textarea id="formproperty_@item.V_FormPropertyValue_Id" name="formproperty_@item.V_FormPropertyValue_Id" class="form-control" @htmlAttributes @validateType @validateMessage>@item.V_FormPropertyValue_Value</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label class="control-label col-md-3">@item.F_FormProperty_showName</label>
+                                                                    <div class="col-md-9">
+                                                                        <textarea id="formproperty_@item.V_FormPropertyValue_Id" name="formproperty_@item.V_FormPropertyValue_Id" class="form-control" @htmlAttributes @validateType @validateMessage>@item.V_FormPropertyValue_Value</textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        break;
+                                                    case 131://单选框
+                                                        Html.RenderAction("GenerateRadio", new { formPropertyValue = @item });
+                                                        break;
+                                                    case 132://复选框
+                                                        if (!String.IsNullOrEmpty(item.F_FormProperty_dataSource))
+                                                        {
+                                                            Html.RenderAction("GenerateCheckbox", new { formPropertyValue = @item });
+                                                        }
+                                                        else
+                                                        {//这种情况只能存放一个布尔型的值:1或0
+                                                            if (String.IsNullOrEmpty(item.V_FormPropertyValue_Value))
+                                                            {
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label class="control-label col-md-3">@item.F_FormProperty_showName</label>
+                                                                        <div class="col-md-9">
+                                                                            <div class="input-group">
+                                                                                <div class="icheck-inline">
+                                                                                    <label><input class="icheck" name="formproperty_@item.V_FormPropertyValue_Id" value="0" type="checkbox" /></label>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label class="control-label col-md-3">@item.F_FormProperty_showName</label>
+                                                                        <div class="col-md-9">
+                                                                            <div class="input-group">
+                                                                                <div class="icheck-inline">
+                                                                                    <label><input class="icheck" name="formproperty_@item.V_FormPropertyValue_Id" value="1" type="checkbox" /></label>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        }
+                                                        break;
+                                                    case 133://下拉框
+                                                        break;
+                                                    case 134://日期框
+                                                        if (!String.IsNullOrEmpty(item.V_FormPropertyValue_Value))
+                                                        {
+                                                            DateTime propertyDate;
+                                                            bool isDateParseSuccess = DateTime.TryParse(item.V_FormPropertyValue_Value, out propertyDate);
+                                                            if (isDateParseSuccess)
+                                                            {
+                                                                propertyTime = propertyDate.ToString("yyyy-MM-dd");
+                                                            }
+                                                        }
+                                                        if (item.F_FormProperty_isRequire)
+                                                        {
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label class="control-label col-md-3">@item.F_FormProperty_showName<span class="required">*</span></label>
+                                                                    <div class="col-md-9">
+                                                                        <div class="input-group input-medium date date-picker input-icon right" data-date='@DateTime.Now.ToString("yyyy-MM-dd")' data-date-format="yyyy-mm-dd">
+                                                                            <i class="fa"></i>
+                                                                            <input type="text" class="form-control" id="formproperty_@item.V_FormPropertyValue_Id" name="formproperty_@item.V_FormPropertyValue_Id" placeholder="yyyy-mm-dd" @htmlAttributes @validateType @validateMessage value="@propertyTime">
+                                                                            <span class="input-group-btn">
+                                                                                <button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label class="control-label col-md-3">@item.F_FormProperty_showName</label>
+                                                                    <div class="col-md-9">
+                                                                        <div class="input-group input-medium date date-picker" data-date='@DateTime.Now.ToString("yyyy-MM-dd")' data-date-format="yyyy-mm-dd">
+                                                                            <input type="text" class="form-control" id="formproperty_@item.V_FormPropertyValue_Id" name="formproperty_@item.V_FormPropertyValue_Id" placeholder="yyyy-mm-dd" @htmlAttributes @validateType @validateMessage value="@propertyTime">
+                                                                            <span class="input-group-btn">
+                                                                                <button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        break;
+                                                }
+                                                if (rowCount == rowSum)
+                                                {
+                                                    @Html.Raw("</div>");
+                                                }
+                                                else
+                                                {
+                                                    if (rowCount % 2 == 0)
+                                                    {
+                                                        @Html.Raw("</div>");
+                                                    }
+                                                }
+                                            }
+                                            @foreach (var group in itemGourp)
+                                            {
+                                                <div class="table-toolbar">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="btn-group">
+                                                                <a class="btn green" id="table_addbutton_@group.F_FormProperty_id">
+                                                                    新增 <i class="fa fa-plus"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="table-scrollable">
+                                                    <table id="table_@group.F_FormProperty_id" class="table table-striped table-bordered table-hover" style="color:#333;" relationbutton="table_addbutton_@group.F_FormProperty_id">
+                                                        <thead>
+                                                            <tr>
+                                                                @{
+                                                                    var groupItems = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code);
+                                                                }
+                                                                @foreach (var groupItem in groupItems)
+                                                                {
+                                                                    name = String.Empty;
+                                                                    htmlAttributes = String.Empty;
+                                                                    validateType = String.Empty;
+                                                                    validateMessage = String.Empty;
+
+                                                                    name = "items_" + group.F_FormProperty_id + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_id;
+                                                                    if (!groupItem.F_FormProperty_isShow)
+                                                                    {
+                                                                        <th scope="col" class="hide" uitype="hid" name="@name">@groupItem.F_FormProperty_showName</th>
+                                                                        continue;
+                                                                    }
+
+                                                                    isOnlyRead = "0";//是否只读属性
+                                                                    if (groupItem.F_FormProperty_isOnlyRead)
+                                                                    {
+                                                                        isOnlyRead = "1";
+                                                                    }
+                                                                    isRequireValidate = "0";//是否要求验证
+                                                                    if (groupItem.F_FormProperty_isRequire)
+                                                                    {
+                                                                        isRequireValidate = "1";
+                                                                        validateType += "required:true,";
+                                                                        validateMessage += "required:'请输入" + groupItem.F_FormProperty_showName + "',";
+                                                                    }
+                                                                    //处理其它验证
+                                                                    string otherValidateStr = groupItem.F_FormProperty_validationMessage;
+                                                                    if (!String.IsNullOrEmpty(otherValidateStr))
+                                                                    {
+                                                                        string[] validateMessageGroup = otherValidateStr.Split('|');
+                                                                        for (int i = 0; i < validateMessageGroup.Length; i++)
+                                                                        {
+                                                                            // htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                                                                        }
+                                                                    }
+                                                                    if (!String.IsNullOrEmpty(validateType))
+                                                                    {
+                                                                        validateType = "validateType=" + validateType;
+                                                                    }
+                                                                    if (!String.IsNullOrEmpty(validateMessage))
+                                                                    {
+                                                                        validateMessage = validateMessage.Substring(0, validateMessage.Length - 1);
+                                                                        validateMessage = "validateMessage=" + validateMessage + "";
+                                                                    }
+                                                                    <th scope="col" uitype="@groupItem.F_FormProperty_uiType" name="@name" size="@groupItem.F_FormProperty_fieldLength" isonlyread="@isOnlyRead" isrequirevalidate="@isRequireValidate" @validateType @validateMessage>@groupItem.F_FormProperty_showName</th>
+                                                                }
+                                                                <th scope="col" uitype="del">操作</th> 
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int j = 0; j < DynamicItemFormPropertyValues.Tables.Count; j++)
+                                                            {//这个地方的业务逻辑都为处理加载列表表单属性值
+                                                                DataTable dt = DynamicItemFormPropertyValues.Tables[j];
+                                                                bool isThisTable = false;//是否为普通子表属性关联table
+                                                                int columnCount = 0;//table 列数量
+                                                                foreach (var groupItem in groupItems)
+                                                                {
+                                                                    if (dt.Columns.Contains(groupItem.F_FormProperty_code.Value.ToString().ToUpper()))
+                                                                    {
+                                                                        isThisTable = true;
+                                                                        columnCount = dt.Columns.Count;
+                                                                        break;
+                                                                    }
+                                                                }
+                                                                if (isThisTable)
+                                                                {
+                                                                    int rowIndex = 0;//行索引号
+                                                                    foreach (DataRow dr in dt.Rows)
+                                                                    {
+                                                                        <tr>
+                                                                            @foreach (var groupItem in groupItems)
+                                                                            {
+                                                                                relname = String.Empty;
+                                                                                name = String.Empty;
+
+                                                                                htmlAttributes = String.Empty;
+                                                                                validateType = String.Empty;
+                                                                                validateMessage = String.Empty;
+                                                                                propertyId = String.Empty;
+                                                                                propertyValue = String.Empty;
+                                                                                tempPropertyValue = String.Empty;
+
+                                                                                tempPropertyValue = dr[groupItem.F_FormProperty_code.Value.ToString().ToUpper()].ToString();
+                                                                                if (!String.IsNullOrEmpty(tempPropertyValue))
+                                                                                {
+                                                                                    if (tempPropertyValue.Substring(0, 1) == "[")
+                                                                                    {
+                                                                                        tempPropertyValue = tempPropertyValue.Substring(1, tempPropertyValue.Length - 1);
+                                                                                        int charIndex = tempPropertyValue.IndexOf(']');
+                                                                                        propertyId = tempPropertyValue.Substring(0, charIndex);
+                                                                                        propertyValue = tempPropertyValue.Substring(charIndex + 1, tempPropertyValue.Length - charIndex - 1);
+                                                                                    }
+                                                                                }
+
+                                                                                name = "items_" + group.F_FormProperty_id + "_" + rowIndex + "_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_id + "_" + propertyId;
+                                                                                relname = "items_" + group.F_FormProperty_id + "_index_" + groupItem.F_FormProperty_fieldName + "_" + groupItem.F_FormProperty_id + "_" + propertyId;
+                                                                                if (!groupItem.F_FormProperty_isShow)
+                                                                                {
+                                                                                    <td class="hide"><input type="hidden" name="@name" relname="@relname" value="@propertyValue" /></td>
+                                                                                    continue;
+                                                                                }
+                                                                                if (groupItem.F_FormProperty_isRequire)
+                                                                                {
+                                                                                    validateType += "required:true,";
+                                                                                    validateMessage += "required:'请输入" + groupItem.F_FormProperty_showName + "',";
+                                                                                }
+                                                                                if (groupItem.F_FormProperty_isOnlyRead)
+                                                                                {
+                                                                                    htmlAttributes += "readonly=readonly ";
+                                                                                }
+                                                                                //处理其它验证
+                                                                                string otherValidateStr = groupItem.F_FormProperty_validationMessage;
+                                                                                if (!String.IsNullOrEmpty(otherValidateStr))
+                                                                                {
+                                                                                    string[] validateMessageGroup = otherValidateStr.Split('|');
+                                                                                    for (int i = 0; i < validateMessageGroup.Length; i++)
+                                                                                    {
+                                                                                        // htmlAttributes += validateMessageGroup[i].Replace("\"", "") + " ";//替换验证信息中存在的双引号
+                                                                                    }
+                                                                                }
+                                                                                htmlAttributes += "maxlength=" + groupItem.F_FormProperty_fieldLength + " ";
+                                                                                if (!String.IsNullOrEmpty(validateType))
+                                                                                {
+                                                                                    validateType = validateType.Substring(0, validateType.Length - 1);
+                                                                                    validateType = "validateType={" + validateType + "}";
+                                                                                }
+                                                                                if (!String.IsNullOrEmpty(validateMessage))
+                                                                                {
+                                                                                    validateMessage = validateMessage.Substring(0, validateMessage.Length - 1);
+                                                                                    validateMessage = "validateMessage={" + validateMessage + "}";
+                                                                                }
+                                                                                switch (groupItem.F_FormProperty_uiType.Value)
+                                                                                {
+                                                                                    case 129://单行文本框
+                                                                                        if (groupItem.F_FormProperty_isRequire)
+                                                                                        {
+                                                                                            <td>
+                                                                                                <div class="form-group">
+                                                                                                    <div class="col-md-12">
+                                                                                                        <div class="input-icon right">
+                                                                                                            <i class="fa"></i>
+                                                                                                            <input type="text" class="form-control" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes @validateType @validateMessage />
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <td>
+                                                                                                <div class="form-group">
+                                                                                                    <div class="col-md-12">
+                                                                                                        <input type="text" class="form-control" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes @validateType @validateMessage />
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        }
+                                                                                        break;
+                                                                                    case 130://多行文本框
+                                                                                        if (groupItem.F_FormProperty_isRequire)
+                                                                                        {
+                                                                                            <td>
+                                                                                                <div class="form-group">
+                                                                                                    <div class="col-md-12">
+                                                                                                        <div class="input-icon right">
+                                                                                                            <i class="fa"></i>
+                                                                                                            <textarea class="form-control input-sm" cols="20" name="@name" relname="@relname" rows="2" @htmlAttributes @validateType @validateMessage>@propertyValue</textarea>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <td>
+                                                                                                <div class="form-group">
+                                                                                                    <div class="col-md-12">
+                                                                                                        <textarea class="form-control input-sm" cols="20" name="@name" relname="@relname" rows="2" @htmlAttributes @validateType @validateMessage>@propertyValue</textarea>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        }
+                                                                                        break;
+                                                                                    case 134://日期框
+                                                                                        if (groupItem.F_FormProperty_isRequire)
+                                                                                        {
+                                                                                            <td>
+                                                                                                <div class="form-group">
+                                                                                                    <div class="col-md-12">
+                                                                                                        <div class="input-group input-medium date date-picker input-icon right" data-date-format="yyyy-mm-dd">
+                                                                                                            <i class="fa"></i>
+                                                                                                            <input type="text" class="form-control" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes @validateType @validateMessage />
+                                                                                                            <span class="input-group-btn">
+                                                                                                                <button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+                                                                                                            </span>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <td>
+                                                                                                <div class="form-group">
+                                                                                                    <div class="col-md-12">
+                                                                                                        <div class="input-group input-medium date date-picker" data-date-format="yyyy-mm-dd">
+                                                                                                            <input type="text" class="form-control" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes @validateType @validateMessage />
+                                                                                                            <span class="input-group-btn">
+                                                                                                                <button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+                                                                                                            </span>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        }
+                                                                                        break;
+                                                                                    case 578://时间框
+                                                                                        if (groupItem.F_FormProperty_isRequire)
+                                                                                        {
+                                                                                            <td>
+                                                                                                <div class="form-group">
+                                                                                                    <div class="col-md-12">
+                                                                                                        <div class="input-group input-medium  input-icon right">
+                                                                                                            <i class="fa"></i>
+                                                                                                            <input type="text" class="form-control timepicker" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes @validateType @validateMessage />
+                                                                                                            <span class="input-group-btn">
+                                                                                                                <button class="btn default" type="button"><i class="fa fa-clock-o"></i></button>
+                                                                                                            </span>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <td>
+                                                                                                <div class="form-group">
+                                                                                                    <div class="col-md-12">
+                                                                                                        <div class="input-group input-medium">
+                                                                                                            <input type="text" class="form-control timepicker" name="@name" relname="@relname" value="@propertyValue" @htmlAttributes @validateType @validateMessage />
+                                                                                                            <span class="input-group-btn">
+                                                                                                                <button class="btn default" type="button"><i class="fa fa-clock-o"></i></button>
+                                                                                                            </span>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        }
+                                                                                        break;
+                                                                                }
+                                                                            }
+                                                                            <td><a href="javascript:;" class="btn default btn-sm"><i class="fa fa-times"></i> 删除</a></td>
+                                                                        </tr>
+                                                                            rowIndex++;
+                                                                    }
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="form-actions">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <div class="col-md-offset-3 col-md-9">
+                                                            @if (applyStatus == Convert.ToInt32(FormApplyTypeEnum.未提交))
+                                                            {
+                                                                <button type="button" class="btn green" onclick="saveOrSubmitSingleItemsCustomerForm('customerHeadItemsForm', 1)">保存</button>
+                                                                <button type="button" class="btn blue" onclick="saveOrSubmitSingleItemsCustomerForm('customerHeadItemsForm', 2)">保存并提交</button>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <!-- END FORM-->
+                                </div>
+                            </div>
+                        </div>
+                        @if (applyStatus != Convert.ToInt32(FormApplyTypeEnum.未提交))
+                        {
+                            <div class="tab-pane" id="tab_audit">
+                                @if (isFreeFlow)
+                                {
+                                    Html.RenderAction("FreeFlowAudit", "FreeFormAudit", new { oFormCode = oFormCode });
+                                }
+                                else
+                                {
+                                    Html.RenderAction("NotFreeFlowAudit", "NotFreeFormAudit", new { oFormCode = oFormCode });
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("_OAHidePartial")@*引入页面中用到的一些关联触发*@
+<!-- END PAGE CONTENT-->
+<!-- BEGIN MAIN JS -->
+<!--自定义编辑列表处理js-->
+<script type="text/javascript" src="/theme/oajs/customereditlist.js"></script>
+<script>
+    ComponentsPickers.init();//日期控件初始化
+    FormValidation.init('customerHeadItemsForm', formNavAjaxDone);//用表单Id和表单回调函数，初始化表单
+    function saveOrSubmitSingleItemsCustomerForm(formId, type) {//保存或提交表单
+        $('#' + formId).find("input[type=hidden][name='operateType']").val(type);
+        saveForm(formId)
+    }
+</script>
+<!-- END MAIN JS -->

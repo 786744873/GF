@@ -1,0 +1,171 @@
+﻿@model CommonService.Model.CaseManager.B_Case
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "案件";
+}
+@{
+    List<CommonService.Model.C_Parameters> Casetype = ViewBag.Case_type;
+    List<CommonService.Model.C_Parameters> Casenature = ViewBag.Case_nature;
+    List<CommonService.Model.C_Parameters> CasecustomerType = ViewBag.Case_customerType;
+    List<CommonService.Model.C_Region> regionList = ViewBag.RegionList;
+}
+@section HeadCss{
+    <style type="text/css">
+        .mulitytextarealonger textarea {
+            width:980px;
+            height: 80px;
+            overflow: auto;
+        }
+        .btn{
+            margin-top:30px;
+        }
+        b {
+            color: red;
+            float: left;
+            margin-left: -10px;
+            margin-top: 5px;
+        }
+        .mulitytextarealonger{width:1120px;}
+    </style>
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+        function callback(lookupgroup) {
+            var id = lookupgroup + "_Code";
+            var textId = lookupgroup + "_Name";
+            var code = $("#" + id).val();
+            var switchUrl = $("#" + textId).attr("switchurl");
+            switchUrl = switchUrl + code;
+            $("#" + textId).attr("switchurl", switchUrl);
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "Case", FormMethod.Post, new { id = "formCase", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+            @Html.Hidden("B_Case_id", Model.B_Case_id)
+            @Html.Hidden("B_Case_code", Model.B_Case_code)
+            @Html.Hidden("B_Case_state", Model.B_Case_state)
+            @Html.Hidden("B_Case_creator", Model.B_Case_creator)
+            @Html.Hidden("B_Case_createTime", Model.B_Case_createTime)
+            @Html.Hidden("B_Case_isDelete", Model.B_Case_isDelete)
+            @Html.Hidden("B_Case_courtFirst", Model.B_Case_courtFirst)
+            @Html.Hidden("B_Case_courtSecond", Model.B_Case_courtSecond)
+            @Html.Hidden("B_Case_courtExec", Model.B_Case_courtExec)
+            @Html.Hidden("B_Case_Trial", Model.B_Case_Trial)
+            @Html.Hidden("B_Case_person", Model.B_Case_person)
+            @Html.Hidden("B_Case_firstClassResponsiblePerson", Model.B_Case_firstClassResponsiblePerson)
+            @Html.Hidden("B_Case_planStartTime", Model.B_Case_planStartTime)
+            @Html.Hidden("B_Case_planEndTime", Model.B_Case_planEndTime)
+            @Html.Hidden("B_Case_factStartTime", Model.B_Case_factStartTime)
+            @Html.Hidden("B_Case_factEndTime", Model.B_Case_factEndTime)
+         
+            if (Model.B_Case_number == null)
+            {
+                 <div class="mulitytext"><label>案件编码</label>自动生成<i></i></div>
+            }
+            else{
+            
+             <div class="mulitytext"><label>案件编码</label>@Html.Label("B_Case_number", Model.B_Case_number)<i></i></div>
+            
+            }
+                
+                
+            
+           
+            @*<div class="mulitytext"><label>合同编号</label>@Html.TextBox("B_Case_contractNo", Model.B_Case_contractNo, new { @class = "dfinput", maxlength = "50" })<i></i></div>*@
+            <div class="mulitytext"><b>*</b><label>客户</label>@Html.Hidden("customermulitylookup.Code", Model.C_Customer_code, new { mulitylookupgroup = "customermulitylookup", triggerevent = "change", clearRelationUIControlValue = "input[type=hidden][name='clientmulitylookup.Code'],input[type=text][name='clientmulitylookup.Name']" })@Html.TextBox("customermulitylookup.Name", Model.C_Customer_name, new { onclick = "callback('customermulitylookup')", maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择客户", requiredInput = "请选择客户", switchurl = "/basedata/customer/mulitycallbackreflist?type=81&checkedCustomerCodes=" + Model.C_Customer_code, dialogwidth = "1080", dialogheight = "500", mulitylookupgroup = "customermulitylookup" })<i></i></div>
+            <div class="mulitytext"><b>*</b><label>委托人</label>@Html.Hidden("clientmulitylookup.Code",Model.C_Client_code, new { mulitylookupgroup = "clientmulitylookup" })@Html.TextBox("clientmulitylookup.Name", Model.C_Client_name, new { onclick = "callback('clientmulitylookup')", maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择委托人", requiredInput = "请选择委托人", switchurl = "/baseData/customer/mulitycallbackreflist?customerCodes={input[type=hidden][name='customermulitylookup.Code']}&type=82&checkedCustomerCodes=" + Model.C_Client_code, dialogwidth = "1080", dialogheight = "500", mulitylookupgroup = "clientmulitylookup" })<i></i></div>
+            <div class="mulitytext"><b>*</b><label>对方当事人</label>@Html.Hidden("rivallookupParty.Code", Model.C_Person_code, new { mulitylookupgroup = "rivallookupParty" })@Html.Hidden("rivallookupParty.Type", Model.C_Person_type, new {  mulitylookupgroup = "rivallookupParty" })@Html.TextBox("rivallookupParty.Name", Model.C_Person_name, new { onclick = "callback('rivallookupParty')", maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择当事人", requiredInput = "请选择当事人名称", switchurl = "/baseData/rival/ListTabDetails?type=1&checkedRivalCode=" + Model.C_Person_code, dialogwidth = "1080", dialogheight = "540", mulitylookupgroup = "rivallookupParty" })<i></i></div>
+            <div class="mulitytext"><label>被执行人</label>@Html.Hidden("rivallookupBeexecuted.Code", Model.C_Executer_code, new { mulitylookupgroup = "rivallookupBeexecuted" })@Html.Hidden("rivallookupBeexecuted.Type", Model.C_Executer_type, new { mulitylookupgroup = "rivallookupBeexecuted" })@Html.TextBox("rivallookupBeexecuted.Name", Model.C_Executer_name, new { onclick = "callback('rivallookupBeexecuted')", maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择被执行人", switchurl = "/baseData/rival/ListTabDetails?type=2&checkedRivalCode=" + Model.C_Executer_code, dialogwidth = "1080", dialogheight = "540", mulitylookupgroup = "rivallookupBeexecuted" })<i></i></div>
+            @*<div class="mulitytext"><b>*</b><label>所属区域</label>@Html.Hidden("regionlookup.Code", Model.C_Region_code, new { mulitylookupgroup = "regionlookup" })@Html.TextBox("regionlookup.Name", Model.C_Region_name, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择区域", requiredInput = "请选择区域名称", switchurl = "/baseData/region/MulityCallbackRefList?selectedRegionCode=" + Model.C_Region_code, dialogwidth = "1080", dialogheight = "450", mulitylookupgroup = "regionlookup" })<i></i></div>*@
+            <div class="mulitytext"><b>*</b><label>所属区域</label>
+            @{
+                IList<SelectListItem> regionItems = new List<SelectListItem>();
+                SelectListItem selectItemDemo = new SelectListItem();
+                selectItemDemo.Value = "-1";
+                selectItemDemo.Text = "请选择";
+                regionItems.Add(selectItemDemo);
+                foreach (var region in regionList)
+                {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = region.C_Region_code.ToString();
+                    selectItem.Text = region.C_Region_name;
+
+                    regionItems.Add(selectItem);
+                }
+                }
+                @Html.DropDownList("C_Region_code", regionItems, new { requiredInput = "请选择区域" })<i></i>
+            </div>
+            <div class="mulitytext"><b>*</b><label>工程名称</label>@Html.Hidden("projectlookup.Code", Model.C_Project_code, new { mulitylookupgroup = "projectlookup" })@Html.TextBox("projectlookup.Name", Model.C_Project_name, new { onclick = "callback('projectlookup')", maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "选择工程", requiredInput = "请选择工程名称", switchurl = "/baseData/involved_project/MulityCallbackRefList?checkedProjectCode=" + Model.C_Project_code, dialogwidth = "1080", dialogheight = "540", mulitylookupgroup = "projectlookup" })<i></i></div>
+            <div class="mulitytext"><b>*</b><label>案件类型</label>
+                @{
+                IList<SelectListItem> casetypeTypeItems = new List<SelectListItem>();
+                casetypeTypeItems.Add(selectItemDemo);
+                foreach (var casetypeType in Casetype)
+                {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = casetypeType.C_Parameters_id.ToString();
+                    selectItem.Text = casetypeType.C_Parameters_name;
+
+                    casetypeTypeItems.Add(selectItem);
+                }
+                }
+                @Html.DropDownList("B_Case_type", casetypeTypeItems, new { requiredInput = "请选择案件类型" })<i></i></div>
+            <div class="mulitytext"><b>*</b><label>案件性质</label>
+                @{
+                IList<SelectListItem> casenatureTypeItems = new List<SelectListItem>();
+                foreach (var casenatureType in Casenature)
+                {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = casenatureType.C_Parameters_id.ToString();
+                    selectItem.Text = casenatureType.C_Parameters_name;
+
+                    casenatureTypeItems.Add(selectItem);
+                }
+                }
+                @Html.DropDownList("B_Case_nature", casenatureTypeItems, new { requiredInput = "请选择案件性质" })<i></i></div>
+            <div class="mulitytext"><b>*</b><label>客户类型</label>
+              @{
+                IList<SelectListItem> casecustomerTypeItems = new List<SelectListItem>();
+                foreach (var casecustomerType in CasecustomerType)
+                {
+                    SelectListItem selectItem = new SelectListItem();
+                    selectItem.Value = casecustomerType.C_Parameters_id.ToString();
+                    selectItem.Text = casecustomerType.C_Parameters_name;
+
+                    casecustomerTypeItems.Add(selectItem);
+                }
+                }
+                @Html.DropDownList("B_Case_customerType", casecustomerTypeItems, new { requiredInput = "请选择客户类型" })<i></i></div>
+            <div class="mulitytext"><b>*</b><label>预收案时间</label>@Html.TextBox("B_Case_registerTime", Model.B_Case_registerTime == null ? "" : Model.B_Case_registerTime.Value.ToString("yyyy-MM-dd"), new { date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd" })<i></i></div>
+            <div class="mulitytext"><b>*</b><label>移交标的金额</label>@Html.TextBox("B_Case_transferTargetMoney", Model.B_Case_transferTargetMoney, new { @class = "dfinput",money="请输入有效金额",requiredInput = "请输入移交标的金额", maxlength = "50" })<i></i></div>
+            <div class="mulitytext"><label>移交标的其他</label>@Html.TextBox("B_Case_transferTargetOther", Model.B_Case_transferTargetOther, new { @class = "dfinput", maxlength = "50" })<i></i></div>
+            <div class="mulitytext"><b>*</b><label>业务预期收益</label>@Html.TextBox("B_Case_expectedGrant", Model.B_Case_expectedGrant, new { @class = "dfinput",money="请输入有效金额",requiredInput = "请选择业务预期收益", maxlength = "50" })<i></i></div>
+            <div class="mulitytext"><label>执行标的金额</label>@Html.TextBox("B_Case_execMoney", Model.B_Case_execMoney, new { @class = "dfinput",money="请输入有效金额", maxlength = "50" })<i></i></div>
+            <div class="mulitytext"><label>执行标的其他</label>@Html.TextBox("B_Case_execOther", Model.B_Case_execOther, new { @class = "dfinput", maxlength = "500" })<i></i></div>
+            @*<div class="mulitytext"><b>*</b><label>销售顾问</label>@Html.Hidden("salesconsultantlook.Code", Model.B_Case_consultant_code, new { lookupgroup = "salesconsultantlook" })@Html.TextBox("salesconsultantlook.Name", Model.B_Case_consultant_name, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "单选销售顾问", requiredInput = "请选择销售顾问", switchurl = "/SysManager/Userinfo/SingleCallbackRefList", dialogwidth = "1080", dialogheight = "500", lookupgroup = "salesconsultantlook" })<i></i></div>*@
+            <div class="mulitytext"><b>*</b><label>一审管辖法院</label>@Html.Hidden("courtlookupOne.Code", Model.B_Case_courtFirst, new { lookupgroup = "courtlookupOne" })@Html.TextBox("courtlookupOne.Name", Model.B_Case_courtFirstName, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "单选法院",requiredInput = "一审管辖法院", switchurl = "/baseData/court/SingleCallbackRefList?type=1", dialogwidth = "1080", dialogheight = "540", lookupgroup = "courtlookupOne" })<i></i></div>
+            <div class="mulitytext"><label>二审管辖法院</label>@Html.Hidden("courtlookupTwo.Code", Model.B_Case_courtSecond, new { lookupgroup = "courtlookupTwo" })@Html.TextBox("courtlookupTwo.Name", Model.B_Case_courtSecondName, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "单选法院", switchurl = "/baseData/court/SingleCallbackRefList?type=2", dialogwidth = "1080", dialogheight = "540", lookupgroup = "courtlookupTwo" })<i></i></div>
+            <div class="mulitytext"><label>执行管辖法院</label>@Html.Hidden("courtlookupThree.Code", Model.B_Case_courtExec, new { lookupgroup = "courtlookupThree" })@Html.TextBox("courtlookupThree.Name", Model.B_Case_courtExecName, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "单选法院", switchurl = "/baseData/court/SingleCallbackRefList?type=3", dialogwidth = "1080", dialogheight = "540", lookupgroup = "courtlookupThree" })<i></i></div>
+            <div class="mulitytext"><label>审判监督法院</label>@Html.Hidden("courtlookupFourth.Code",Model.B_Case_Trial, new { lookupgroup = "courtlookupFourth" })@Html.TextBox("courtlookupFourth.Name", Model.B_Case_TrialName, new { maxlength = "200", @readonly = "readonly", selectdialog = "selectdialog", @class = "textselect", title = "单选法院", switchurl = "/baseData/court/SingleCallbackRefList?type=4", dialogwidth = "1080", dialogheight = "540", lookupgroup = "courtlookupFourth" })<i></i></div>
+            <div class="mulitytextarealonger"><label>案情备注</label>@Html.TextArea("B_Case_remark", Model.B_Case_remark, new { @class = "dfinput", maxlength = "500" })<i></i></div>
+           <div class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i><input name="" id="btnSaveAndNewNext" type="button" onclick="saveAndNewNext(this)" class="btn btnmr fl" value="保存并新增下一个" /><i></i></div>
+        }
+    </ul>
+</div>

@@ -1,0 +1,45 @@
+﻿@*@model CommonService.Model.SysManager.C_Userinfo*@
+@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "个人中心";
+}
+@section HeadScript{
+    <script type="text/javascript">
+
+    </script>
+}
+@section HeadCss{
+    <style type="text/css">
+        .title {
+            border-bottom: solid 1px #d0dee5;
+            line-height: 35px;
+            position: relative;
+            height: 35px;
+            margin-bottom: 18px;
+        }
+
+            .title span {
+                font-weight: bold;
+                font-size: 14px;
+                /*border-bottom: solid 3px #66c9f3;*/
+                float: left;
+                position: absolute;
+                z-index: 100;
+                bottom: -1px;
+                padding: 0 3px;
+                height: 30px;
+                line-height: 30px;
+            }
+    </style>    
+}
+<div class="formbody">
+    <div class="title"><img src="/Theme/images/i07.png" style="height:40px;width:40px;"/><span>修改密码</span></div>
+    <div class="itab" style="margin-left:10px;margin-right:10px;">
+        <ul>
+            <li><a href="/SysManager/PersonalCenter/BasicSettings" tabpanelwidth="100%" tabpanelheight="100%" class="selected">基本设置</a></li>
+            @*<li><a href="" tabpanelwidth="100%" tabpanelheight="100%">安全日志</a></li>*@
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+﻿@model CommonService.Model.CaseManager.B_CaseCost
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "成本信息";
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发 
+            if (e == null) { // ie  
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode  
+                _key = e.which;          //每个键的keyCode是不一样的  
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)  
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<div class="formbody">
+    <div class="formtitle"><span>基本信息</span></div>
+    <ul class="forminfo">
+        @using (Html.BeginForm("Save", "CaseCost", FormMethod.Post, new { id = "formCaseCost", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("B_CaseCost_id", Model.B_CaseCost_id)
+            @Html.Hidden("B_CaseCost_code", Model.B_CaseCost_code)
+            @Html.Hidden("B_Case_code", Model.B_Case_code)
+            @Html.Hidden("B_CaseCost_type", Model.B_CaseCost_type)
+            @Html.Hidden("B_CaseCost_isDelete", Model.B_CaseCost_isDelete)
+            @Html.Hidden("B_CaseCost_creator", Model.B_CaseCost_creator)
+            @Html.Hidden("B_CaseCost_createTime", Model.B_CaseCost_createTime)
+            <li><label>成本类型</label>@Html.TextBox("B_CaseCost_type_name", Model.B_CaseCost_type_name, new { @class = "dfinput", @readonly = "readonly", maxlength = "100" })<i></i></li>
+            <li><label>金额</label>@Html.TextBox("B_CaseCost_amount", Model.B_CaseCost_amount, new { @class = "dfinput", requiredInput = "请输入金额", money = "请输入有效金额", maxlength = "50" })<i></i></li>
+            <li><label>时间</label>@Html.TextBox("B_CaseCost_Time", Model.B_CaseCost_Time == null ? "" : Model.B_CaseCost_Time.Value.ToString("yyyy-MM-dd"), new { date = "date", maxlength = "20", @class = "dfinput", @readonly = "readonly", dateformat = "yyyy-MM-dd" })<i></i></li>
+            <li><label>备注</label>@Html.TextArea("B_CaseCost_remarks", Model.B_CaseCost_remarks, new { @class = "textinput", onkeydown = "EnterPress(event)", maxlength = "500" })<i></i></li>
+            <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i></li>
+        }
+    </ul>
+</div>

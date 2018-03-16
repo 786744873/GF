@@ -1,0 +1,33 @@
+﻿@using CommonService.Model.CaseManager;
+@model IEnumerable<CommonService.Model.CaseManager.B_EqAllot>
+@{
+    Layout = "~/Views/Shared/_ListSearchTemplate.cshtml";//普通列表页面固定模板
+}
+@{
+    ViewBag.Title = "权益分配列表";
+}
+
+@{
+    B_EqAllot Conditon = ViewBag.Conditon;//权益分配条件模型
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>财产权利</th>
+            <th>折合金额</th>
+            <th>客户所得比例</th>
+            <th>说明</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.B_EqAllot_pright_id">
+                <td>@item.B_EqAllot_pright_name</td>
+                <td>@item.B_EqAllot_mvalue</td>
+                <td>@item.B_EqAllot_cusradio</td>
+                <td>@item.B_EqAllot_explain</td>
+            </tr>
+        }
+    </tbody>
+</table>    

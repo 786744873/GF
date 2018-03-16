@@ -1,0 +1,83 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Involved_projectUnit>
+@{
+    Layout = "~/Views/Shared/_ListSearchWithDialogTemplate.cshtml";//带表单查询的列表页面固定模板
+}
+@{
+    ViewBag.Title = "关联单位列表";
+}
+
+@{
+    C_Involved_projectUnit unitConditon = ViewBag.UnitConditon;//关联单位条件模型
+}
+@{
+    List<CommonService.Model.C_Parameters> ProjectUnit_type = ViewBag.projectUnit_type;
+    List<CommonService.Model.C_Parameters> FundsSource = ViewBag.fundsSource;
+    List<CommonService.Model.C_Parameters> ChargerOrgan = ViewBag.chargerOrgan;
+    List<CommonService.Model.C_Parameters> Process = ViewBag.process;
+    List<CommonService.Model.C_Parameters> LossOrProfit = ViewBag.lossOrProfit;
+    List<CommonService.Model.C_Parameters> LossReason = ViewBag.lossReason;
+    List<CommonService.Model.C_Contacts> Charger = ViewBag.charger;
+}
+<div class="tools">
+    <ul class="toolbar">
+        <li><a target="popdialog" title="关联单位信息" dialogwidth="1400" dialogheight="650" href="/basedata/Involved_projectUnit/create?Involved_project_code=@unitConditon.C_Involved_project_code"><span><img src="/theme/images/new_add.png" /></span>添加</a></li>
+        <li><a target="popdialog" title="关联单位信息" dialogwidth="1400" dialogheight="650" edit="edit" href="/basedata/Involved_projectUnit/edit?Involved_projectUnit_code={sid_Iterm}"><span><img src="/theme/images/new_edit.png" /></span>修改</a></li>
+        <li><a target="ajaxtodo" title="确认要删除选中数据吗?" singleoperate="singleoperate" href="/basedata/Involved_projectUnit/delete?Involved_projectUnit_code={sid_Iterm}"><span><img src="/theme/images/new_delete.png" /></span>删除</a></li>
+        <li><a target="popdialog" title="涉案工程人" dialogwidth="1400" dialogheight="600" edit="edit" href="/basedata/Involved_projectUnit_person/list?relationCode={sid_Iterm}"><span></span>涉案工程人</a></li>
+    </ul>
+</div>
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>投标单位</th>
+            <th>工程子项目</th>
+            <th>承包形式</th>
+            <th>资金来源</th>
+            <th>实际负责人名称</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Involved_projectUnit_code" relname="@item.C_Involved_projectUnit_rivalname">
+                <td>@item.C_Involved_projectUnit_rivalname</td>
+                <td>@item.C_Involved_projectUnit_Child</td>
+                @{
+            var projectUnit_type = ProjectUnit_type.Where(u => u.C_Parameters_id == item.C_Involved_projectUnit_type).FirstOrDefault();
+                }
+                @if (projectUnit_type != null)
+                {
+                    <td>@projectUnit_type.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+            var fundsSource = FundsSource.Where(u => u.C_Parameters_id == item.C_Involved_projectUnit_fundsSource).FirstOrDefault();
+                }
+                @if (fundsSource != null)
+                {
+                    <td>@fundsSource.C_Parameters_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @{
+            var chargername = Charger.Where(u => u.C_Contacts_code == item.C_Involved_projectUnit_charger).FirstOrDefault();
+                }
+                @if (chargername != null)
+                {
+                    <td>@chargername.C_Contacts_name</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>    

@@ -1,0 +1,72 @@
+﻿@model CommonService.Model.Customer.V_FormPlan
+@{
+    Layout = "~/Views/Shared/_EditDialogFormTemplate.cshtml";//带表单提交的编辑页面固定模板
+}
+@{
+    ViewBag.Title = "计划设定";
+}
+@{
+    CommonService.Model.FlowManager.P_Business_flow flowmodel = ViewBag.flowmodel;
+    string type = ViewBag.type;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        document.onkeyup = function (e) {      //onkeyup是javascript的一个事件、当按下某个键弹起 var _key; //的时触发
+            if (e == null) { // ie
+                _key = event.keyCode;
+            } else { // firefox              //获取你按下键的keyCode
+                _key = e.which;          //每个键的keyCode是不一样的
+            }
+            if (_key == 13) {   //判断keyCode是否是13，也就是回车键(回车的keyCode是13)
+                onlySaveForm(document.getElementById('btnSave'));
+            }
+        }
+    </script>
+}
+<li class="formbody">
+    <ul class="forminfo">
+        @using (Html.BeginForm("OperateSave", "PlanSetUp", FormMethod.Post, new { id = "formPlanSetUp", onsubmit = "return validateCallback(this,dialogAjaxDone);" }))
+        {
+            @Html.Hidden("formOperateType")//表单操作类型：固定写法，只是保存，值为'onlySave';保存并且新增，值为'saveAndNewNext'
+                                        @Html.Hidden("BusinessFlowCode", Model.BusinessFlowCode);
+            @Html.Hidden("BusinessFlowFormCode", Model.BusinessFlowFormCode);
+            @Html.Hidden("MulityBusinessFlowFormCode", Model.MulityBusinessFlowFormCode)
+            @Html.Hidden("Creator", Model.Creator);
+            @Html.Hidden("type", type);
+            <li>
+                @if (ViewBag.type == "2")
+                {
+                    <label>专业顾问(R)</label>
+                }
+                else
+                {
+                    <label>承办律师(R)</label>
+                }@Html.Hidden("mainLawyerlookup.Code", Model.MainLawyerCode, new { lookupgroup = "mainLawyerlookup" })@Html.TextBox("mainLawyerlookup.Name", Model.MainLawyerName, new { maxlength = "50", @readonly = "readonly", requiredInput = "请选择承办律师", selectdialog = "selectdialog", @class = "dfinputtextselect", title = "单选承办律师", switchurl = "/sysmanager/userinfo/singlecallbackref_orgpostuserlayout?otype=1", dialogwidth = "1050", dialogheight = "600", lookupgroup = "mainLawyerlookup" })<i></i>
+            </li>
+            <li>
+                @if (ViewBag.type == "2")
+                {
+                    <label>专业顾问(AS)</label>
+                }
+                else
+                {
+                    <label>承办律师(AS)</label>
+                } @Html.Hidden("assistLawyermulitylookup.Code", Model.AssistLawyerCodes, new { mulitylookupgroup = "assistLawyermulitylookup" })@Html.TextBox("assistLawyermulitylookup.Name", Model.AssistLawyerNames, new
+                                                                                                                                                                {
+                                                                                                                                                                    maxlength = "500",
+                                                                                                                                                                    @readonly = "readonly",
+                                                                                                                                                                    selectdialog = "selectdialog",
+                                                                                                                                                                    @class = "dfinputtextselect",
+                                                                                                                                                                    title = "多选协办律师", @*requiredInput = "请选择协办律师",*@ switchurl = "/sysmanager/userinfo/mulitycallbackref_orgpostuserlayout?type=1",
+                                                                                                                                                                    dialogwidth = "1050",
+                                                                                                                                                                    dialogheight = "600",
+                                                                                                                                                                    mulitylookupgroup = "assistLawyermulitylookup"
+                                                                                                                                                                })<i></i>
+            </li>
+            <li><label>计划开始时间</label>@Html.TextBox("PlanStartTime", Model.PlanStartTime == null ? "" : Model.PlanStartTime.Value.ToString("yyyy-MM-dd HH:mm:ss"), new { @class = "dfinput", date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss", requiredInput = "请选择日期" })<i></i><span style="color: #CCCCCC;">流程计划开始时间：@flowmodel.P_Business_flow_planStartTime</span></li>
+            <li><label>计划结束时间</label>@Html.TextBox("PlanEndTime", Model.PlanEndTime == null ? "" : Model.PlanEndTime.Value.ToString("yyyy-MM-dd HH:mm:ss"), new { @class = "dfinput", date = "date", maxlength = "20", @readonly = "readonly", dateformat = "yyyy-MM-dd HH:mm:ss", requiredInput = "请选择日期" })<i></i><span style="color: #CCCCCC;">流程计划结束时间：@flowmodel.P_Business_flow_planEndTime</span></li>
+            <li><label>任务要求</label>@Html.TextArea("Require", Model.Require, new { @class = "textinput", maxlength = "500" })<i></i></li>
+            <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" id="btnSave" onclick="onlySaveForm(this)" class="btn btnmr fl" value="确认保存" /><i></i></li>
+        }
+    </ul>
+</li>

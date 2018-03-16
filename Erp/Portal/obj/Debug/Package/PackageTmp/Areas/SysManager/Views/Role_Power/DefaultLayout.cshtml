@@ -1,0 +1,132 @@
+﻿@section HeadScript
+{
+    <script type="text/javascript">
+        $(function () {
+            var $businessoperatetoolbar = $("div[businessoperatetoolbar=businessoperatetoolbar]");
+            $("a[target=ajaxtodo]", $businessoperatetoolbar).each(function () {
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    var $this = $(this);
+
+                    //点击了操作按钮
+                    var singleoperate = $this.attr("singleoperate");
+                    if (!singleoperate) {
+                        return;
+                    }
+
+                    //所示Iframe框架，目的是取对应选中列表的唯一标识
+                    var iframeName = $this.attr("iframename");
+                    if (window.frames[iframeName].commonListData.uniqueId == '') {
+                        if (iframeName == 'iframe_rolePower') {
+                            alertMsg.warn('请选中左侧所需权限！');
+                        } else if (iframeName == 'iframe_role_rolePower') {
+                            alertMsg.warn('请选中右侧已分配权限！');
+                        }
+                        return;
+                    }
+
+                    var switchUrl = $this.attr("href");//转化url
+
+                    switchUrl = switchUrl.replace("{sid_Iterm}", window.frames[iframeName].commonListData.uniqueId);//替换唯一标识Guid参数
+
+                    $.ajax({
+                        type: 'POST',
+                        url: switchUrl,
+                        data: null,
+                        dataType: "json",
+                        cache: false,
+                        success: navAjaxDone,
+                        error: function () {
+                            alert('网络错误，请稍后再试!');
+                        }
+                    });
+                });
+            });
+            $("#C_Role_Power_type").change(function () {
+                var type = $(this).val();
+                var $thisPostRoleFrame = $(window.document).find("iframe[name='iframe_rolePower']");
+                $thisPostRoleFrame.attr('src', "/sysmanager/role_power/alllist?type=" + type);//导航到目标链接地址
+            });
+        });
+    </script>
+}
+@section HeadCss
+{
+    <style type="text/css">
+        .selectType {
+            height:25px;
+        }
+    </style>
+}
+@{
+    Layout = "~/Views/Shared/_ListMulityListIframeTemplate.cshtml";//列表对多个列表Iframe页面固定模板
+}
+@{
+    ViewBag.Title = "分配角色权限";
+}
+@{
+    int roleId = ViewBag.RoleId;
+    List<CommonService.Model.C_Parameters> listP = ViewBag.listP;
+}
+<table class="table_tree_mulitylist">
+    <tr>
+        <td class="rightborder" width="50%" height="585">
+            <table class="table_noborder" height="100%">
+                <tr class="bottomborder">
+                    @{
+                        IList<SelectListItem> typeItems = new List<SelectListItem>();
+                        SelectListItem selectItemone = new SelectListItem();
+                        selectItemone.Value = "0";
+                        selectItemone.Text = "全部";
+                        typeItems.Add(selectItemone);
+                        foreach (var item in listP)
+                        {
+                            SelectListItem selectItem = new SelectListItem();
+                            selectItem.Value = item.C_Parameters_id.ToString();
+                            selectItem.Text = item.C_Parameters_name;
+                            if (ViewBag.selectType != null)
+                            {
+                                if (ViewBag.selectType == item.C_Parameters_id.ToString())
+                                {
+                                    selectItem.Selected = true;
+                                }
+                            }
+                            typeItems.Add(selectItem);
+                        }
+                    }
+                    <td height="44" align="center">
+                        <b class="fontsize14">所有权限</b>                    
+                    </td>
+                    <td align="left">@Html.DropDownList("C_Role_Power_type", typeItems, new { @class = "sfselect selectType" })</td>
+
+
+                </tr>
+                <tr>
+                    <td height="100%" colspan="2"><iframe name="iframe_rolePower" width="100%" height="100%" frameborder="0" src="/sysmanager/role_power/alllist" scrolling="auto"></iframe></td>
+                </tr>
+            </table>
+        </td>
+        <td width="10%" height="585" class="rightborder">
+            <table class="table_noborder" height="100%">
+                <tr>
+                    <td align="center">
+                        <div businessoperatetoolbar="businessoperatetoolbar">
+                            <span><a class="enter" target="ajaxtodo" title="" iframename="iframe_rolePower" singleoperate="singleoperate" href="/sysmanager/role_role_power/add?roleId=@roleId&rolePowerId={sid_Iterm}">>></a></span>
+                            <span><a class="enter" target="ajaxtodo" title="确认要删除选中已分配权限吗?" iframename="iframe_role_rolePower" singleoperate="singleoperate" href="/sysmanager/role_role_power/delete?roleRolePowerId={sid_Iterm}">删除</a></span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td width="*" height="585">
+            <table class="table_noborder" height="100%">
+                <tr class="bottomborder">
+                    <td height="44" align="center"><b class="fontsize14">已分配权限</b></td>
+                </tr>
+                <tr>
+                    <td height="100%"><iframe name="iframe_role_rolePower" width="100%" height="100%" frameborder="0" src="/sysmanager/role_role_power/rolerelationrolepowerlist?roleId=@roleId" scrolling="auto"></iframe></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

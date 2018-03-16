@@ -1,0 +1,18 @@
+﻿@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "对手信息";
+}
+@{
+    string lookupgroup = ViewBag.Lookupgroup;
+    string rebuildProperty = ViewBag.RebuildProperty;
+    string mappingField = ViewBag.MappingField;
+    string mappingFieldName = ViewBag.MappingFieldName;
+}
+<div class="itab">
+    <ul>
+        <li><a href="/basedata/crival/SingleCallbackRefList_CrivalForm_List?lookupgroup=@lookupgroup&rebuildProperty=@rebuildProperty&mappingField=@mappingField&mappingFieldName=@mappingFieldName" tabpanelwidth="100%" tabpanelheight="520" class="selected">公司</a></li>
+        <li><a href="/basedata/prival/SingleCallbackRefList_PrivalForm_List?lookupgroup=@lookupgroup&rebuildProperty=@rebuildProperty&mappingField=@mappingField&mappingFieldName=@mappingFieldName" tabpanelwidth="100%" tabpanelheight="520">个人</a></li>
+    </ul>
+</div>

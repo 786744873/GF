@@ -1,0 +1,720 @@
+﻿@using System.Data;
+@using CommonService.Common;
+@using CommonService.Model.Customer;
+@using System.Web.Script.Serialization;
+@model IEnumerable<CommonService.Model.CustomerForm.F_FormProperty>
+@{
+    Layout = "~/Views/Shared/_ViewPanelTemplate.cshtml";//普通Panel页面固定模板
+}
+@{
+    ViewBag.Title = "生成文书";
+}
+@section HeadCss{
+  <style type="text/css">
+      body{font-family:'宋体';}
+      .table_document {
+          width: 100%;
+          clear: both;        
+      }
+      .table_document th {        
+          height: 46px;
+          line-height: 46px;       
+          text-indent: 11px;
+          text-align:center;
+          
+      }
+          .table_document th b {
+              font-size: 40px;
+          }
+      .table_document td {
+          line-height: 46px;        
+          text-indent: 11px;     
+          font-size:16px;  
+      }
+      .table_document td.right{
+          text-align:right;
+      }
+     .table_document td.indentZero {
+          text-indent: 0px;
+      }
+      .table_document td span{
+          font-size:16px;
+      }
+      .table_document td span.underline{        
+          display:inline-block;
+          text-decoration:underline;
+      }
+      .spacepaddingleft{padding-left:20px;}
+  </style>
+}
+@section HeadScript{
+    <script type="text/javascript">
+        function printDocument(obj) {
+            $(obj).addClass('hide');
+            window.print();
+            parent.alertDialog.close();
+        }
+    </script>
+}
+@{
+    List<CommonService.Model.CustomerForm.F_FormProperty> EditFormPropertys = ViewBag.EditFormPropertys;//表单头编辑属性及其属性值
+    DataSet DynamicItemFormPropertyValues = ViewBag.DynamicItemFormPropertyValues;//动态明细表单属性值
+    CommonService.Model.CustomerForm.F_Form formcon = ViewBag.formCon;
+
+    string fFormCode = ViewBag.FormCode; //ERP表单Guid
+    string businessFlowCode = ViewBag.BusinessFlowCode;//业务流程Guid
+    string businessFlowFormCode = ViewBag.BusinessFlowFormCode;//业务流程表单关联Guid
+    string fkType = ViewBag.FkType;//流程类型(商机或案件类型)
+}
+@{
+    var itemGourp = Model.Where(p => p.F_FormProperty_uiType == Convert.ToInt32(UiControlType.普通子表));//明细组(有多少个明细子表)
+}
+@{
+    string propertyValue = String.Empty;
+    string tempPropertyValue = String.Empty;
+    string ygQyNames = String.Empty;//原告企业
+    string ygQyfrNames = String.Empty;//原告企业法人
+    string ygQyAddress = String.Empty;//原告企业住所地
+    string ygGrNames = String.Empty;//原告个人
+    string ygGrSex = String.Empty;//原告个人性别
+    string ygGrMz = String.Empty;//原告个人民族
+    string ygGrCard = String.Empty;//原告个人身份证号
+    string ygGrAddress = String.Empty;//原告个人地址
+
+    string bgQyNames = String.Empty;//被告企业
+    string bgQyfrNames = String.Empty;//被告企业法人
+    string bgQyAddress = String.Empty;//被告企业住所地
+    string bgGrNames = String.Empty;//被告个人
+    string bgGrSex = String.Empty;//被告个人性别
+    string bgGrMz = String.Empty;//被告个人民族
+    string bgGrCard = String.Empty;//被告个人身份证号
+    string bgGrAddress = String.Empty;//被告个人地址
+
+    string ygNames = String.Empty;//原告
+    
+    
+    DateTime now = DateTime.Now;
+    int itemNumber = 0;//条款顺序号
+    decimal totalMoney = 0;//总欠款金额
+}
+@{
+    //处理是否显示小括号里的说明
+    //合同约定标准属性
+    var htydbz = EditFormPropertys.Where(p => p.F_FormProperty_code.Value.ToString().ToLower() == "6cb9540f-7f45-4104-82e1-51b94cedd023").FirstOrDefault();
+    string htydbzValue = String.Empty;
+    if (htydbz != null)
+    {
+        htydbzValue = htydbz.V_FormPropertyValue_Value;
+    }
+    //实际计算标准属性
+    var htsjbz = EditFormPropertys.Where(p => p.F_FormProperty_code.Value.ToString().ToLower() == "931c24ee-2fca-4fc4-9656-4dd31f1b8a59").FirstOrDefault();
+    string htsjbzValue = String.Empty;
+    if (htsjbz != null)
+    {
+        htsjbzValue = htsjbz.V_FormPropertyValue_Value;
+    }
+    //如何合同约定标准属性值与实际计算标准属性值不相同，则显示小括号内容
+    bool isShowXKH = false;
+    if (htydbzValue !=htsjbzValue){
+        isShowXKH = true;
+    }
+}
+@{
+    //处理违约金合同约定标准
+    var wyjhtydBZ = String.Empty;
+    var wyjhtydBZObj = EditFormPropertys.Where(p => p.F_FormProperty_code.Value.ToString().ToLower() == "6cb9540f-7f45-4104-82e1-51b94cedd023").FirstOrDefault();
+    if (wyjhtydBZObj != null)
+    {
+        wyjhtydBZ = wyjhtydBZObj.V_FormPropertyValue_Value;
+    }
+    //处理违约金计算标准/逾期付款损失实际计算标准
+    var wyjhtsjBZ = String.Empty;
+    var wyjhtsjBZObj = EditFormPropertys.Where(p => p.F_FormProperty_code.Value.ToString().ToLower() == "931c24ee-2fca-4fc4-9656-4dd31f1b8a59").FirstOrDefault();
+    if (wyjhtsjBZObj != null)
+    {
+        wyjhtsjBZ = wyjhtsjBZObj.V_FormPropertyValue_Value;
+    }
+}
+<div class="formbody">
+    <table class="table_document">
+        <thead>
+            <tr><th>&nbsp;</th></tr>
+            <tr>
+                <th><b>民事起诉状</b></th>
+            </tr>
+            <tr><th>&nbsp;</th></tr>
+        </thead>
+        <tbody>
+            @{
+                //处理企业原告信息
+                foreach (var group in itemGourp)
+                {
+                    if (group.F_FormProperty_code.Value.ToString().ToLower() == "8f13ba03-e6ec-4d51-99b1-c9c8f373999b")
+                    {
+                        var groupItems = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code);
+
+                        for (int j = 0; j < DynamicItemFormPropertyValues.Tables.Count; j++)
+                        {//这个地方的业务逻辑都为处理加载列表表单属性值
+                            DataTable dt = DynamicItemFormPropertyValues.Tables[j];
+                            bool isThisTable = false;//是否为普通子表属性关联table
+                            int columnCount = 0;//table 列数量
+                            foreach (var groupItem in groupItems)
+                            {
+                                if (dt.Columns.Contains(groupItem.F_FormProperty_code.Value.ToString().ToUpper()))
+                                {
+                                    isThisTable = true;
+                                    columnCount = dt.Columns.Count;
+                                    break;
+                                }
+                            }
+                            if (isThisTable)
+                            {
+                                int rowIndex = 0;//行索引号
+                                foreach (DataRow dr in dt.Rows)
+                                {
+                                    ygQyNames = String.Empty;
+                                    ygQyfrNames = String.Empty;
+                                    ygQyAddress = String.Empty;             
+                                    foreach (var groupItem in groupItems)
+                                    {                                         
+                                        propertyValue = String.Empty;
+                                        tempPropertyValue = String.Empty;
+
+                                        tempPropertyValue = dr[groupItem.F_FormProperty_code.Value.ToString().ToUpper()].ToString();
+                                        if (!String.IsNullOrEmpty(tempPropertyValue))
+                                        {
+                                            if (tempPropertyValue.Substring(0, 1) == "[")
+                                            {
+                                                tempPropertyValue = tempPropertyValue.Substring(1, tempPropertyValue.Length - 1);
+                                                int charIndex = tempPropertyValue.IndexOf(']');
+                                                propertyValue = tempPropertyValue.Substring(charIndex + 1, tempPropertyValue.Length - charIndex - 1);
+                                            }
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "c436af59-217f-49ac-b4d7-be2df08ab2c3")
+                                        {//企业原告
+                                            ygNames += propertyValue + ",";
+                                            ygQyNames = propertyValue;
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "00d02984-ab92-490f-9d72-f73764eddcc1")
+                                        {//企业法人
+                                            ygQyfrNames = propertyValue;
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "9af85be5-31df-4fae-ba31-411d28877a91")
+                                        {//企业地址
+                                            ygQyAddress = propertyValue;
+                                        }
+                                    }
+                                    <tr>
+                                      <td>原告：@ygQyNames<span class="spacepaddingleft">地址：@ygQyAddress</span></td>
+                                    </tr>
+                                    <tr>
+                                      <td>法定代表人：@ygQyfrNames</td>
+                                    </tr>
+                                }
+                                rowIndex++;
+                            }
+                        }
+                    }
+                }
+            }
+            @{
+                //处理个人原告信息
+                foreach (var group in itemGourp)
+                {
+                    if (group.F_FormProperty_code.Value.ToString().ToLower() == "aec605f5-8fc9-4d1b-bcc2-033a2fa21457")
+                    {
+                        var groupItems = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code);
+
+                        for (int j = 0; j < DynamicItemFormPropertyValues.Tables.Count; j++)
+                        {//这个地方的业务逻辑都为处理加载列表表单属性值
+                            DataTable dt = DynamicItemFormPropertyValues.Tables[j];
+                            bool isThisTable = false;//是否为普通子表属性关联table
+                            int columnCount = 0;//table 列数量
+                            foreach (var groupItem in groupItems)
+                            {
+                                if (dt.Columns.Contains(groupItem.F_FormProperty_code.Value.ToString().ToUpper()))
+                                {
+                                    isThisTable = true;
+                                    columnCount = dt.Columns.Count;
+                                    break;
+                                }
+                            }
+                            if (isThisTable)
+                            {
+                                int rowIndex = 0;//行索引号
+                                foreach (DataRow dr in dt.Rows)
+                                {
+                                    ygGrNames = String.Empty;
+                                    ygGrSex = String.Empty;
+                                    ygGrMz = String.Empty;
+                                    ygGrCard = String.Empty;
+                                    ygGrAddress = String.Empty;
+                                    foreach (var groupItem in groupItems)
+                                    {
+                                        propertyValue = String.Empty;
+                                        tempPropertyValue = String.Empty;
+
+                                        tempPropertyValue = dr[groupItem.F_FormProperty_code.Value.ToString().ToUpper()].ToString();
+                                        if (!String.IsNullOrEmpty(tempPropertyValue))
+                                        {
+                                            if (tempPropertyValue.Substring(0, 1) == "[")
+                                            {
+                                                tempPropertyValue = tempPropertyValue.Substring(1, tempPropertyValue.Length - 1);
+                                                int charIndex = tempPropertyValue.IndexOf(']');
+                                                propertyValue = tempPropertyValue.Substring(charIndex + 1, tempPropertyValue.Length - charIndex - 1);
+                                            }
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "ba1369bd-f4dd-427c-9b36-1bc1ae8d5a61")
+                                        {//原告
+                                            ygGrNames = propertyValue;
+                                            ygNames += propertyValue + ",";
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "2f4854ce-ed08-420f-90bb-bbf20a407ccc")
+                                        {//性别
+                                            MvcHtmlString mvcSexHtmlStr = Html.Action("GenerateParaName", "LegalPlanForm", new { area = "IndividuationForm", paraId = @propertyValue });
+                                            ygGrSex = mvcSexHtmlStr.ToString();                                         
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "b743bb04-c81b-43f7-a8c4-e232770841e1")
+                                        {//民族
+                                            MvcHtmlString mvcMzHtmlStr = Html.Action("GenerateParaName", "LegalPlanForm", new { area = "IndividuationForm", paraId = @propertyValue});                                          
+                                            ygGrMz = mvcMzHtmlStr.ToString();
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "3bfc546b-5064-4c9f-a82d-aea31b89aeee")
+                                        {//身份证号
+                                            ygGrCard = propertyValue;
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "9330aa99-05d7-492c-b748-def8ae7f3917")
+                                        {//地址
+                                            ygGrAddress = propertyValue;
+                                        }
+                                    }
+                                    <tr>
+                                       <td>原告：@ygGrNames<span>，@ygGrSex</span><span>，@ygGrMz</span><span class="spacepaddingleft">地址：@ygGrAddress</span></td>
+                                    </tr>
+                                    <tr>
+                                     <td>身份证号：@ygGrCard</td>
+                                    </tr>
+                                }
+                                rowIndex++;
+                            }
+                        }
+                    }
+                }
+            }
+            @{
+                //处理企业被告信息
+                foreach (var group in itemGourp)
+                {
+                    if (group.F_FormProperty_code.Value.ToString().ToLower() == "12887b6e-4864-4284-b2cb-947b169f30af")
+                    {
+                        var groupItems = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code);
+
+                        for (int j = 0; j < DynamicItemFormPropertyValues.Tables.Count; j++)
+                        {//这个地方的业务逻辑都为处理加载列表表单属性值
+                            DataTable dt = DynamicItemFormPropertyValues.Tables[j];
+                            bool isThisTable = false;//是否为普通子表属性关联table
+                            int columnCount = 0;//table 列数量
+                            foreach (var groupItem in groupItems)
+                            {
+                                if (dt.Columns.Contains(groupItem.F_FormProperty_code.Value.ToString().ToUpper()))
+                                {
+                                    isThisTable = true;
+                                    columnCount = dt.Columns.Count;
+                                    break;
+                                }
+                            }
+                            if (isThisTable)
+                            {
+                                int rowIndex = 0;//行索引号
+                                foreach (DataRow dr in dt.Rows)
+                                {
+                                    bgQyNames = String.Empty;
+                                    bgQyfrNames = String.Empty;
+                                    bgQyAddress = String.Empty;
+                                    foreach (var groupItem in groupItems)
+                                    {
+                                        propertyValue = String.Empty;
+                                        tempPropertyValue = String.Empty;
+
+                                        tempPropertyValue = dr[groupItem.F_FormProperty_code.Value.ToString().ToUpper()].ToString();
+                                        if (!String.IsNullOrEmpty(tempPropertyValue))
+                                        {
+                                            if (tempPropertyValue.Substring(0, 1) == "[")
+                                            {
+                                                tempPropertyValue = tempPropertyValue.Substring(1, tempPropertyValue.Length - 1);
+                                                int charIndex = tempPropertyValue.IndexOf(']');
+                                                propertyValue = tempPropertyValue.Substring(charIndex + 1, tempPropertyValue.Length - charIndex - 1);
+                                            }
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "6ccbc807-88be-4582-aa26-1c7b3af4a2a6")
+                                        {//企业被告
+                                            //ygQyNames += propertyValue + ",";
+                                            bgQyNames = propertyValue;
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "6687ce52-9c8c-4a2f-ad5f-87db64f49685")
+                                        {//企业法人
+                                            bgQyfrNames = propertyValue;
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "785a4aff-e920-4100-8d2b-37fd2b43eb88")
+                                        {//企业地址
+                                            bgQyAddress = propertyValue;
+                                        }
+                                    }
+                                    <tr>
+                                        <td>被告：@bgQyNames<span class="spacepaddingleft">地址：@bgQyAddress</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>法定代表人：@bgQyfrNames</td>
+                                    </tr>
+                                }
+                                rowIndex++;
+                            }
+                        }
+                    }
+                }
+            }
+            @{
+                //处理个人被告信息
+                foreach (var group in itemGourp)
+                {
+                    if (group.F_FormProperty_code.Value.ToString().ToLower() == "fbbd6323-54de-4d2c-af16-8faf21363ffd")
+                    {
+                        var groupItems = Model.Where(p => p.F_FormProperty_parent == group.F_FormProperty_code);
+
+                        for (int j = 0; j < DynamicItemFormPropertyValues.Tables.Count; j++)
+                        {//这个地方的业务逻辑都为处理加载列表表单属性值
+                            DataTable dt = DynamicItemFormPropertyValues.Tables[j];
+                            bool isThisTable = false;//是否为普通子表属性关联table
+                            int columnCount = 0;//table 列数量
+                            foreach (var groupItem in groupItems)
+                            {
+                                if (dt.Columns.Contains(groupItem.F_FormProperty_code.Value.ToString().ToUpper()))
+                                {
+                                    isThisTable = true;
+                                    columnCount = dt.Columns.Count;
+                                    break;
+                                }
+                            }
+                            if (isThisTable)
+                            {
+                                int rowIndex = 0;//行索引号
+                                foreach (DataRow dr in dt.Rows)
+                                {
+                                    bgGrNames = String.Empty;
+                                    bgGrSex = String.Empty;
+                                    bgGrMz = String.Empty;
+                                    bgGrCard = String.Empty;
+                                    bgGrAddress = String.Empty;
+                                    foreach (var groupItem in groupItems)
+                                    {
+                                        propertyValue = String.Empty;
+                                        tempPropertyValue = String.Empty;
+
+                                        tempPropertyValue = dr[groupItem.F_FormProperty_code.Value.ToString().ToUpper()].ToString();
+                                        if (!String.IsNullOrEmpty(tempPropertyValue))
+                                        {
+                                            if (tempPropertyValue.Substring(0, 1) == "[")
+                                            {
+                                                tempPropertyValue = tempPropertyValue.Substring(1, tempPropertyValue.Length - 1);
+                                                int charIndex = tempPropertyValue.IndexOf(']');
+                                                propertyValue = tempPropertyValue.Substring(charIndex + 1, tempPropertyValue.Length - charIndex - 1);
+                                            }
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "a2536fe6-6855-433f-8ff8-2a0075f21589")
+                                        {//被告
+                                            bgGrNames = propertyValue;
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "f72d05e9-245a-495d-b170-6c93b0c4d547")
+                                        {//性别
+                                            MvcHtmlString mvcSexHtmlStr = Html.Action("GenerateParaName", "LegalPlanForm", new { area = "IndividuationForm", paraId = @propertyValue });
+                                            bgGrSex = mvcSexHtmlStr.ToString();
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "0e413299-d8a9-4348-9a4f-e5dffab8c6f6")
+                                        {//民族
+                                            MvcHtmlString mvcMzHtmlStr = Html.Action("GenerateParaName", "LegalPlanForm", new { area = "IndividuationForm", paraId = @propertyValue });
+                                            bgGrMz = mvcMzHtmlStr.ToString();
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "440635f1-a7d1-4a9d-88c8-b5c0d8cc0431")
+                                        {//身份证号
+                                            bgGrCard = propertyValue;
+                                        }
+                                        if (groupItem.F_FormProperty_code.Value.ToString().ToLower() == "873dcf04-07e2-412f-885d-c29eb523bf3b")
+                                        {//地址
+                                            bgGrAddress = propertyValue;
+                                        }
+                                    }
+                                    <tr>
+                                        <td>被告：@bgGrNames<span>，@bgGrSex</span><span>，@bgGrMz</span><span class="spacepaddingleft">地址：@bgGrAddress</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>身份证号：@bgGrCard</td>
+                                    </tr>
+                                }
+                                rowIndex++;
+                            }
+                        }
+                    }
+                }
+            }
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td class="b">诉讼请求：</td>
+            </tr>
+            @{
+                //处理诉讼请求
+                string ssqqValue = String.Empty;
+                var ssqq = EditFormPropertys.Where(p => p.F_FormProperty_code.Value.ToString().ToLower() == "4222e22e-8cb9-4617-8c39-f317e801ab5d").FirstOrDefault();
+                if (ssqq != null)
+                {
+                    //propertyValue值的格式为：700_10.20&701_201.23
+                    ssqqValue = ssqq.V_FormPropertyValue_Value;
+                    string[] propertyValueGroup = ssqqValue.Split('&');
+
+                    //(贷款)处理checkbox是否选中以及对应文本框的值
+                    for (int i = 0; i < propertyValueGroup.Length; i++)
+                    {
+                        string[] keyValue = propertyValueGroup[i].Split('_');
+                        if (keyValue[0] == Convert.ToInt32(SsQqEnum.贷款).ToString())
+                        {
+                            itemNumber++;
+                            decimal dk=0;
+                            if (decimal.TryParse(keyValue[1], out dk))
+                            {
+                                totalMoney = totalMoney + dk;
+                            }                          
+                           <tr>
+                             <td>@itemNumber、判令被告向原告支付截至<span>@now.ToString("yyyy年MM月dd日")</span>止的混凝土货款<span>@keyValue[1]</span>元；</td>
+                           </tr>
+                            break;
+                        }
+                    }
+                    //(违约金或逾期付款损失,二选一)处理checkbox是否选中以及对应文本框的值
+                    for (int i = 0; i < propertyValueGroup.Length; i++)
+                    {
+                        string[] keyValue = propertyValueGroup[i].Split('_');
+                        if (keyValue[0] == Convert.ToInt32(SsQqEnum.违约金).ToString() || keyValue[0] == Convert.ToInt32(SsQqEnum.逾期付款损失).ToString())
+                        {
+                            itemNumber++;
+                            if (keyValue[0] == Convert.ToInt32(SsQqEnum.违约金).ToString())
+                            {
+                                decimal wyj = 0;
+                                if (decimal.TryParse(keyValue[1], out wyj))
+                                {
+                                    totalMoney = totalMoney + wyj;
+                                }  
+                               <tr>
+                                 <td>@itemNumber、判令被告向原告支付截至<span>@now.ToString("yyyy年MM月dd日")</span>止的违约金<span>@keyValue[1]</span>元，并支付自<span>@now.ToString("yyyy年MM月dd日")</span>起至货款付清之日止的后续违约金@{if (isShowXKH){<span>（合同约定的违约金标准为日率<span>@wyjhtydBZ</span>，原告自愿调整为日率<span>@wyjhtsjBZ</span>）</span>}}；</td>
+                               </tr>
+                            }
+                            else if (keyValue[0] == Convert.ToInt32(SsQqEnum.逾期付款损失).ToString())
+                            {
+                                decimal yqss = 0;
+                                if (decimal.TryParse(keyValue[1], out yqss))
+                                {
+                                    totalMoney = totalMoney + yqss;
+                                }  
+                               <tr>
+                                 <td>@itemNumber、判令被告向原告支付截止<span>@now.ToString("yyyy年MM月dd日")</span>止的逾期付款损失<span>@keyValue[1]</span>元，并按中国人民银行同期贷款利率标准的两倍向原告支付自<span>@now.ToString("yyyy年MM月dd日")</span>起至货款付清之日的逾期付款损失；</td>
+                               </tr>
+                            }
+                            break;
+                        }
+                    }
+                    //(律师费)处理checkbox是否选中以及对应文本框的值
+                    for (int i = 0; i < propertyValueGroup.Length; i++)
+                    {
+                        string[] keyValue = propertyValueGroup[i].Split('_');
+                        if (keyValue[0] == Convert.ToInt32(SsQqEnum.律师费).ToString())
+                        {
+                            itemNumber++;
+                            decimal lsf = 0;
+                            if (decimal.TryParse(keyValue[1], out lsf))
+                            {
+                                totalMoney = totalMoney + lsf;
+                            } 
+                           <tr>
+                               <td>@itemNumber、判令被告承担原告为实现债权而支出的律师代理费<span>@keyValue[1]</span>元。</td>
+                           </tr>
+                            break;
+                        }
+                    }
+                    //(诉讼费)处理checkbox是否选中以及对应文本框的值
+                    for (int i = 0; i < propertyValueGroup.Length; i++)
+                    {
+                        string[] keyValue = propertyValueGroup[i].Split('_');
+                        if (keyValue[0] == Convert.ToInt32(SsQqEnum.诉讼费用).ToString())
+                        {
+                            itemNumber++;
+                           <tr>
+                               <td>@itemNumber、判令被告承担本案全部诉讼费用。</td>
+                           </tr>
+                            break;
+                        }
+                    }
+                }
+            }
+            @*<tr>
+                <td>1、判令被告向原告支付截至<span>@now.ToString("yyyy年MM月dd日")</span>止的混凝土货款4194120元；</td>
+            </tr>
+            <tr>
+                <td>2、判令被告向原告支付截至<span>@now.ToString("yyyy年MM月dd日")</span>止的违约金722220元，并支付自<span>@now.ToString("yyyy年MM月dd日")</span>起至货款付清之日止的后续违约金@{if(isShowXKH){<span>（合同约定的违约金标准为日率3‰，原告自愿调整为日率1‰）</span>}}；</td>
+            </tr>
+            <tr>
+                <td>3、判令被告向原告支付截止<span>@now.ToString("yyyy年MM月dd日")</span>止的逾期付款损失7232332元，并按中国人民银行同期贷款利率标准的两倍向原告支付自2015年7月14日起至货款付清之日的逾期付款损失；</td>
+            </tr>
+            <tr>
+                <td>4、判令被告承担原告为实现债权而支出的律师代理费150000元。</td>
+            </tr>
+            <tr>
+                <td>5、判令被告承担本案全部诉讼费用。</td>
+            </tr>*@
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td class="b">事实与理由：</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            @{
+                //工程
+                var gcName = String.Empty;
+                var gc = EditFormPropertys.Where(p => p.F_FormProperty_code.Value.ToString().ToLower() == "87b1254d-4b48-49c6-8c79-fa0d9f2db5ba").FirstOrDefault();
+                if (gc != null)
+                {
+                    gcName = gc.V_FormPropertyValue_Value;
+                }
+            }
+            <tr>
+                <td>被告因“<span>@gcName</span>”项目工程的需要，与原告签订《预拌混凝土购销合同》。合同约定被告购买原告混凝土，并对混凝土价格、货款结算及支付方式、违约金等进行了约定。</td>
+            </tr>
+            <tr>
+                <td>合同签订后，原告按合同约定供应混凝土，认真履行合同，但被告却未按合同约定及时支付货款。截至<span>@now.ToString("yyyy年MM月dd日")</span>，
+                @{
+                    ssqqValue = String.Empty;
+                    var dkObj = EditFormPropertys.Where(p => p.F_FormProperty_code.Value.ToString().ToLower() == "4222e22e-8cb9-4617-8c39-f317e801ab5d").FirstOrDefault();
+                    if (dkObj != null)
+                    {
+                        //propertyValue值的格式为：700_10.20&701_201.23
+                       ssqqValue = dkObj.V_FormPropertyValue_Value;
+                       string[] propertyValueGroup = ssqqValue.Split('&');
+                        
+                       //(贷款)处理checkbox是否选中以及对应文本框的值
+                       for (int i = 0; i < propertyValueGroup.Length; i++)
+                       {
+                          string[] keyValue = propertyValueGroup[i].Split('_');
+                          if (keyValue[0] == Convert.ToInt32(SsQqEnum.贷款).ToString())
+                          {
+                              <span>被告尚须依约向原告支付混凝土货款<span>@keyValue[1]</span>元。</span>;
+                            break;
+                         }
+                      }
+                   }
+                }                
+                被告拖欠货款的行为已构成严重违约，
+                @{
+                    ssqqValue = String.Empty;
+                    var wyjObj = EditFormPropertys.Where(p => p.F_FormProperty_code.Value.ToString().ToLower() == "4222e22e-8cb9-4617-8c39-f317e801ab5d").FirstOrDefault();
+                    if (wyjObj != null)
+                    {
+                        //propertyValue值的格式为：700_10.20&701_201.23
+                        ssqqValue = wyjObj.V_FormPropertyValue_Value;
+                        string[] propertyValueGroup = ssqqValue.Split('&');
+
+                        //(贷款)处理checkbox是否选中以及对应文本框的值
+                        for (int i = 0; i < propertyValueGroup.Length; i++)
+                        {
+                            string[] keyValue = propertyValueGroup[i].Split('_');
+                            if (keyValue[0] == Convert.ToInt32(SsQqEnum.违约金).ToString() || keyValue[0] == Convert.ToInt32(SsQqEnum.逾期付款损失).ToString())
+                            {
+                                if (keyValue[0] == Convert.ToInt32(SsQqEnum.违约金).ToString())
+                                {
+                                    <span>应依约向原告支付截至<span>@now.ToString("yyyy年MM月dd日")</span>止的违约金共计<span>@keyValue[1]</span>元，</span>
+                                }
+                                else if (keyValue[0] == Convert.ToInt32(SsQqEnum.逾期付款损失).ToString())
+                                {
+                                    <span>应依约向原告支付截至<span>@now.ToString("yyyy年MM月dd日")</span>止的逾期付款损失共计<span>@keyValue[1]</span>元，</span>
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }                 
+                另，根据合同约定，
+                @{
+                        ssqqValue = String.Empty;
+                        var lvdlfObj = EditFormPropertys.Where(p => p.F_FormProperty_code.Value.ToString().ToLower() == "4222e22e-8cb9-4617-8c39-f317e801ab5d").FirstOrDefault();
+                        if (lvdlfObj != null)
+                        {
+                            //propertyValue值的格式为：700_10.20&701_201.23
+                            ssqqValue = lvdlfObj.V_FormPropertyValue_Value;
+                            string[] propertyValueGroup = ssqqValue.Split('&');
+
+                            //(贷款)处理checkbox是否选中以及对应文本框的值
+                            for (int i = 0; i < propertyValueGroup.Length; i++)
+                            {
+                                string[] keyValue = propertyValueGroup[i].Split('_');
+                                if (keyValue[0] == Convert.ToInt32(SsQqEnum.律师费).ToString())
+                                {
+                                    <span>原告为实现债权支付的律师代理费<span>@keyValue[1]</span>元，</span>
+                                    break;
+                                }
+                            }
+                        }
+                }                
+                依约应由被告承担。</td>
+            </tr>
+            <tr>
+                <td>综上，截至<span>@now.ToString("yyyy年MM月dd日")</span>止，被告累计欠付原告款项共计<span>@totalMoney.ToString("0")</span>元，并应向原告支付自<span>@now.ToString("yyyy年MM月dd日")</span>起至全部货款实际付清之日止的后续违约金@{if(isShowXKH){<span>（合同约定的违约金标准为日率<span>@wyjhtydBZ</span>，原告自愿调整为日率<span>@wyjhtsjBZ</span>）</span>}}。</td>
+            </tr>
+            <tr>
+                <td>对于上述款项，原告多次催要，被告都不予支付。鉴此，为维护原告的合法权益，依据我国有关法律，特具状贵院，恳请支持。</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>此&nbsp;&nbsp;&nbsp;致</td>
+            </tr>
+            @{
+               //处理法院
+                var fyName = String.Empty;
+               var fy = EditFormPropertys.Where(p => p.F_FormProperty_code.Value.ToString().ToLower() == "9ddafe82-3ca5-4c55-a085-4c447b0469b8").FirstOrDefault();
+               if (fy != null)
+               {
+                   fyName = fy.V_FormPropertyValue_Value;
+               }
+            }
+            <tr>
+                <td class="indentZero"><span>@fyName</span>人民法院</td>
+            </tr>
+            @{
+                if (!String.IsNullOrEmpty(ygNames))
+                {
+                    ygNames = ygNames.Substring(0, ygNames.Length-1);
+                }
+            }
+            <tr>
+                <td class="right">具状人：@ygNames</td>
+            </tr>
+            <tr>
+                <td class="right">@now.ToString("yyyy年MM月dd日")</td>
+            </tr>  
+        </tbody>
+    </table>
+    <ul class="forminfo">
+        <li class="buttonWrap clear"><label>&nbsp;</label><input name="" type="button" onclick="printDocument(this)" class="btn btnmr fl" value="打印" /><i></i></li>
+    </ul>
+</div>

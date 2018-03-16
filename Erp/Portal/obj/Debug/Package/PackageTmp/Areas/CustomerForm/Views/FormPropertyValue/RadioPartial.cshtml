@@ -1,0 +1,49 @@
+﻿@using CommonService.Common;
+@model IEnumerable<CommonService.Model.C_Parameters>
+@{
+    int index = 0;
+    CommonService.Model.CustomerForm.F_FormProperty formPropertyValue = ViewBag.FormPropertyValue;//表单属性值数据实体
+}
+@{
+    //javascript 事件处理(radio只有change事件)
+    string changeEvent = String.Empty;
+    string triggerEventType = String.Empty;
+    string dynamicJs = String.Empty;
+    if (formPropertyValue.F_FormProperty_triggerEvent_Type.Value == Convert.ToInt32(TriggerEventTypeEnum.改变事件))
+    {
+        changeEvent = " onchange=radio_change(this) ";
+        triggerEventType = " triggerEventType=" + formPropertyValue.F_FormProperty_triggerEvent_Type.Value + " ";
+        //去掉动态js里可能存在的空格,否则js解码时,会出现乱码问题,hety,2015-09-12,因为目前没有找到解决C#编码后,对应js解码正确的函数
+        formPropertyValue.F_FormProperty_triggerEvent_dynamicJs = formPropertyValue.F_FormProperty_triggerEvent_dynamicJs.Replace(" ","");
+        dynamicJs = " dynamicJs=" + Server.UrlEncode(formPropertyValue.F_FormProperty_triggerEvent_dynamicJs) + " ";
+    }    
+}
+@if (String.IsNullOrEmpty(formPropertyValue.V_FormPropertyValue_Value))
+{
+    foreach (var dropItem in Model)
+    {
+       index++;
+       if (index == 1)
+       {
+         <input type="radio" name="formproperty_@formPropertyValue.V_FormPropertyValue_Code" value="@dropItem.C_Parameters_id" checked="checked" @triggerEventType @changeEvent @dynamicJs /><span>@dropItem.C_Parameters_name</span>
+       }
+      else
+      {
+        <input type="radio" name="formproperty_@formPropertyValue.V_FormPropertyValue_Code" value="@dropItem.C_Parameters_id" @triggerEventType @changeEvent @dynamicJs /><span>@dropItem.C_Parameters_name</span>
+      }    
+    }
+}
+else
+{
+    foreach (var dropItem in Model)
+    {
+       if (dropItem.C_Parameters_id.ToString() == @formPropertyValue.V_FormPropertyValue_Value)
+       {
+         <input type="radio" name="formproperty_@formPropertyValue.V_FormPropertyValue_Code" value="@dropItem.C_Parameters_id" checked="checked" @triggerEventType @changeEvent @dynamicJs /><span>@dropItem.C_Parameters_name</span>
+       }
+      else
+      {
+        <input type="radio" name="formproperty_@formPropertyValue.V_FormPropertyValue_Code" value="@dropItem.C_Parameters_id" @triggerEventType @changeEvent @dynamicJs /><span>@dropItem.C_Parameters_name</span>
+      }    
+    }
+}

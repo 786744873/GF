@@ -1,0 +1,61 @@
+﻿@model CommonService.Model.OA.O_Flow
+@{
+    Layout = null;
+}
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+    <h4 class="modal-title">流程管理</h4>
+</div>
+<div class="modal-body">
+    @using (Html.BeginForm("Save", "flow", FormMethod.Post, new { id = "formFlow", @class = "form-horizontal", role = "form" }))
+    {
+        <div class="form-body">
+            <div class="alert alert-danger display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据不完整，请检查红色部分！"></span>
+            </div>
+            <div class="alert alert-success display-hide">
+                <button class="close" data-close="alert"></button>
+                <span defaulttext="表单数据验证通过，数据处理中..."></span>
+            </div>
+            @Html.Hidden("O_Flow_id", Model.O_Flow_id)
+            @Html.Hidden("O_Flow_code", Model.O_Flow_code)
+            @Html.Hidden("O_Flow_creator", Model.O_Flow_creator)
+            @Html.Hidden("O_Flow_createTime", Model.O_Flow_createTime)
+            @Html.Hidden("O_Flow_isDelete", Model.O_Flow_isDelete)
+            <div class="form-group">
+                <label class="control-label col-md-3">流程名称 <span class="required">*</span></label>
+                <div class="col-md-9">
+                    <div class="input-icon right">
+                        <i class="fa"></i>
+                        @Html.TextBox("O_Flow_name", Model.O_Flow_name, new { @class = "form-control", placeholder = "流程名称", maxlength = "200", validateType = "{required:true,minlength:1}", validateMessage = "{required:'流程名称不能为空',minlength:'流程名称必须大于等于{0}个字符'}" })
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3">是否自由<span class="required">*</span></label>
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <div class="icheck-inline">
+                            <label>
+                                @Html.CheckBox("O_Flow_isFree",Model.O_Flow_isFree, new { @class = "icheck"})是
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn blue" onclick="saveForm('formFlow')">保存</button>
+    <a class="btn ajaxify" href="/oa/flow/List">
+        返回
+    </a>
+</div>
+<!-- BEGIN MAIN JS -->
+@Html.Partial("_OAHidePartial")@*引入页面中用到的一些关联触发*@
+<script>
+    FormValidation.init('formFlow', formNavAjaxDone);//用表单Id和表单回调函数，初始化表单
+</script>
+<!-- END MAIN JS -->

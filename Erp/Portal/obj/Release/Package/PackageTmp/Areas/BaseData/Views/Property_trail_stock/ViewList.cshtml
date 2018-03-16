@@ -1,0 +1,31 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Property_trail_stock>
+@{
+    Layout = "~/Views/Shared/_ListSearchTemplate.cshtml";//普通列表页面固定模板
+}
+@{
+    ViewBag.Title = "财产线索股票列表";
+}
+@{
+    C_Property_trail_stock stockConditon = ViewBag.StockConditon;//财产线索股票条件模型
+}
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>股票公司名称</th>
+            <th>股数</th>
+            <th>当日股价</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr target="sid_Iterm" rel="@item.C_Property_trail_stock_id">
+                <td>@item.C_Property_trail_stock_name</td>
+                <td>@item.C_Property_trail_stock_count</td>
+                <td>@item.C_Property_trail_stock_price</td>
+            </tr>
+        }
+    </tbody>
+</table>    

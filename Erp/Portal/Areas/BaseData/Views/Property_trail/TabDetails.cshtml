@@ -1,0 +1,14 @@
+﻿@{
+    Layout = "~/Views/Shared/_TabIframeTemplate.cshtml";//带Tab Iframe 页签切换的页面固定模板
+}
+@{
+    ViewBag.Title = "财产线索信息";
+}
+<div class="itab">
+    <ul>
+        <li><a href="/basedata/property_trail_cars/list?property_trail_cars_belongs=@ViewBag.CRival_code&property_trail_cars_type=@ViewBag.Property_trail_type" tabpanelwidth="100%" tabpanelheight="800" class="selected">车辆</a></li>
+        <li><a href="/basedata/property_trail_bank/list?property_trail_bank_belongs=@ViewBag.CRival_code&property_trail_bank_type=@ViewBag.Property_trail_type" tabpanelwidth="100%" tabpanelheight="800">银行存款</a></li>
+        <li><a href="/basedata/property_trail_estate/list?property_trail_estate_belongs=@ViewBag.CRival_code&property_trail_estate_type=@ViewBag.Property_trail_type" tabpanelwidth="100%" tabpanelheight="800">房产</a></li>
+        <li><a href="/basedata/property_trail_stock/list?property_trail_stock_belongs=@ViewBag.CRival_code&property_trail_stock_type=@ViewBag.Property_trail_type" tabpanelwidth="100%" tabpanelheight="800">股票</a></li>
+    </ul>
+</div>

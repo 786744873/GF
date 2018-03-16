@@ -1,0 +1,156 @@
+﻿@model CommonService.Model.KMS.K_Resources
+@{
+    Layout = "~/Views/Shared/_KMSLayout.cshtml";//KMS母版页
+}
+@{
+    List<CommonService.Model.KMS.K_Comments> listCom = ViewBag.listCom;
+    int collectionCount = 0;
+    if (Model.K_Resources_collectionCount != null)
+    {
+        collectionCount = Convert.ToInt32(Model.K_Resources_collectionCount);
+    }
+}
+@section HeadScript{
+    <script type="text/javascript" src="http://player.youku.com/jsapi">
+        var id = '@ViewBag.id';
+        player = new YKU.Player('youkuplayer', {
+            styleid: '0',
+            client_id: '46d33f35eb3b5080',
+            vid: '' + id + '',
+            show_related: false,
+            autoplay: true
+        });
+    </script>
+    <script type="text/javascript">
+        FormValidation.init('formComments', formNavAjaxDone);//用表单Id和表单回调函数，初始化表单
+        function saveComments(formId) {
+            saveForm(formId);
+        }
+        //评论回复
+        function saveComments2(commentCode) {
+            $('#code').val(commentCode);
+            //saveForm(formId);
+            $.ajax({
+                type: 'post',
+                url: '/kms/resources/SaveComment',
+                data: $("#formComments").serialize(),
+                dataType: "json",
+                cache: false,
+                success: function (data) {
+                    //$('#' + commentCode + '').addClass('hidden');
+                    //window.location.reload();
+                    $('#refshcom').click();
+                },
+                error: function () {
+                    alert('网络错误，请稍后再试!');
+                }
+            });
+        }
+        //评论回复
+        function ReplyComment(commentCode) {
+            //if ($('#' + commentCode + '').hasClass('hidden')) {
+            //    $("div[group=group]").each(function (i) {
+            //        $(this).addClass('hidden');
+            //    })
+            //    $('#' + commentCode + '').removeClass('hidden');
+            //}
+            //else {
+            //    $('#' + commentCode + '').addClass('hidden');
+
+            //}
+            var media = $("#" + commentCode + ":has(div[group=group])");
+            if (media.length > 0) {
+                $("div[group=group]").remove();
+                return;
+            }
+            var boxHtml = '';
+            var boxHtml = '';
+            boxHtml += '<div id="' + commentCode + '" group="group">';
+            boxHtml += '<div class="row" style="margin-top:10px;">';
+            boxHtml += '<div class="col-md-1"></div>';
+            boxHtml += '<div class="col-md-9">';
+            boxHtml += '<textarea id="console2" name="' + commentCode + '" class="form-control" rows="4"></textarea>';
+            boxHtml += '</div>';
+            boxHtml += '</div><div class="col-md-2"></div><div class="col-md-8" style="margin-top:10px;"><button type="button" class="btn blue pull-right" onclick="saveComments2(\'' + commentCode + '\')">发布评论</button></div></div>';
+            $(boxHtml).appendTo("#" + commentCode);
+        }
+        //视频收藏
+        function collection(resourcesCode) {
+            $.ajax({
+                type: 'post',
+                url: '/kms/avi/AviCollection?ResourcesCode=' + resourcesCode,
+                data: null,
+                dataType: "json",
+                cache: false,
+                success: function (data) {
+                    if (data == '1') {
+                        var a = '@collectionCount';
+                        var b = parseInt(a) + parseInt(1);
+                        $('#collection').html(b);
+                        $('#collFa').addClass("font-red-sunglo");
+                    }
+                    else if (data == '0') {
+                        bootbox.alert('你已收藏了该视频!');
+                    }
+                },
+                error: function () {
+                    bootbox.alert('网络错误，请稍后再试!');
+                }
+            });
+        }
+    </script>
+}
+<div class="row">
+    <h3>@Model.K_Resources_name</h3>
+    <div class="row">
+        <div id="youkuplayer" class="col-md-12" style=" height:600px;"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-7 full-left">
+            <ul class="list-inline blog-tags">
+                <li>
+                    <span>知识分类：</span>
+                    <span>@Model.K_Resources_Knowledge_name</span>
+                </li>
+                <li>
+                    <span>上传人：</span>
+                    <span>@Model.K_Resources_creatorName</span>
+                </li>
+                <li>
+                    <span>作者：</span>
+                    <span>@(Model.K_Resources_author == null ? "不详" : Model.K_Resources_author)</span>
+                </li>
+                <li>
+                    <span>标签：</span>
+                    <span>@Model.K_Resources_Keyword</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-5 blog-tag-data-inner pull-right">
+            <ul class="list-inline  pull-right">
+                <li>
+                    <i class="fa fa-calendar"></i>
+                    <a href="javascript:;">
+                        @Model.K_Resources_createTime
+                    </a>
+                </li>
+                <li>
+                    <i class="fa fa-eye"></i>
+
+                    <a href="javascript:;">
+                        @ViewBag.browseCount
+                    </a>
+
+                </li>
+                <li>
+                    @{int flag = ViewBag.flag;}
+                    <i id="collFa" class="fa fa-heart @(flag == 1 ? "font-red-sunglo" : "")"></i>
+                    <a onclick="collection('@Model.K_Resources_code')">收藏(<span id="collection">@collectionCount</span>)</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-md-12 blog-page commentsList">
+    @{Html.RenderAction("PartCommentList", "Resources", new { resourcesCode = Model.K_Resources_code });}
+</div>

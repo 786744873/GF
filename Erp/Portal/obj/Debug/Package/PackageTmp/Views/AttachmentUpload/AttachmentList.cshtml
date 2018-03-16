@@ -1,0 +1,140 @@
+﻿@using CommonService.Model;
+@model IEnumerable<CommonService.Model.C_Files>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "附件列表";
+}
+@{
+    string attachmentShowMainPath = ViewBag.AttachmentShowMainPath;
+    string downAttachmentLink = String.Empty;
+}
+@section HeadScript{
+    <script type="text/javascript">
+        function omover2(val) {
+            var objDiv = $("#" + $(val).attr("trid") + "");
+            $(objDiv).css("display", "block");
+        }
+        function omover_Tj(obj, id, client_url) {
+            $.ajax({
+                type: "post",
+                async: true,
+                url: client_url,
+                dataType: "json",
+                success: function (result) {
+                    var strHtml = "<table class='tablelist' style='margin-right:10px;' width='500' id='downlist'>";
+                    strHtml += "<thead>";
+                    strHtml += "<tr>";
+                    strHtml += "<th style='width:250px;'>下载人</th>";
+                    strHtml +="<th style='width:200px;'>下载时间</th>";
+                    strHtml +="</tr>";
+                    strHtml +="</thead>";
+                    strHtml += "<tbody>";
+                    $.each(result, function (n,data) {
+                        strHtml += "<tr><td>" + data[0] + "</td><td>" + data[1] + "</td></tr>";
+                    });
+                    strHtml+="</tbody>";
+
+                    strHtml+="</table>";
+                    $("#" + id).html(strHtml);
+                },
+                error: function () {
+                    alert("访问出错");
+                }
+            })
+
+            var toplab = getAbsoluteTop(obj);
+            var leftlab = getAbsoluteLeft(obj);
+
+            //初始化
+            $("#tjjDetails").css("display", "none");
+            $("#tjjDetails").attr("trlabid", obj);
+            $("#tjjDetails").attr("trid", id);
+            $("#tjjDetails").attr("client_url", client_url);
+
+            var objDiv = $("#" + id + "");
+            var xPoint = window.event.clientX;
+            objDiv.attr("style", "position:absolute; left:" + (leftlab - 400) + "px; top:" + (toplab - 40) + "px; overflow: auto;background-color:white; border: 1px solid #000000; height:180px;");
+            $(objDiv).css("display", "block");
+        }
+        function omout_Tj(val) {
+            var objDiv = $("#" + $(val).attr("trid") + "");
+            $(objDiv).css("display", "none");
+        }
+        function omout_Tj2() {
+            $("#tjjDetails").hide();
+        }
+        //获取控件左绝对位置
+        function getAbsoluteLeft(objectId) {
+            var lo = document.getElementById(objectId)
+            oLeft = lo.offsetLeft
+            while (lo.offsetParent != null) {
+                oParent = lo.offsetParent
+                oLeft += oParent.offsetLeft
+                lo = oParent
+            }
+            return oLeft
+        }
+        //获取控件上绝对位置
+        function getAbsoluteTop(objectId) {
+            var o = document.getElementById(objectId);
+            oTop = o.offsetTop;
+            while (o.offsetParent != null) {
+                oParent = o.offsetParent
+                oTop += oParent.offsetTop  // Add parent top position
+                o = oParent
+            }
+            return oTop
+        }
+
+    </script>
+}
+
+
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>文件名称</th>
+            <th>文件所属类型</th>
+            <th>文件大小</th>
+            <th>上传人</th>
+            <th>上传时间</th>
+            <th>下载列表</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            downAttachmentLink = String.Empty;
+            downAttachmentLink = attachmentShowMainPath + item.C_Files_name;
+            <tr target="sid_Iterm" rel="@item.C_Files_code">
+                <td><a title="点击下载附件" href="/AttachmentUpload/DownPic?fileGuid=@item.C_Files_code&url=@downAttachmentLink" >@item.C_Files_viewName</a></td>
+                <td>@item.C_Files_cateName</td>
+                @if (item.C_Files_size > 1024)
+                {
+                    decimal? size = Decimal.Parse((item.C_Files_size / 1024).Value.ToString("#0.00"));
+                    <td>@size  MB</td>
+                }
+                else
+                {
+                    <td>@item.C_Files_size KB</td>
+                }
+                <td>@item.C_Files_creator_name</td>
+                <td>@(item.C_Files_createDate.Value == null ? "" : item.C_Files_createDate.Value.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                <td><a target="padding" id="Td_@item.C_Files_code" onmouseout="omout_Tj2()" onclick="omover_Tj('Td_@item.C_Files_code', 'tjjDetails','/AttachmentUpload/GetdownList?fileCode=@item.C_Files_code')">查看</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div id="tjjDetails" trlabid="" trid="" trclient_url="" onmouseout="omout_Tj(this)" onmouseover="omover2(this)" class="tjjyDetails" style="overflow: auto; border: 1px solid #000000; display:none; background-color:white; height:180px;">
+    <table border="1" cellpadding="5" cellspacing="5" style=" margin-left: 10px; width: 400px;">
+        <tr style="height:180px; width:400px;">
+            <td align="center" width="400">
+                <img src="/Theme/assets/global/plugins/slider-revolution-slider/rs-plugin/assets/loader2.gif" /> 加载中...
+            </td>
+        </tr>
+    </table>
+</div>
+
+

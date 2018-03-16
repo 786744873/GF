@@ -1,0 +1,43 @@
+﻿@using CommonService.Model.SysManager;
+@model IEnumerable<CommonService.Model.SysManager.C_Userinfo>
+@{
+    Layout = "~/Views/Shared/_NoPageListTemplate.cshtml";//无分页列表页面固定模板
+}
+@{
+    ViewBag.Title = "组织机构->岗位->角色";//单选带回
+}
+@{
+    List<CommonService.Model.SysManager.C_Userinfo> postConditon = ViewBag.PostConditon;//岗位条件模型
+}
+<table class="tablelist">
+    <thead>
+        <tr>
+            <th>默认岗位</th>
+            <th>组织机构</th>
+            <th>所属岗位</th>
+            <th>角色信息</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+
+            string rel = item.C_Userinfo_Organization.Value.ToString() + "," + item.C_Userinfo_post.Value.ToString() + "," + item.C_Userinfo_code.ToString();
+            <tr target="sid_Iterm" rel="@rel" rowchange="window.parent.handleRole(@(item.C_Userinfo_isDefault ? '1' : '0'))">
+                <td>
+                    @if (item.C_Userinfo_isDefault)
+                    {
+                        <input type="radio" name="moren" checked="checked" value="" disabled="disabled" />
+                    }
+                    else
+                    {
+                        <input type="radio" name="moren" value="" disabled="disabled" />
+                    }
+                </td>
+                <td>@item.C_Userinfo_Organization_name</td>
+                <td>@item.C_Userinfo_post_name</td>
+                <td>@item.C_Userinfo_Roles_name</td>
+            </tr>
+        }
+    </tbody>
+</table>
