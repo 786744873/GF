@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RegexValidationItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <RegexValidationItem>
+    <Regex><![CDATA[^[0-9]*$]]></Regex>
+    <MessageZhcn>只允许输入数字</MessageZhcn>
+    <MessageEnus>Only number are allowed</MessageEnus>
+  </RegexValidationItem>
+  <RegexValidationItem>
+    <Regex><![CDATA[^[a-zA-Z0-9]*$]]></Regex>
+    <MessageZhcn>只允许输入字母和数字</MessageZhcn>
+    <MessageEnus>Only English char and number are allowed</MessageEnus>
+  </RegexValidationItem>
+</RegexValidationItems>

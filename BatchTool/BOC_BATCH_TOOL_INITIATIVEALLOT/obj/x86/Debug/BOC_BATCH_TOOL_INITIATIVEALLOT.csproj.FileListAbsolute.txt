@@ -1,0 +1,16 @@
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_INITIATIVEALLOT.dll
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_INITIATIVEALLOT.pdb
+C:\代码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.MainView.resources
+C:\代码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.Properties.Resources.resources
+C:\代码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.csproj.GenerateResource.Cache
+C:\代码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.dll
+C:\代码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.pdb
+C:\代码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_INITIATIVEALLOT.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_INITIATIVEALLOT.pdb
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.MainView.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.Properties.Resources.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.csproj.GenerateResource.Cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_INITIATIVEALLOT\obj\x86\Debug\BOC_BATCH_TOOL_INITIATIVEALLOT.pdb

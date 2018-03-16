@@ -1,0 +1,350 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="lbRemitDate.Size" type="System.Drawing.Size, System.Drawing">
+    <value>149, 12</value>
+  </data>
+  <data name="lbRemitDate.Text" xml:space="preserve">
+    <value>Designated Payment Date:</value>
+  </data>
+  <data name="dtpRemitDate.Location" type="System.Drawing.Point, System.Drawing">
+    <value>164, 3</value>
+  </data>
+  <data name="lbCustomerRef.Location" type="System.Drawing.Point, System.Drawing">
+    <value>312, 8</value>
+  </data>
+  <data name="lbCustomerRef.Size" type="System.Drawing.Size, System.Drawing">
+    <value>155, 12</value>
+  </data>
+  <data name="lbCustomerRef.Text" xml:space="preserve">
+    <value>Customer Business Number:</value>
+  </data>
+  <data name="tbCustomerRef.Location" type="System.Drawing.Point, System.Drawing">
+    <value>467, 4</value>
+  </data>
+  <data name="lbPaymentType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>51, 34</value>
+  </data>
+  <data name="lbPaymentType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>113, 12</value>
+  </data>
+  <data name="lbPaymentType.Text" xml:space="preserve">
+    <value>Remittance Method:</value>
+  </data>
+  <data name="tbPaymentType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>164, 30</value>
+  </data>
+  <data name="lbSendPriority.Location" type="System.Drawing.Point, System.Drawing">
+    <value>378, 34</value>
+  </data>
+  <data name="lbSendPriority.Size" type="System.Drawing.Size, System.Drawing">
+    <value>89, 12</value>
+  </data>
+  <data name="lbSendPriority.Text" xml:space="preserve">
+    <value>Message Grade:</value>
+  </data>
+  <data name="rbNormal.Location" type="System.Drawing.Point, System.Drawing">
+    <value>467, 32</value>
+  </data>
+  <data name="rbNormal.Size" type="System.Drawing.Size, System.Drawing">
+    <value>59, 16</value>
+  </data>
+  <data name="rbNormal.Text" xml:space="preserve">
+    <value>Common</value>
+  </data>
+  <data name="rbExpress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>532, 32</value>
+  </data>
+  <data name="rbExpress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>95, 16</value>
+  </data>
+  <data name="rbExpress.Text" xml:space="preserve">
+    <value>Extra Urgent</value>
+  </data>
+  <data name="lbRemitCashType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>21, 61</value>
+  </data>
+  <data name="lbRemitCashType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 12</value>
+  </data>
+  <data name="lbRemitCashType.Text" xml:space="preserve">
+    <value>Currency of Remittance:</value>
+  </data>
+  <data name="cmbRemitCashType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>164, 57</value>
+  </data>
+  <data name="label7.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 61</value>
+  </data>
+  <data name="label8.Location" type="System.Drawing.Point, System.Drawing">
+    <value>343, 61</value>
+  </data>
+  <data name="lbRemitAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>354, 61</value>
+  </data>
+  <data name="lbRemitAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>113, 12</value>
+  </data>
+  <data name="lbRemitAmount.Text" xml:space="preserve">
+    <value>Remittance Amount:</value>
+  </data>
+  <data name="tbRemitAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>467, 57</value>
+  </data>
+  <data name="lbSpotAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>27, 87</value>
+  </data>
+  <data name="lbSpotAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>137, 12</value>
+  </data>
+  <data name="lbSpotAccount.Text" xml:space="preserve">
+    <value>Spot Exchange Account:</value>
+  </data>
+  <data name="cmbSpotAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>164, 83</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="lbPurchaseAccount.AutoSize" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="lbPurchaseAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>56, 104</value>
+  </data>
+  <data name="lbPurchaseAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>108, 30</value>
+  </data>
+  <data name="lbPurchaseAccount.Text" xml:space="preserve">
+    <value>Foreign Exchange Purchase Account:</value>
+  </data>
+  <data name="cmbPurchaseAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>164, 109</value>
+  </data>
+  <data name="lbOtherAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>69, 139</value>
+  </data>
+  <data name="lbOtherAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>95, 12</value>
+  </data>
+  <data name="lbOtherAccount.Text" xml:space="preserve">
+    <value>Other Accounts:</value>
+  </data>
+  <data name="cmbOtherAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>164, 135</value>
+  </data>
+  <data name="lbPayFeeAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>63, 165</value>
+  </data>
+  <data name="lbPayFeeAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>101, 12</value>
+  </data>
+  <data name="lbPayFeeAccount.Text" xml:space="preserve">
+    <value>Payment Account:</value>
+  </data>
+  <data name="lbSpotAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>336, 87</value>
+  </data>
+  <data name="lbSpotAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>131, 12</value>
+  </data>
+  <data name="lbSpotAmount.Text" xml:space="preserve">
+    <value>Spot Exchange Amount:</value>
+  </data>
+  <data name="tbSpotAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>467, 83</value>
+  </data>
+  <data name="lbPurchaseAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>366, 113</value>
+  </data>
+  <data name="lbPurchaseAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>101, 12</value>
+  </data>
+  <data name="lbPurchaseAmount.Text" xml:space="preserve">
+    <value>Purchase Amount:</value>
+  </data>
+  <data name="tbPurchaseAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>467, 109</value>
+  </data>
+  <data name="lbOtherAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>384, 139</value>
+  </data>
+  <data name="lbOtherAmount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>83, 12</value>
+  </data>
+  <data name="lbOtherAmount.Text" xml:space="preserve">
+    <value>Other Amount:</value>
+  </data>
+  <data name="tbOtherAmount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>467, 135</value>
+  </data>
+  <data name="label17.Location" type="System.Drawing.Point, System.Drawing">
+    <value>343, 166</value>
+  </data>
+  <data name="lbOrgCode.Location" type="System.Drawing.Point, System.Drawing">
+    <value>354, 166</value>
+  </data>
+  <data name="lbOrgCode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>113, 12</value>
+  </data>
+  <data name="lbOrgCode.Text" xml:space="preserve">
+    <value>Organization Code:</value>
+  </data>
+  <data name="tbOrgPre.Location" type="System.Drawing.Point, System.Drawing">
+    <value>467, 162</value>
+  </data>
+  <data name="label19.Location" type="System.Drawing.Point, System.Drawing">
+    <value>52, 191</value>
+  </data>
+  <data name="lbRemittorName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>63, 191</value>
+  </data>
+  <data name="lbRemittorName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>101, 12</value>
+  </data>
+  <data name="lbRemittorName.Text" xml:space="preserve">
+    <value>Remitter's Name:</value>
+  </data>
+  <data name="tbRemittorName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>164, 187</value>
+  </data>
+  <data name="lbRemittorAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>348, 191</value>
+  </data>
+  <data name="lbRemittorAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>119, 12</value>
+  </data>
+  <data name="lbRemittorAddress.Text" xml:space="preserve">
+    <value>Remitter's Address:</value>
+  </data>
+  <data name="tbRemittorAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>467, 187</value>
+  </data>
+  <data name="label22.Location" type="System.Drawing.Point, System.Drawing">
+    <value>558, 166</value>
+  </data>
+  <data name="tbOrgEnd.Location" type="System.Drawing.Point, System.Drawing">
+    <value>569, 162</value>
+  </data>
+  <data name="cmbPayFeeAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>164, 161</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>650, 212</value>
+  </data>
+</root>

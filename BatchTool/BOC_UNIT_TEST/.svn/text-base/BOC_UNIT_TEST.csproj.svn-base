@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9F991335-CB97-4D8C-AE00-B02AD94F03F6}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BOC_UNIT_TEST</RootNamespace>
+    <AssemblyName>BOC_UNIT_TEST</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Class1.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Main.Designer.cs">
+      <DependentUpon>Main.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Main.resx">
+      <DependentUpon>Main.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BOC_App_Autotest\BOC_App_Autotest.csproj">
+      <Project>{206BF234-EE37-4C5D-A0F0-B256DDC9AB24}</Project>
+      <Name>BOC_App_Autotest</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_AGENTEXPRESSIN\BOC_BATCH_TOOL_AGENTEXPRESSIN.csproj">
+      <Project>{D9634691-19AA-4924-9D3B-5FB0E5D54C48}</Project>
+      <Name>BOC_BATCH_TOOL_AGENTEXPRESSIN</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_AGENTEXPRESSOUT\BOC_BATCH_TOOL_AGENTEXPRESSOUT.csproj">
+      <Project>{E9AB3DB3-7136-4C19-8AEB-1AA0CC1258E0}</Project>
+      <Name>BOC_BATCH_TOOL_AGENTEXPRESSOUT</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_AGENTNORMALIN\BOC_BATCH_TOOL_AGENTNORMALIN.csproj">
+      <Project>{178B2011-BF0D-47FC-91FA-606B1B624E07}</Project>
+      <Name>BOC_BATCH_TOOL_AGENTNORMALIN</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_AGENTNORMALOUT\BOC_BATCH_TOOL_AGENTNORMALOUT.csproj">
+      <Project>{B41C81CC-693C-4148-AD1B-0D0885AFA6C3}</Project>
+      <Name>BOC_BATCH_TOOL_AGENTNORMALOUT</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_BL_AGENTEXPRESSOUT\BOC_BATCH_TOOL_BL_AGENTEXPRESSOUT.csproj">
+      <Project>{F69524D0-8CD1-4A78-9245-1B078D1D2258}</Project>
+      <Name>BOC_BATCH_TOOL_BL_AGENTEXPRESSOUT</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_BL_TRANSFER_FOREIGNMONERY\BOC_BATCH_TOOL_BL_TRANSFER_FOREIGNMONERY.csproj">
+      <Project>{2384CA9F-A130-4598-AE44-BF3A6708EC52}</Project>
+      <Name>BOC_BATCH_TOOL_BL_TRANSFER_FOREIGNMONERY</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA\BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA.csproj">
+      <Project>{4158812E-3AB7-4502-B1A1-3C7DCAEA2D5E}</Project>
+      <Name>BOC_BATCH_TOOL_BL_TRANSFER_OVERSEA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_ELECTICKET_AUTOTIPEXCHANGE\BOC_BATCH_TOOL_ELECTICKET_AUTOTIPEXCHANGE.csproj">
+      <Project>{0CAF4A32-F8A1-4A63-BAAD-5B12B8B3845D}</Project>
+      <Name>BOC_BATCH_TOOL_ELECTICKET_AUTOTIPEXCHANGE</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_ELECTICKET_BACKEDNOTE\BOC_BATCH_TOOL_ELECTICKET_BACKEDNOTE.csproj">
+      <Project>{83F83C34-0639-452B-8172-AE7DBB985703}</Project>
+      <Name>BOC_BATCH_TOOL_ELECTICKET_BACKEDNOTE</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_ELECTICKET_POOL\BOC_BATCH_TOOL_ELECTICKET_POOL.csproj">
+      <Project>{03CBA641-CF90-4ABE-A0B4-893A634FD818}</Project>
+      <Name>BOC_BATCH_TOOL_ELECTICKET_POOL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_ELECTICKET_REMIT\BOC_BATCH_TOOL_ELECTICKET_REMIT.csproj">
+      <Project>{08DFD765-31C9-4C18-B089-35611BE8DD84}</Project>
+      <Name>BOC_BATCH_TOOL_ELECTICKET_REMIT</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_ELECTICKET_STICKON\BOC_BATCH_TOOL_ELECTICKET_STICKON.csproj">
+      <Project>{3CF587BA-A99D-4C14-8331-752AABC54AF7}</Project>
+      <Name>BOC_BATCH_TOOL_ELECTICKET_STICKON</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_INITIATIVEALLOT\BOC_BATCH_TOOL_INITIATIVEALLOT.csproj">
+      <Project>{3D570693-9543-4417-BB99-50B2F2845BE0}</Project>
+      <Name>BOC_BATCH_TOOL_INITIATIVEALLOT</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_SETTINGSANDCHANGE\BOC_BATCH_TOOL_SETTINGS.csproj">
+      <Project>{619EFBF4-67EA-4E9C-8465-C72A11CE1088}</Project>
+      <Name>BOC_BATCH_TOOL_SETTINGS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_SPPLYFINANCING_APPLYOFFRANCHISERFINANCING\BOC_BATCH_TOOL_SPPLYFINANCING_APPLYOFFRANCHISERFINANCING.csproj">
+      <Project>{BEAF8E53-9C58-4563-B7FC-DF3619E50572}</Project>
+      <Name>BOC_BATCH_TOOL_SPPLYFINANCING_APPLYOFFRANCHISERFINANCING</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_SPPLYFINANCING_BILLOFDEBTRECEIVABLEPURCHASER\BOC_BATCH_TOOL_SPPLYFINANCING_BILLOFDEBTRECEIVABLEPURCHASER.csproj">
+      <Project>{37DEC7A0-075C-4455-89EA-E3DCDFA5888E}</Project>
+      <Name>BOC_BATCH_TOOL_SPPLYFINANCING_BILLOFDEBTRECEIVABLEPURCHASER</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_SPPLYFINANCING_BILLOFDEBTRECEIVABLESELLER\BOC_BATCH_TOOL_SPPLYFINANCING_BILLOFDEBTRECEIVABLESELLER.csproj">
+      <Project>{3FFA1204-CA25-4DF0-AECC-6CD2AAF10C4F}</Project>
+      <Name>BOC_BATCH_TOOL_SPPLYFINANCING_BILLOFDEBTRECEIVABLESELLER</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_SPPLYFINANCING_PAYMENTORRECEIPTOFDEBTRECEIVABLE\BOC_BATCH_TOOL_SPPLYFINANCING_PAYMENTORRECEIPTOFDEBTRECEIVABLE.csproj">
+      <Project>{80399B72-A62C-4DCF-9A16-092036B915B6}</Project>
+      <Name>BOC_BATCH_TOOL_SPPLYFINANCING_PAYMENTORRECEIPTOFDEBTRECEIVABLE</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_SPPLYFINANCING_PURCHASEORDERMGR\BOC_BATCH_TOOL_SPPLYFINANCING_PURCHASEORDERMGR.csproj">
+      <Project>{BD7F4050-FA02-4F58-B00B-3C0115DA7629}</Project>
+      <Name>BOC_BATCH_TOOL_SPPLYFINANCING_PURCHASEORDERMGR</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_SPPLYFINANCING_PURCHASEORDER\BOC_BATCH_TOOL_SPPLYFINANCING_PURCHASEORDER.csproj">
+      <Project>{C5176974-30D9-4DF0-B9AC-A5797B0CF4A2}</Project>
+      <Name>BOC_BATCH_TOOL_SPPLYFINANCING_PURCHASEORDER</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_SPPLYFINANCING_SELLERORDERMGR\BOC_BATCH_TOOL_SPPLYFINANCING_SELLERORDERMGR.csproj">
+      <Project>{634744A2-DB86-43ED-A592-52CB7DC8BBF5}</Project>
+      <Name>BOC_BATCH_TOOL_SPPLYFINANCING_SELLERORDERMGR</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_SPPLYFINANCING_SELLERORDER\BOC_BATCH_TOOL_SPPLYFINANCING_SELLERORDER.csproj">
+      <Project>{06DD3457-793C-4331-A702-D8901386BAA2}</Project>
+      <Name>BOC_BATCH_TOOL_SPPLYFINANCING_SELLERORDER</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_TRANSFER_CORPORATION\BOC_BATCH_TOOL_TRANSFER_CORPORATION.csproj">
+      <Project>{FD243CC3-B821-43A9-8AC9-5D625D8A3C85}</Project>
+      <Name>BOC_BATCH_TOOL_TRANSFER_CORPORATION</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_TRANSFER_FOREIGNMONERY\BOC_BATCH_TOOL_TRANSFER_FOREIGNMONERY.csproj">
+      <Project>{D39CDE70-27FE-43B2-8383-B3D7AF5DEC0F}</Project>
+      <Name>BOC_BATCH_TOOL_TRANSFER_FOREIGNMONERY</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_TRANSFER_INDIVIDUAL\BOC_BATCH_TOOL_TRANSFER_INDIVIDUAL.csproj">
+      <Project>{53EDD833-F2E5-4E75-9AD3-208B0B5AB2AB}</Project>
+      <Name>BOC_BATCH_TOOL_TRANSFER_INDIVIDUAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_TRANSFER_OVERBANKIN\BOC_BATCH_TOOL_TRANSFER_OVERBANKIN.csproj">
+      <Project>{66F0E8E0-E7EC-4001-A5B3-69D64B7B4B18}</Project>
+      <Name>BOC_BATCH_TOOL_TRANSFER_OVERBANKIN</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_TRANSFER_OVERBANKOUT\BOC_BATCH_TOOL_TRANSFER_OVERBANKOUT.csproj">
+      <Project>{209F6B7D-E2D9-4B19-80D6-B4AFB621A15E}</Project>
+      <Name>BOC_BATCH_TOOL_TRANSFER_OVERBANKOUT</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_TRANSFER_OVERSEA\BOC_BATCH_TOOL_TRANSFER_OVERSEA.csproj">
+      <Project>{CB400C09-C236-4F6D-A990-A711F5FE3026}</Project>
+      <Name>BOC_BATCH_TOOL_TRANSFER_OVERSEA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_TRANSFER_PREPROCCESS\BOC_BATCH_TOOL_TRANSFER_PREPROCCESS.csproj">
+      <Project>{7D1C0F1E-9654-447C-A052-E2828DD9DCD6}</Project>
+      <Name>BOC_BATCH_TOOL_TRANSFER_PREPROCCESS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_UNITIVEPAYMENTFC\BOC_BATCH_TOOL_UNITIVEPAYMENTFC.csproj">
+      <Project>{AF27F36A-F651-4908-A9D1-CB9E1B22723D}</Project>
+      <Name>BOC_BATCH_TOOL_UNITIVEPAYMENTFC</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_UNITIVEPAYMENTRMB\BOC_BATCH_TOOL_UNITIVEPAYMENTRMB.csproj">
+      <Project>{777D6EC7-F0B8-4F90-8438-45AEAD0EB0B9}</Project>
+      <Name>BOC_BATCH_TOOL_UNITIVEPAYMENTRMB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BOC_BATCH_TOOL_VIRTUALACCOUNTTRANSFER\BOC_BATCH_TOOL_TRANSFER_VIRTUALACCOUNT.csproj">
+      <Project>{03C52BF4-F1FF-4451-A71D-E80F5CD4ACBF}</Project>
+      <Name>BOC_BATCH_TOOL_TRANSFER_VIRTUALACCOUNT</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CommonClient\CommonClient.csproj">
+      <Project>{0C4658B4-8FD9-49A7-9997-120CFFF70402}</Project>
+      <Name>CommonClient</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="XMLFile1.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

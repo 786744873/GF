@@ -1,0 +1,681 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <metadata name="errorProvider1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>249, 17</value>
+  </metadata>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>148, 17</value>
+  </metadata>
+  <metadata name="validatorList1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="lblItemsDesc.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="lblItemsDesc.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 12</value>
+  </data>
+  <data name="lblItemsDesc.Size" type="System.Drawing.Size, System.Drawing">
+    <value>77, 12</value>
+  </data>
+  <data name="lblItemsDesc.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="lblItemsDesc.Text" xml:space="preserve">
+    <value>批量文件清单</value>
+  </data>
+  <data name="&gt;&gt;lblItemsDesc.Name" xml:space="preserve">
+    <value>lblItemsDesc</value>
+  </data>
+  <data name="&gt;&gt;lblItemsDesc.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lblItemsDesc.Parent" xml:space="preserve">
+    <value>pnlHeader</value>
+  </data>
+  <data name="&gt;&gt;lblItemsDesc.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="lblHeaderInfo.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lblHeaderInfo.Location" type="System.Drawing.Point, System.Drawing">
+    <value>84, 12</value>
+  </data>
+  <data name="lblHeaderInfo.Size" type="System.Drawing.Size, System.Drawing">
+    <value>149, 12</value>
+  </data>
+  <data name="lblHeaderInfo.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="lblHeaderInfo.Text" xml:space="preserve">
+    <value>总笔数 0 笔；总金额 0 元</value>
+  </data>
+  <data name="&gt;&gt;lblHeaderInfo.Name" xml:space="preserve">
+    <value>lblHeaderInfo</value>
+  </data>
+  <data name="&gt;&gt;lblHeaderInfo.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lblHeaderInfo.Parent" xml:space="preserve">
+    <value>pnlHeader</value>
+  </data>
+  <data name="&gt;&gt;lblHeaderInfo.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="btnQuery.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="btnQuery.Image" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="btnQuery.Location" type="System.Drawing.Point, System.Drawing">
+    <value>864, 7</value>
+  </data>
+  <data name="btnQuery.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 23</value>
+  </data>
+  <data name="btnQuery.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="btnQuery.Text" xml:space="preserve">
+    <value>查找</value>
+  </data>
+  <data name="&gt;&gt;btnQuery.Name" xml:space="preserve">
+    <value>btnQuery</value>
+  </data>
+  <data name="&gt;&gt;btnQuery.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ThemedButton, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;btnQuery.Parent" xml:space="preserve">
+    <value>pnlHeader</value>
+  </data>
+  <data name="&gt;&gt;btnQuery.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="tbQueryContent.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="lblTransferDetailHeader_P.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="lblTransferDetailHeader_P.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lblTransferDetailHeader_P.Font" type="System.Drawing.Font, System.Drawing">
+    <value>SimSun-ExtB, 9pt, style=Bold</value>
+  </data>
+  <data name="lblTransferDetailHeader_P.Location" type="System.Drawing.Point, System.Drawing">
+    <value>664, 12</value>
+  </data>
+  <data name="lblTransferDetailHeader_P.Size" type="System.Drawing.Size, System.Drawing">
+    <value>70, 12</value>
+  </data>
+  <data name="lblTransferDetailHeader_P.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="lblTransferDetailHeader_P.Text" xml:space="preserve">
+    <value>快速定位：</value>
+  </data>
+  <data name="&gt;&gt;lblTransferDetailHeader_P.Name" xml:space="preserve">
+    <value>lblTransferDetailHeader_P</value>
+  </data>
+  <data name="&gt;&gt;lblTransferDetailHeader_P.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lblTransferDetailHeader_P.Parent" xml:space="preserve">
+    <value>pnlHeader</value>
+  </data>
+  <data name="&gt;&gt;lblTransferDetailHeader_P.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="tbQueryContent.Location" type="System.Drawing.Point, System.Drawing">
+    <value>741, 8</value>
+  </data>
+  <data name="tbQueryContent.Size" type="System.Drawing.Size, System.Drawing">
+    <value>117, 21</value>
+  </data>
+  <data name="tbQueryContent.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;tbQueryContent.Name" xml:space="preserve">
+    <value>tbQueryContent</value>
+  </data>
+  <data name="&gt;&gt;tbQueryContent.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbQueryContent.Parent" xml:space="preserve">
+    <value>pnlHeader</value>
+  </data>
+  <data name="&gt;&gt;tbQueryContent.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="pnlHeader.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="pnlHeader.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="pnlHeader.Size" type="System.Drawing.Size, System.Drawing">
+    <value>929, 36</value>
+  </data>
+  <data name="pnlHeader.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="&gt;&gt;pnlHeader.Name" xml:space="preserve">
+    <value>pnlHeader</value>
+  </data>
+  <data name="&gt;&gt;pnlHeader.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;pnlHeader.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;pnlHeader.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <metadata name="dgv.GenerateMember" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
+  <data name="dgv.ColumnHeadersHeight" type="System.Int32, mscorlib">
+    <value>35</value>
+  </data>
+  <metadata name="clnRowNo.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnRowNo.HeaderText" xml:space="preserve">
+    <value>序号</value>
+  </data>
+  <data name="clnRowNo.Width" type="System.Int32, mscorlib">
+    <value>64</value>
+  </data>
+  <metadata name="clnError.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnError.HeaderText" xml:space="preserve">
+    <value>错误原因</value>
+  </data>
+  <data name="clnError.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="clnError.Width" type="System.Int32, mscorlib">
+    <value>88</value>
+  </data>
+  <metadata name="clnCustomerRef.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnCustomerRef.HeaderText" xml:space="preserve">
+    <value>票据自定义编号</value>
+  </data>
+  <data name="clnCustomerRef.Width" type="System.Int32, mscorlib">
+    <value>124</value>
+  </data>
+  <metadata name="clnElecTicketType.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnElecTicketType.HeaderText" xml:space="preserve">
+    <value>票据类型</value>
+  </data>
+  <data name="clnElecTicketType.Width" type="System.Int32, mscorlib">
+    <value>88</value>
+  </data>
+  <metadata name="clnExchangeBank.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnExchangeBank.HeaderText" xml:space="preserve">
+    <value>承兑行</value>
+  </data>
+  <data name="clnExchangeBank.Width" type="System.Int32, mscorlib">
+    <value>76</value>
+  </data>
+  <data name="clnElecTicketSerialNo.HeaderText" xml:space="preserve">
+    <value>票据号码</value>
+  </data>
+  <data name="clnElecTicketSerialNo.Width" type="System.Int32, mscorlib">
+    <value>88</value>
+  </data>
+  <metadata name="clnAmount.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnAmount.HeaderText" xml:space="preserve">
+    <value>票据金额</value>
+  </data>
+  <data name="clnAmount.Width" type="System.Int32, mscorlib">
+    <value>88</value>
+  </data>
+  <metadata name="clnRemitDate.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnRemitDate.HeaderText" xml:space="preserve">
+    <value>出票日期</value>
+  </data>
+  <data name="clnRemitDate.Width" type="System.Int32, mscorlib">
+    <value>88</value>
+  </data>
+  <metadata name="clnEndDate.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnEndDate.HeaderText" xml:space="preserve">
+    <value>到期日期</value>
+  </data>
+  <data name="clnEndDate.Width" type="System.Int32, mscorlib">
+    <value>88</value>
+  </data>
+  <metadata name="clnRemitAccount.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnRemitAccount.HeaderText" xml:space="preserve">
+    <value>出票人账号</value>
+  </data>
+  <metadata name="clnRemitName.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnRemitName.HeaderText" xml:space="preserve">
+    <value>出票人名称</value>
+  </data>
+  <data name="clnExchangeAccount.HeaderText" xml:space="preserve">
+    <value>承兑人账号</value>
+  </data>
+  <data name="clnExchangeName.HeaderText" xml:space="preserve">
+    <value>承兑人名称</value>
+  </data>
+  <metadata name="clnExchangeBankNo.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnExchangeBankNo.HeaderText" xml:space="preserve">
+    <value>承兑人开户行行号</value>
+  </data>
+  <data name="clnExchangeBankNo.Width" type="System.Int32, mscorlib">
+    <value>136</value>
+  </data>
+  <data name="clnExchangeOpenBankName.HeaderText" xml:space="preserve">
+    <value>承兑人开户行名称</value>
+  </data>
+  <data name="clnExchangeOpenBankName.Width" type="System.Int32, mscorlib">
+    <value>136</value>
+  </data>
+  <metadata name="clnExchangeDate.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnExchangeDate.HeaderText" xml:space="preserve">
+    <value>承兑日期</value>
+  </data>
+  <data name="clnExchangeDate.Width" type="System.Int32, mscorlib">
+    <value>88</value>
+  </data>
+  <metadata name="clnPayeeName.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnPayeeName.HeaderText" xml:space="preserve">
+    <value>收款人名称</value>
+  </data>
+  <metadata name="clnPayeeAccount.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnPayeeAccount.HeaderText" xml:space="preserve">
+    <value>收款人账号</value>
+  </data>
+  <metadata name="clnPayeeOpenBankNo.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnPayeeOpenBankNo.HeaderText" xml:space="preserve">
+    <value>收款人开户行行号</value>
+  </data>
+  <data name="clnPayeeOpenBankNo.Width" type="System.Int32, mscorlib">
+    <value>136</value>
+  </data>
+  <metadata name="clnPayeeOpenBankName.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnPayeeOpenBankName.HeaderText" xml:space="preserve">
+    <value>收款人开户行名称</value>
+  </data>
+  <data name="clnPayeeOpenBankName.Width" type="System.Int32, mscorlib">
+    <value>136</value>
+  </data>
+  <metadata name="clnPreBackNotedPerson.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnPreBackNotedPerson.HeaderText" xml:space="preserve">
+    <value>前一手背书人</value>
+  </data>
+  <data name="clnPreBackNotedPerson.Width" type="System.Int32, mscorlib">
+    <value>112</value>
+  </data>
+  <metadata name="clnOperate.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnOperate.HeaderText" xml:space="preserve">
+    <value>到期操作</value>
+  </data>
+  <data name="clnOperate.Width" type="System.Int32, mscorlib">
+    <value>88</value>
+  </data>
+  <metadata name="clnBusinessType.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="clnBusinessType.HeaderText" xml:space="preserve">
+    <value>业务种类</value>
+  </data>
+  <data name="clnBusinessType.Width" type="System.Int32, mscorlib">
+    <value>88</value>
+  </data>
+  <data name="dgv.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="dgv.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 36</value>
+  </data>
+  <data name="dgv.RowHeadersWidth" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="dgv.Size" type="System.Drawing.Size, System.Drawing">
+    <value>929, 394</value>
+  </data>
+  <data name="dgv.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="&gt;&gt;dgv.Name" xml:space="preserve">
+    <value>dgv</value>
+  </data>
+  <data name="&gt;&gt;dgv.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ThemedDataGridView, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;dgv.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;dgv.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>42</value>
+  </metadata>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>929, 430</value>
+  </data>
+  <data name="&gt;&gt;errorProvider1.Name" xml:space="preserve">
+    <value>errorProvider1</value>
+  </data>
+  <data name="&gt;&gt;errorProvider1.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ErrorProviderExt, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;toolTip1.Name" xml:space="preserve">
+    <value>toolTip1</value>
+  </data>
+  <data name="&gt;&gt;toolTip1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolTip, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;validatorList1.Name" xml:space="preserve">
+    <value>validatorList1</value>
+  </data>
+  <data name="&gt;&gt;validatorList1.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ValidatorList, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;clnRowNo.Name" xml:space="preserve">
+    <value>clnRowNo</value>
+  </data>
+  <data name="&gt;&gt;clnRowNo.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnError.Name" xml:space="preserve">
+    <value>clnError</value>
+  </data>
+  <data name="&gt;&gt;clnError.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnCustomerRef.Name" xml:space="preserve">
+    <value>clnCustomerRef</value>
+  </data>
+  <data name="&gt;&gt;clnCustomerRef.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnElecTicketType.Name" xml:space="preserve">
+    <value>clnElecTicketType</value>
+  </data>
+  <data name="&gt;&gt;clnElecTicketType.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeBank.Name" xml:space="preserve">
+    <value>clnExchangeBank</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeBank.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnElecTicketSerialNo.Name" xml:space="preserve">
+    <value>clnElecTicketSerialNo</value>
+  </data>
+  <data name="&gt;&gt;clnElecTicketSerialNo.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnAmount.Name" xml:space="preserve">
+    <value>clnAmount</value>
+  </data>
+  <data name="&gt;&gt;clnAmount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnRemitDate.Name" xml:space="preserve">
+    <value>clnRemitDate</value>
+  </data>
+  <data name="&gt;&gt;clnRemitDate.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnEndDate.Name" xml:space="preserve">
+    <value>clnEndDate</value>
+  </data>
+  <data name="&gt;&gt;clnEndDate.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnRemitAccount.Name" xml:space="preserve">
+    <value>clnRemitAccount</value>
+  </data>
+  <data name="&gt;&gt;clnRemitAccount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnRemitName.Name" xml:space="preserve">
+    <value>clnRemitName</value>
+  </data>
+  <data name="&gt;&gt;clnRemitName.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeAccount.Name" xml:space="preserve">
+    <value>clnExchangeAccount</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeAccount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeName.Name" xml:space="preserve">
+    <value>clnExchangeName</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeName.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeBankNo.Name" xml:space="preserve">
+    <value>clnExchangeBankNo</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeBankNo.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeOpenBankName.Name" xml:space="preserve">
+    <value>clnExchangeOpenBankName</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeOpenBankName.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeDate.Name" xml:space="preserve">
+    <value>clnExchangeDate</value>
+  </data>
+  <data name="&gt;&gt;clnExchangeDate.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnPayeeName.Name" xml:space="preserve">
+    <value>clnPayeeName</value>
+  </data>
+  <data name="&gt;&gt;clnPayeeName.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnPayeeAccount.Name" xml:space="preserve">
+    <value>clnPayeeAccount</value>
+  </data>
+  <data name="&gt;&gt;clnPayeeAccount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnPayeeOpenBankNo.Name" xml:space="preserve">
+    <value>clnPayeeOpenBankNo</value>
+  </data>
+  <data name="&gt;&gt;clnPayeeOpenBankNo.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnPayeeOpenBankName.Name" xml:space="preserve">
+    <value>clnPayeeOpenBankName</value>
+  </data>
+  <data name="&gt;&gt;clnPayeeOpenBankName.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnPreBackNotedPerson.Name" xml:space="preserve">
+    <value>clnPreBackNotedPerson</value>
+  </data>
+  <data name="&gt;&gt;clnPreBackNotedPerson.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnOperate.Name" xml:space="preserve">
+    <value>clnOperate</value>
+  </data>
+  <data name="&gt;&gt;clnOperate.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;clnBusinessType.Name" xml:space="preserve">
+    <value>clnBusinessType</value>
+  </data>
+  <data name="&gt;&gt;clnBusinessType.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>ElecTicketPoolItemsPanel</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>CommonClient.VisualParts.BaseUc, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+</root>

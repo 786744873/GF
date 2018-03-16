@@ -1,0 +1,1788 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <metadata name="errorProvider1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>249, 17</value>
+  </metadata>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>148, 17</value>
+  </metadata>
+  <metadata name="validatorList1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="lblAccountType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="lblAccountType.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="lblAccountType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>37, 32</value>
+  </data>
+  <data name="lblAccountType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 12</value>
+  </data>
+  <data name="lblAccountType.TabIndex" type="System.Int32, mscorlib">
+    <value>19</value>
+  </data>
+  <data name="lblAccountType.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="lblAccountType.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;lblAccountType.Name" xml:space="preserve">
+    <value>lblAccountType</value>
+  </data>
+  <data name="&gt;&gt;lblAccountType.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lblAccountType.Parent" xml:space="preserve">
+    <value>p_FC</value>
+  </data>
+  <data name="&gt;&gt;lblAccountType.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="ambiguityInputAgent1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>386, 17</value>
+  </metadata>
+  <data name="lbPayeeAccountType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbPayeeAccountType.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbPayeeAccountType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>50, 32</value>
+  </data>
+  <data name="lbPayeeAccountType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>101, 12</value>
+  </data>
+  <data name="lbPayeeAccountType.TabIndex" type="System.Int32, mscorlib">
+    <value>16</value>
+  </data>
+  <data name="lbPayeeAccountType.Text" xml:space="preserve">
+    <value>收款人账号类型：</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccountType.Name" xml:space="preserve">
+    <value>lbPayeeAccountType</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccountType.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccountType.Parent" xml:space="preserve">
+    <value>p_FC</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccountType.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="cmbPayeeAccountType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>151, 29</value>
+  </data>
+  <data name="cmbPayeeAccountType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 20</value>
+  </data>
+  <data name="cmbPayeeAccountType.TabIndex" type="System.Int32, mscorlib">
+    <value>18</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccountType.Name" xml:space="preserve">
+    <value>cmbPayeeAccountType</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccountType.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ComboBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccountType.Parent" xml:space="preserve">
+    <value>p_FC</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccountType.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="lbRemitCountry.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbRemitCountry.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbRemitCountry.Location" type="System.Drawing.Point, System.Drawing">
+    <value>50, 6</value>
+  </data>
+  <data name="lbRemitCountry.Size" type="System.Drawing.Size, System.Drawing">
+    <value>101, 12</value>
+  </data>
+  <data name="lbRemitCountry.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="lbRemitCountry.Text" xml:space="preserve">
+    <value>汇往国家或地区：</value>
+  </data>
+  <data name="&gt;&gt;lbRemitCountry.Name" xml:space="preserve">
+    <value>lbRemitCountry</value>
+  </data>
+  <data name="&gt;&gt;lbRemitCountry.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbRemitCountry.Parent" xml:space="preserve">
+    <value>p_FC</value>
+  </data>
+  <data name="&gt;&gt;lbRemitCountry.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="cmbRemitCountry.Location" type="System.Drawing.Point, System.Drawing">
+    <value>151, 3</value>
+  </data>
+  <data name="cmbRemitCountry.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 20</value>
+  </data>
+  <data name="cmbRemitCountry.TabIndex" type="System.Int32, mscorlib">
+    <value>17</value>
+  </data>
+  <data name="&gt;&gt;cmbRemitCountry.Name" xml:space="preserve">
+    <value>cmbRemitCountry</value>
+  </data>
+  <data name="&gt;&gt;cmbRemitCountry.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ComboBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbRemitCountry.Parent" xml:space="preserve">
+    <value>p_FC</value>
+  </data>
+  <data name="&gt;&gt;cmbRemitCountry.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="label6.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label6.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label6.Location" type="System.Drawing.Point, System.Drawing">
+    <value>37, 6</value>
+  </data>
+  <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 12</value>
+  </data>
+  <data name="label6.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="label6.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label6.Name" xml:space="preserve">
+    <value>label6</value>
+  </data>
+  <data name="&gt;&gt;label6.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label6.Parent" xml:space="preserve">
+    <value>p_FC</value>
+  </data>
+  <data name="&gt;&gt;label6.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="p_FC.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="p_FC.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="p_FC.Size" type="System.Drawing.Size, System.Drawing">
+    <value>485, 53</value>
+  </data>
+  <data name="p_FC.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="p_FC.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;p_FC.Name" xml:space="preserve">
+    <value>p_FC</value>
+  </data>
+  <data name="&gt;&gt;p_FC.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;p_FC.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;p_FC.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="cbNoticeType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>151, 77</value>
+  </data>
+  <data name="cbNoticeType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 20</value>
+  </data>
+  <data name="cbNoticeType.TabIndex" type="System.Int32, mscorlib">
+    <value>18</value>
+  </data>
+  <data name="&gt;&gt;cbNoticeType.Name" xml:space="preserve">
+    <value>cbNoticeType</value>
+  </data>
+  <data name="&gt;&gt;cbNoticeType.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ComboBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cbNoticeType.Parent" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;cbNoticeType.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="lbNoticeType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbNoticeType.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbNoticeType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>86, 80</value>
+  </data>
+  <data name="lbNoticeType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>65, 12</value>
+  </data>
+  <data name="lbNoticeType.TabIndex" type="System.Int32, mscorlib">
+    <value>17</value>
+  </data>
+  <data name="lbNoticeType.Text" xml:space="preserve">
+    <value>业务摘要：</value>
+  </data>
+  <data name="&gt;&gt;lbNoticeType.Name" xml:space="preserve">
+    <value>lbNoticeType</value>
+  </data>
+  <data name="&gt;&gt;lbNoticeType.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbNoticeType.Parent" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;lbNoticeType.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="label2.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>70, 80</value>
+  </data>
+  <data name="label2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 12</value>
+  </data>
+  <data name="label2.TabIndex" type="System.Int32, mscorlib">
+    <value>16</value>
+  </data>
+  <data name="label2.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label2.Name" xml:space="preserve">
+    <value>label2</value>
+  </data>
+  <data name="&gt;&gt;label2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label2.Parent" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;label2.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="cmbPayeeCertPaperType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>151, 26</value>
+  </data>
+  <data name="cmbPayeeCertPaperType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 20</value>
+  </data>
+  <data name="cmbPayeeCertPaperType.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeCertPaperType.Name" xml:space="preserve">
+    <value>cmbPayeeCertPaperType</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeCertPaperType.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ComboBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeCertPaperType.Parent" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeCertPaperType.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="cmbPayeeAccountProvince.Location" type="System.Drawing.Point, System.Drawing">
+    <value>151, 0</value>
+  </data>
+  <data name="cmbPayeeAccountProvince.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 20</value>
+  </data>
+  <data name="cmbPayeeAccountProvince.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccountProvince.Name" xml:space="preserve">
+    <value>cmbPayeeAccountProvince</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccountProvince.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ComboBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccountProvince.Parent" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccountProvince.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="lbCertiCardNo.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbCertiCardNo.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbCertiCardNo.Location" type="System.Drawing.Point, System.Drawing">
+    <value>50, 55</value>
+  </data>
+  <data name="lbCertiCardNo.Size" type="System.Drawing.Size, System.Drawing">
+    <value>101, 12</value>
+  </data>
+  <data name="lbCertiCardNo.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="lbCertiCardNo.Text" xml:space="preserve">
+    <value>收款人证件号码：</value>
+  </data>
+  <data name="&gt;&gt;lbCertiCardNo.Name" xml:space="preserve">
+    <value>lbCertiCardNo</value>
+  </data>
+  <data name="&gt;&gt;lbCertiCardNo.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbCertiCardNo.Parent" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;lbCertiCardNo.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="edtCertPaperNo.Location" type="System.Drawing.Point, System.Drawing">
+    <value>151, 52</value>
+  </data>
+  <data name="edtCertPaperNo.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="edtCertPaperNo.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="&gt;&gt;edtCertPaperNo.Name" xml:space="preserve">
+    <value>edtCertPaperNo</value>
+  </data>
+  <data name="&gt;&gt;edtCertPaperNo.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;edtCertPaperNo.Parent" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;edtCertPaperNo.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="lbCertiCardType.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbCertiCardType.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbCertiCardType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>50, 29</value>
+  </data>
+  <data name="lbCertiCardType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>101, 12</value>
+  </data>
+  <data name="lbCertiCardType.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="lbCertiCardType.Text" xml:space="preserve">
+    <value>收款人证件类型：</value>
+  </data>
+  <data name="&gt;&gt;lbCertiCardType.Name" xml:space="preserve">
+    <value>lbCertiCardType</value>
+  </data>
+  <data name="&gt;&gt;lbCertiCardType.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbCertiCardType.Parent" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;lbCertiCardType.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="lbProvince.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbProvince.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbProvince.Location" type="System.Drawing.Point, System.Drawing">
+    <value>38, 3</value>
+  </data>
+  <data name="lbProvince.Size" type="System.Drawing.Size, System.Drawing">
+    <value>113, 12</value>
+  </data>
+  <data name="lbProvince.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="lbProvince.Text" xml:space="preserve">
+    <value>收款账号所属省份：</value>
+  </data>
+  <data name="&gt;&gt;lbProvince.Name" xml:space="preserve">
+    <value>lbProvince</value>
+  </data>
+  <data name="&gt;&gt;lbProvince.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbProvince.Parent" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;lbProvince.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="lblProvince.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lblProvince.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lblProvince.Location" type="System.Drawing.Point, System.Drawing">
+    <value>30, 3</value>
+  </data>
+  <data name="lblProvince.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 12</value>
+  </data>
+  <data name="lblProvince.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="lblProvince.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;lblProvince.Name" xml:space="preserve">
+    <value>lblProvince</value>
+  </data>
+  <data name="&gt;&gt;lblProvince.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lblProvince.Parent" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;lblProvince.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="p_ForeignMoneyBar.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="p_ForeignMoneyBar.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 381</value>
+  </data>
+  <data name="p_ForeignMoneyBar.Size" type="System.Drawing.Size, System.Drawing">
+    <value>485, 100</value>
+  </data>
+  <data name="p_ForeignMoneyBar.TabIndex" type="System.Int32, mscorlib">
+    <value>26</value>
+  </data>
+  <data name="p_ForeignMoneyBar.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;p_ForeignMoneyBar.Name" xml:space="preserve">
+    <value>p_ForeignMoneyBar</value>
+  </data>
+  <data name="&gt;&gt;p_ForeignMoneyBar.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;p_ForeignMoneyBar.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;p_ForeignMoneyBar.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="lbCSwiftCode.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbCSwiftCode.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbCSwiftCode.Location" type="System.Drawing.Point, System.Drawing">
+    <value>66, 7</value>
+  </data>
+  <data name="lbCSwiftCode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>77, 12</value>
+  </data>
+  <data name="lbCSwiftCode.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="lbCSwiftCode.Text" xml:space="preserve">
+    <value>SWIFT Code：</value>
+  </data>
+  <data name="&gt;&gt;lbCSwiftCode.Name" xml:space="preserve">
+    <value>lbCSwiftCode</value>
+  </data>
+  <data name="&gt;&gt;lbCSwiftCode.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbCSwiftCode.Parent" xml:space="preserve">
+    <value>p_swiftc</value>
+  </data>
+  <data name="&gt;&gt;lbCSwiftCode.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="tbCSwiftCode.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 3</value>
+  </data>
+  <data name="tbCSwiftCode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbCSwiftCode.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="&gt;&gt;tbCSwiftCode.Name" xml:space="preserve">
+    <value>tbCSwiftCode</value>
+  </data>
+  <data name="&gt;&gt;tbCSwiftCode.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbCSwiftCode.Parent" xml:space="preserve">
+    <value>p_swiftc</value>
+  </data>
+  <data name="&gt;&gt;tbCSwiftCode.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="p_swiftc.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 110</value>
+  </data>
+  <data name="p_swiftc.Size" type="System.Drawing.Size, System.Drawing">
+    <value>485, 26</value>
+  </data>
+  <data name="p_swiftc.TabIndex" type="System.Int32, mscorlib">
+    <value>16</value>
+  </data>
+  <data name="&gt;&gt;p_swiftc.Name" xml:space="preserve">
+    <value>p_swiftc</value>
+  </data>
+  <data name="&gt;&gt;p_swiftc.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;p_swiftc.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;p_swiftc.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="lbPayeeOpenBankAddress.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbPayeeOpenBankAddress.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbPayeeOpenBankAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>37, 6</value>
+  </data>
+  <data name="lbPayeeOpenBankAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>113, 12</value>
+  </data>
+  <data name="lbPayeeOpenBankAddress.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="lbPayeeOpenBankAddress.Text" xml:space="preserve">
+    <value>收款人开户行地址：</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeOpenBankAddress.Name" xml:space="preserve">
+    <value>lbPayeeOpenBankAddress</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeOpenBankAddress.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeOpenBankAddress.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeOpenBankAddress.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="tbPayeeOpenBankAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 2</value>
+  </data>
+  <data name="tbPayeeOpenBankAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbPayeeOpenBankAddress.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeOpenBankAddress.Name" xml:space="preserve">
+    <value>tbPayeeOpenBankAddress</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeOpenBankAddress.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeOpenBankAddress.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeOpenBankAddress.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="btnQueryCorrespondentBank.Image" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="btnQueryCorrespondentBank.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="btnQueryCorrespondentBank.Location" type="System.Drawing.Point, System.Drawing">
+    <value>350, 56</value>
+  </data>
+  <data name="btnQueryCorrespondentBank.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 23</value>
+  </data>
+  <data name="btnQueryCorrespondentBank.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="btnQueryCorrespondentBank.Text" xml:space="preserve">
+    <value>查询</value>
+  </data>
+  <data name="&gt;&gt;btnQueryCorrespondentBank.Name" xml:space="preserve">
+    <value>btnQueryCorrespondentBank</value>
+  </data>
+  <data name="&gt;&gt;btnQueryCorrespondentBank.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ThemedButton, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;btnQueryCorrespondentBank.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;btnQueryCorrespondentBank.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="lbPayeeAccountInCorrespondentBank.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbPayeeAccountInCorrespondentBank.Location" type="System.Drawing.Point, System.Drawing">
+    <value>50, 25</value>
+  </data>
+  <data name="lbPayeeAccountInCorrespondentBank.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 28</value>
+  </data>
+  <data name="lbPayeeAccountInCorrespondentBank.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="lbPayeeAccountInCorrespondentBank.Text" xml:space="preserve">
+    <value>收款人开户行在其代理行账号：</value>
+  </data>
+  <data name="lbPayeeAccountInCorrespondentBank.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>TopCenter</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccountInCorrespondentBank.Name" xml:space="preserve">
+    <value>lbPayeeAccountInCorrespondentBank</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccountInCorrespondentBank.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccountInCorrespondentBank.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccountInCorrespondentBank.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="tbPayeeAccountInCorrespondentBank.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 29</value>
+  </data>
+  <data name="tbPayeeAccountInCorrespondentBank.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbPayeeAccountInCorrespondentBank.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeAccountInCorrespondentBank.Name" xml:space="preserve">
+    <value>tbPayeeAccountInCorrespondentBank</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeAccountInCorrespondentBank.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeAccountInCorrespondentBank.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeAccountInCorrespondentBank.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="lbCorrespondentBankName.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbCorrespondentBankName.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbCorrespondentBankName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 61</value>
+  </data>
+  <data name="lbCorrespondentBankName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>137, 12</value>
+  </data>
+  <data name="lbCorrespondentBankName.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="lbCorrespondentBankName.Text" xml:space="preserve">
+    <value>收款银行之代理行名称：</value>
+  </data>
+  <data name="&gt;&gt;lbCorrespondentBankName.Name" xml:space="preserve">
+    <value>lbCorrespondentBankName</value>
+  </data>
+  <data name="&gt;&gt;lbCorrespondentBankName.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbCorrespondentBankName.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;lbCorrespondentBankName.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="tbCorrespondentBankName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 57</value>
+  </data>
+  <data name="tbCorrespondentBankName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbCorrespondentBankName.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="&gt;&gt;tbCorrespondentBankName.Name" xml:space="preserve">
+    <value>tbCorrespondentBankName</value>
+  </data>
+  <data name="&gt;&gt;tbCorrespondentBankName.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbCorrespondentBankName.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;tbCorrespondentBankName.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="lbCorrespondentBankAddress.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbCorrespondentBankAddress.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbCorrespondentBankAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 89</value>
+  </data>
+  <data name="lbCorrespondentBankAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>137, 12</value>
+  </data>
+  <data name="lbCorrespondentBankAddress.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="lbCorrespondentBankAddress.Text" xml:space="preserve">
+    <value>收款银行之代理行地址：</value>
+  </data>
+  <data name="&gt;&gt;lbCorrespondentBankAddress.Name" xml:space="preserve">
+    <value>lbCorrespondentBankAddress</value>
+  </data>
+  <data name="&gt;&gt;lbCorrespondentBankAddress.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbCorrespondentBankAddress.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;lbCorrespondentBankAddress.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="lblOpenBankAddress.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lblOpenBankAddress.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lblOpenBankAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>25, 6</value>
+  </data>
+  <data name="lblOpenBankAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 12</value>
+  </data>
+  <data name="lblOpenBankAddress.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="lblOpenBankAddress.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;lblOpenBankAddress.Name" xml:space="preserve">
+    <value>lblOpenBankAddress</value>
+  </data>
+  <data name="&gt;&gt;lblOpenBankAddress.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lblOpenBankAddress.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;lblOpenBankAddress.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="tbCorrespondentBankAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 85</value>
+  </data>
+  <data name="tbCorrespondentBankAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbCorrespondentBankAddress.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="&gt;&gt;tbCorrespondentBankAddress.Name" xml:space="preserve">
+    <value>tbCorrespondentBankAddress</value>
+  </data>
+  <data name="&gt;&gt;tbCorrespondentBankAddress.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbCorrespondentBankAddress.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;tbCorrespondentBankAddress.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="panel3.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="panel3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 241</value>
+  </data>
+  <data name="panel3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>485, 140</value>
+  </data>
+  <data name="panel3.TabIndex" type="System.Int32, mscorlib">
+    <value>25</value>
+  </data>
+  <data name="&gt;&gt;panel3.Name" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;panel3.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;panel3.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;panel3.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="lbFSwiftCode.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbFSwiftCode.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbFSwiftCode.Location" type="System.Drawing.Point, System.Drawing">
+    <value>66, 5</value>
+  </data>
+  <data name="lbFSwiftCode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>77, 12</value>
+  </data>
+  <data name="lbFSwiftCode.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="lbFSwiftCode.Text" xml:space="preserve">
+    <value>SWIFT Code：</value>
+  </data>
+  <data name="&gt;&gt;lbFSwiftCode.Name" xml:space="preserve">
+    <value>lbFSwiftCode</value>
+  </data>
+  <data name="&gt;&gt;lbFSwiftCode.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbFSwiftCode.Parent" xml:space="preserve">
+    <value>p_BankCode</value>
+  </data>
+  <data name="&gt;&gt;lbFSwiftCode.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="tbOSwiftCode.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 1</value>
+  </data>
+  <data name="tbOSwiftCode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbOSwiftCode.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;tbOSwiftCode.Name" xml:space="preserve">
+    <value>tbOSwiftCode</value>
+  </data>
+  <data name="&gt;&gt;tbOSwiftCode.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbOSwiftCode.Parent" xml:space="preserve">
+    <value>p_BankCode</value>
+  </data>
+  <data name="&gt;&gt;tbOSwiftCode.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="p_BankCode.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="p_BankCode.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 215</value>
+  </data>
+  <data name="p_BankCode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>485, 26</value>
+  </data>
+  <data name="p_BankCode.TabIndex" type="System.Int32, mscorlib">
+    <value>24</value>
+  </data>
+  <data name="&gt;&gt;p_BankCode.Name" xml:space="preserve">
+    <value>p_BankCode</value>
+  </data>
+  <data name="&gt;&gt;p_BankCode.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;p_BankCode.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;p_BankCode.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="tbFPayeeOpenBankName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 2</value>
+  </data>
+  <data name="tbFPayeeOpenBankName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbFPayeeOpenBankName.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;tbFPayeeOpenBankName.Name" xml:space="preserve">
+    <value>tbFPayeeOpenBankName</value>
+  </data>
+  <data name="&gt;&gt;tbFPayeeOpenBankName.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbFPayeeOpenBankName.Parent" xml:space="preserve">
+    <value>p_OtherBank</value>
+  </data>
+  <data name="&gt;&gt;tbFPayeeOpenBankName.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="btnFPayeeOpenBankName.Image" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="btnFPayeeOpenBankName.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="btnFPayeeOpenBankName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>350, 1</value>
+  </data>
+  <data name="btnFPayeeOpenBankName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 23</value>
+  </data>
+  <data name="btnFPayeeOpenBankName.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="btnFPayeeOpenBankName.Text" xml:space="preserve">
+    <value>查询</value>
+  </data>
+  <data name="&gt;&gt;btnFPayeeOpenBankName.Name" xml:space="preserve">
+    <value>btnFPayeeOpenBankName</value>
+  </data>
+  <data name="&gt;&gt;btnFPayeeOpenBankName.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ThemedButton, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;btnFPayeeOpenBankName.Parent" xml:space="preserve">
+    <value>p_OtherBank</value>
+  </data>
+  <data name="&gt;&gt;btnFPayeeOpenBankName.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="p_OtherBank.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="p_OtherBank.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 189</value>
+  </data>
+  <data name="p_OtherBank.Size" type="System.Drawing.Size, System.Drawing">
+    <value>485, 26</value>
+  </data>
+  <data name="p_OtherBank.TabIndex" type="System.Int32, mscorlib">
+    <value>23</value>
+  </data>
+  <data name="&gt;&gt;p_OtherBank.Name" xml:space="preserve">
+    <value>p_OtherBank</value>
+  </data>
+  <data name="&gt;&gt;p_OtherBank.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;p_OtherBank.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;p_OtherBank.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="lbPayeeAccount.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbPayeeAccount.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbPayeeAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>73, 7</value>
+  </data>
+  <data name="lbPayeeAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>77, 12</value>
+  </data>
+  <data name="lbPayeeAccount.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="lbPayeeAccount.Text" xml:space="preserve">
+    <value>收款人账号：</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccount.Name" xml:space="preserve">
+    <value>lbPayeeAccount</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccount.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccount.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAccount.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="cmbPayeeAccount.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 3</value>
+  </data>
+  <data name="cmbPayeeAccount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 20</value>
+  </data>
+  <data name="cmbPayeeAccount.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccount.Name" xml:space="preserve">
+    <value>cmbPayeeAccount</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccount.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ComboBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccount.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;cmbPayeeAccount.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="lbPayeeOpenBankName.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbPayeeOpenBankName.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbPayeeOpenBankName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>37, 114</value>
+  </data>
+  <data name="lbPayeeOpenBankName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>113, 12</value>
+  </data>
+  <data name="lbPayeeOpenBankName.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="lbPayeeOpenBankName.Text" xml:space="preserve">
+    <value>收款人开户行名称：</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeOpenBankName.Name" xml:space="preserve">
+    <value>lbPayeeOpenBankName</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeOpenBankName.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeOpenBankName.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeOpenBankName.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="tbPayeeOpenBankName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1, 1</value>
+  </data>
+  <data name="tbPayeeOpenBankName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbPayeeOpenBankName.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeOpenBankName.Name" xml:space="preserve">
+    <value>tbPayeeOpenBankName</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeOpenBankName.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeOpenBankName.Parent" xml:space="preserve">
+    <value>p_OverCountry</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeOpenBankName.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="btnQueryOpenBank.Image" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="btnQueryOpenBank.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="btnQueryOpenBank.Location" type="System.Drawing.Point, System.Drawing">
+    <value>201, 0</value>
+  </data>
+  <data name="btnQueryOpenBank.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 23</value>
+  </data>
+  <data name="btnQueryOpenBank.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="btnQueryOpenBank.Text" xml:space="preserve">
+    <value>查询</value>
+  </data>
+  <data name="&gt;&gt;btnQueryOpenBank.Name" xml:space="preserve">
+    <value>btnQueryOpenBank</value>
+  </data>
+  <data name="&gt;&gt;btnQueryOpenBank.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ThemedButton, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;btnQueryOpenBank.Parent" xml:space="preserve">
+    <value>p_OverCountry</value>
+  </data>
+  <data name="&gt;&gt;btnQueryOpenBank.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="p_OverCountry.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 109</value>
+  </data>
+  <data name="p_OverCountry.Size" type="System.Drawing.Size, System.Drawing">
+    <value>300, 23</value>
+  </data>
+  <data name="p_OverCountry.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;p_OverCountry.Name" xml:space="preserve">
+    <value>p_OverCountry</value>
+  </data>
+  <data name="&gt;&gt;p_OverCountry.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;p_OverCountry.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;p_OverCountry.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="rbOther.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rbOther.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="rbOther.Location" type="System.Drawing.Point, System.Drawing">
+    <value>126, 4</value>
+  </data>
+  <data name="rbOther.Size" type="System.Drawing.Size, System.Drawing">
+    <value>71, 16</value>
+  </data>
+  <data name="rbOther.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="rbOther.Text" xml:space="preserve">
+    <value>其他银行</value>
+  </data>
+  <data name="&gt;&gt;rbOther.Name" xml:space="preserve">
+    <value>rbOther</value>
+  </data>
+  <data name="&gt;&gt;rbOther.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rbOther.Parent" xml:space="preserve">
+    <value>p_ForeignMoney</value>
+  </data>
+  <data name="&gt;&gt;rbOther.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="rbBOC.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rbBOC.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="rbBOC.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 4</value>
+  </data>
+  <data name="rbBOC.Size" type="System.Drawing.Size, System.Drawing">
+    <value>71, 16</value>
+  </data>
+  <data name="rbBOC.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="rbBOC.Text" xml:space="preserve">
+    <value>中国银行</value>
+  </data>
+  <data name="&gt;&gt;rbBOC.Name" xml:space="preserve">
+    <value>rbBOC</value>
+  </data>
+  <data name="&gt;&gt;rbBOC.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rbBOC.Parent" xml:space="preserve">
+    <value>p_ForeignMoney</value>
+  </data>
+  <data name="&gt;&gt;rbBOC.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="p_ForeignMoney.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 109</value>
+  </data>
+  <data name="p_ForeignMoney.Size" type="System.Drawing.Size, System.Drawing">
+    <value>300, 23</value>
+  </data>
+  <data name="p_ForeignMoney.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;p_ForeignMoney.Name" xml:space="preserve">
+    <value>p_ForeignMoney</value>
+  </data>
+  <data name="&gt;&gt;p_ForeignMoney.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;p_ForeignMoney.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;p_ForeignMoney.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="btnQueryPayee.Image" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="btnQueryPayee.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="btnQueryPayee.Location" type="System.Drawing.Point, System.Drawing">
+    <value>350, 2</value>
+  </data>
+  <data name="btnQueryPayee.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 23</value>
+  </data>
+  <data name="btnQueryPayee.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="btnQueryPayee.Text" xml:space="preserve">
+    <value>查询</value>
+  </data>
+  <data name="&gt;&gt;btnQueryPayee.Name" xml:space="preserve">
+    <value>btnQueryPayee</value>
+  </data>
+  <data name="&gt;&gt;btnQueryPayee.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ThemedButton, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;btnQueryPayee.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;btnQueryPayee.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="lbCountry.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbCountry.Location" type="System.Drawing.Point, System.Drawing">
+    <value>40, 82</value>
+  </data>
+  <data name="lbCountry.Size" type="System.Drawing.Size, System.Drawing">
+    <value>110, 26</value>
+  </data>
+  <data name="lbCountry.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="lbCountry.Text" xml:space="preserve">
+    <value>收款人常驻国家(地区)名称及代码：</value>
+  </data>
+  <data name="lbCountry.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>TopCenter</value>
+  </data>
+  <data name="&gt;&gt;lbCountry.Name" xml:space="preserve">
+    <value>lbCountry</value>
+  </data>
+  <data name="&gt;&gt;lbCountry.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbCountry.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;lbCountry.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="tbCountry.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 83</value>
+  </data>
+  <data name="tbCountry.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbCountry.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;tbCountry.Name" xml:space="preserve">
+    <value>tbCountry</value>
+  </data>
+  <data name="&gt;&gt;tbCountry.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbCountry.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;tbCountry.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="btnQueryCountry.Image" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="btnQueryCountry.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="btnQueryCountry.Location" type="System.Drawing.Point, System.Drawing">
+    <value>350, 82</value>
+  </data>
+  <data name="btnQueryCountry.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 23</value>
+  </data>
+  <data name="btnQueryCountry.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="btnQueryCountry.Text" xml:space="preserve">
+    <value>查询</value>
+  </data>
+  <data name="&gt;&gt;btnQueryCountry.Name" xml:space="preserve">
+    <value>btnQueryCountry</value>
+  </data>
+  <data name="&gt;&gt;btnQueryCountry.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ThemedButton, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;btnQueryCountry.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;btnQueryCountry.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="lbPayeeAddress.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbPayeeAddress.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbPayeeAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>73, 60</value>
+  </data>
+  <data name="lbPayeeAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>77, 12</value>
+  </data>
+  <data name="lbPayeeAddress.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="lbPayeeAddress.Text" xml:space="preserve">
+    <value>收款人地址：</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAddress.Name" xml:space="preserve">
+    <value>lbPayeeAddress</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAddress.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAddress.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeAddress.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="tbPayeeAddress.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 56</value>
+  </data>
+  <data name="tbPayeeAddress.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbPayeeAddress.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeAddress.Name" xml:space="preserve">
+    <value>tbPayeeAddress</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeAddress.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeAddress.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeAddress.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="chbSave.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="chbSave.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="chbSave.Location" type="System.Drawing.Point, System.Drawing">
+    <value>395, 6</value>
+  </data>
+  <data name="chbSave.Size" type="System.Drawing.Size, System.Drawing">
+    <value>84, 16</value>
+  </data>
+  <data name="chbSave.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="chbSave.Text" xml:space="preserve">
+    <value>保存为常用</value>
+  </data>
+  <data name="chbSave.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;chbSave.Name" xml:space="preserve">
+    <value>chbSave</value>
+  </data>
+  <data name="&gt;&gt;chbSave.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;chbSave.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;chbSave.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="label9.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label9.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label9.Location" type="System.Drawing.Point, System.Drawing">
+    <value>26, 114</value>
+  </data>
+  <data name="label9.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 12</value>
+  </data>
+  <data name="label9.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="label9.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label9.Name" xml:space="preserve">
+    <value>label9</value>
+  </data>
+  <data name="&gt;&gt;label9.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label9.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;label9.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="lbPayeeName.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="lbPayeeName.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lbPayeeName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>73, 33</value>
+  </data>
+  <data name="lbPayeeName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>77, 12</value>
+  </data>
+  <data name="lbPayeeName.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="lbPayeeName.Text" xml:space="preserve">
+    <value>收款人名称：</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeName.Name" xml:space="preserve">
+    <value>lbPayeeName</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeName.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeName.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;lbPayeeName.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="label5.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label5.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>62, 33</value>
+  </data>
+  <data name="label5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 12</value>
+  </data>
+  <data name="label5.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="label5.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label5.Name" xml:space="preserve">
+    <value>label5</value>
+  </data>
+  <data name="&gt;&gt;label5.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label5.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;label5.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="tbPayeeName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>150, 29</value>
+  </data>
+  <data name="tbPayeeName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 21</value>
+  </data>
+  <data name="tbPayeeName.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeName.Name" xml:space="preserve">
+    <value>tbPayeeName</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeName.Type" xml:space="preserve">
+    <value>CommonClient.Controls.TextBoxCanValidate, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeName.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;tbPayeeName.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="label7.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label7.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label7.Location" type="System.Drawing.Point, System.Drawing">
+    <value>30, 87</value>
+  </data>
+  <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 12</value>
+  </data>
+  <data name="label7.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="label7.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label7.Name" xml:space="preserve">
+    <value>label7</value>
+  </data>
+  <data name="&gt;&gt;label7.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label7.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;label7.ZOrder" xml:space="preserve">
+    <value>15</value>
+  </data>
+  <data name="label4.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label4.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>62, 7</value>
+  </data>
+  <data name="label4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>11, 12</value>
+  </data>
+  <data name="label4.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="label4.Text" xml:space="preserve">
+    <value>*</value>
+  </data>
+  <data name="&gt;&gt;label4.Name" xml:space="preserve">
+    <value>label4</value>
+  </data>
+  <data name="&gt;&gt;label4.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label4.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;label4.ZOrder" xml:space="preserve">
+    <value>17</value>
+  </data>
+  <data name="panel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="panel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 53</value>
+  </data>
+  <data name="panel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>485, 136</value>
+  </data>
+  <data name="panel2.TabIndex" type="System.Int32, mscorlib">
+    <value>22</value>
+  </data>
+  <data name="&gt;&gt;panel2.Name" xml:space="preserve">
+    <value>panel2</value>
+  </data>
+  <data name="&gt;&gt;panel2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;panel2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;panel2.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>485, 485</value>
+  </data>
+  <data name="&gt;&gt;errorProvider1.Name" xml:space="preserve">
+    <value>errorProvider1</value>
+  </data>
+  <data name="&gt;&gt;errorProvider1.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ErrorProviderExt, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;toolTip1.Name" xml:space="preserve">
+    <value>toolTip1</value>
+  </data>
+  <data name="&gt;&gt;toolTip1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolTip, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;validatorList1.Name" xml:space="preserve">
+    <value>validatorList1</value>
+  </data>
+  <data name="&gt;&gt;validatorList1.Type" xml:space="preserve">
+    <value>CommonClient.Controls.ValidatorList, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;ambiguityInputAgent1.Name" xml:space="preserve">
+    <value>ambiguityInputAgent1</value>
+  </data>
+  <data name="&gt;&gt;ambiguityInputAgent1.Type" xml:space="preserve">
+    <value>CommonClient.Controls.AmbiguityInputAgent, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>TransferGlobalPayeeSelector</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>CommonClient.VisualParts.BaseUc, CommonClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+</root>

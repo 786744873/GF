@@ -1,0 +1,8 @@
+C:\代码\企业\BOC_UNIT_TEST\obj\x86\Debug\BOC_UNIT_TEST.csprojResolveAssemblyReference.cache
+C:\代码\企业\BOC_UNIT_TEST\obj\x86\Debug\BOC_UNIT_TEST.csproj.GenerateResource.Cache
+C:\代码\企业\BOC_UNIT_TEST\obj\x86\Debug\BOC_UNIT_TEST.Main.resources
+C:\代码\企业\BOC_UNIT_TEST\obj\x86\Debug\BOC_UNIT_TEST.Properties.Resources.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_UNIT_TEST\obj\x86\Debug\BOC_UNIT_TEST.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_UNIT_TEST\obj\x86\Debug\BOC_UNIT_TEST.Main.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_UNIT_TEST\obj\x86\Debug\BOC_UNIT_TEST.Properties.Resources.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_UNIT_TEST\obj\x86\Debug\BOC_UNIT_TEST.csproj.GenerateResource.Cache

@@ -1,0 +1,16 @@
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_AGENTNORMALOUT.dll
+C:\代码\企业\Debug\Plugins\BOC_BATCH_TOOL_AGENTNORMALOUT.pdb
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.MainView.resources
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.Properties.Resources.resources
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.csproj.GenerateResource.Cache
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.dll
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.pdb
+C:\代码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_AGENTNORMALOUT.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\Debug\Plugins\BOC_BATCH_TOOL_AGENTNORMALOUT.pdb
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.csprojResolveAssemblyReference.cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.MainView.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.Properties.Resources.resources
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.csproj.GenerateResource.Cache
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.dll
+D:\BaiduYunDownload\中行网银批量工具源码\企业\BOC_BATCH_TOOL_AGENTNORMALOUT\obj\x86\Debug\BOC_BATCH_TOOL_AGENTNORMALOUT.pdb

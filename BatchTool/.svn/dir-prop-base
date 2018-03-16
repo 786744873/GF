@@ -1,0 +1,9 @@
+K 10
+svn:ignore
+V 59
+BOC_BATCH_TOOL.suo
+Debug
+Release
+_ReSharper.BOC_BATCH_TOOL
+
+END
